@@ -1,0 +1,12 @@
+<%- include('../partials/header.ejs', {pageTitle: 'Login'}); %>
+
+<link rel="stylesheet" href="/public/css/style.css">
+<link rel="stylesheet" href="/public/css/login.css">
+
+<h1>Choose login type below</h1>
+
+<a href="/user/formbar"><button class="loginButton">Formbar OAuth</button></a>
+
+<a href="/user/WFMlogin"><button class="loginButton">Works For Me</button></a>
+
+<%- include('../partials/footer.ejs') %>

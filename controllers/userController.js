@@ -3,7 +3,7 @@ const urlHelper = require('../util/urlHelper.js');
 
 const userService = require('../services/userService.js');
 
-async function login(req, res, next) {
+async function formbar(req, res, next) {
 
     const path = req.get('Referer');
     const host = req.get('Host');
@@ -16,7 +16,7 @@ async function login(req, res, next) {
 
         //for formbar
         let formbarAuthURL = process.env.FB_AUTH_URL;
-        const redirectURL = `${protocol}://${host}/user/login`;
+        const redirectURL = `${protocol}://${host}/user/formbar`;
         formbarAuthURL = urlHelper.addQueryParams(formbarAuthURL, {redirectURL});
 
         return res.redirect(formbarAuthURL);
@@ -57,6 +57,6 @@ function logout(req, res){
 }
 
 module.exports = {
-    login,
+    formbar,
     logout
 }
