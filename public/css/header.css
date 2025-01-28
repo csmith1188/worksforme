@@ -1,0 +1,43 @@
+:root {
+    --header-color: #3f5e3a;
+}
+
+.header {
+    height: 50px;
+    background-color: var(--header-color);
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content:end;
+}
+
+.headerButton {
+    background-color: #ffffff;
+    margin: 10px;
+}
+
+.headerButton:hover {
+    background-color: #ddd;
+}
+
+#logo {
+    width: 200px;
+    display: block;
+    position: absolute;
+    left: 0px;
+    user-select: none;
+}
+
+#logo:hover {
+    cursor: pointer;
+}
+
+#logoLink {
+    text-decoration: none;
+}
+
+#coinCount {
+    margin-right: 25px;
+}

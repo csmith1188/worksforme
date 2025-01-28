@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRIMLINGS - <%- pageTitle %></title>
+    <link rel="stylesheet" href="/public/css/style.css">
+    <link rel="stylesheet" href="/public/css/header.css">
+</head>
+
+<body>
+    <div class="header">
+
+        <h1 id="logo" onclick="window.location.href = '/'">Works For Me</h1>
+        <% if(isLoggedIn) { %>          
+            <a href="/event/calender"><button class="headerButton">calender</button></a>
+            <a href="/user/logout"><button class="headerButton">Logout</button></a>
+        <% } else { %>
+            <a href="/user/login"><button class="headerButton">Login</button></a>
+        <% } %>
+
+    </div>
