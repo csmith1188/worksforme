@@ -1,8 +1,10 @@
 const jwt = require('jsonwebtoken');
 const urlHelper = require('../util/urlHelper.js');
+const crypto = require('crypto');
 
 const userService = require('../services/userService.js');
 
+//Formbar login system
 async function formbar(req, res, next) {
 
     const path = req.get('Referer');
@@ -47,6 +49,39 @@ async function formbar(req, res, next) {
 
 }
 
+//WFM login system
+async function wmLogin(req, res, next) {
+    res.render('pages/loginSystem/WFMlogin', {title: 'WFM Login', rules: '/rules/loginRules'});
+}
+
+async function postwmLogin(req, res, next) {  
+    const username = req.body.username;
+    const password = req.body.password;
+
+    try {
+        const user = await userService.getUserByFormbarID(username);
+
+        if (!user) {
+            return res.render('pages/loginSystem/WFMlogin', {title: 'WFM Login', rules: '/rules/loginRules', error: 'Invalid username or password'});
+        }
+
+        const hash = crypto.createHash('sha256');
+        hash.update(password + user.salt);
+        const hashedPassword = hash.digest('hex');
+
+        if (hashedPassword !== user.password) {
+            return res.render('pages/loginSystem/WFMlogin', {title: 'WFM Login', rules: '/rules/loginRules', error: 'Invalid username or password'});
+        }
+
+        req.session.user = user;
+        return next();
+
+    } catch (error) {
+        res.render('error', {error: new Error('Error logging in')});
+    }
+}
+
+//Get rid of all session data
 function logout(req, res){
     req.session.destroy((err) => {
         if (err) {
@@ -58,5 +93,7 @@ function logout(req, res){
 
 module.exports = {
     formbar,
-    logout
+    logout,
+    wmLogin,
+    postwmLogin
 }
