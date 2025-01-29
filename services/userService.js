@@ -17,8 +17,14 @@ async function getUserByFormbarID(fbID){
     return user ?? null;
 }
 
+async function getEventDetails() {
+    let events = await db.all('SELECT name, description FROM events;');
+    return events;
+}
+
 module.exports = {
     registerUser,
     getUserByUID,
-    getUserByFormbarID
+    getUserByFormbarID,
+    getEventDetails
 }

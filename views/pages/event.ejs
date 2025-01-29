@@ -9,10 +9,13 @@
                 <h1>Events</h1>
                 <!--button to make an event-->
                 <button id="createEvent">Create Event</button>
-
             </center>
 
         </div>
     </div>
-
+    <script>
+        document.getElementById('createEvent').addEventListener('click', function () {
+            window.location.href = '/createEvent';
+        });
+    </script>
     <%- include('../partials/footer.ejs') %>
