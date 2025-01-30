@@ -1,9 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const redirectWhenDone = require('../middleware/redirect');
-
 const auth = require('../middleware/auth');
-
 const userController = require('../controllers/userController');
 
 router.get('/login', (req, res) => {
@@ -11,13 +9,14 @@ router.get('/login', (req, res) => {
 });
 
 router.get('/WFMlogin', userController.wmLogin);
-router.post('/WFMlogin', userController.postwmLogin, redirectWhenDone);
+router.post('/WFMlogin', userController.postwmLogin);
 
 router.get('/register', userController.registerNewUser);
 router.post('/register', userController.postRegisterNewUser);
 
-router.get('/formbar', userController.formbar, redirectWhenDone);
+router.post('/userExists', userController.userExists);
 
+router.get('/formbar', userController.formbar, redirectWhenDone);
 router.get('/logout', userController.logout, auth, redirectWhenDone);
 
 module.exports = router;
