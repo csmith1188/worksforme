@@ -20,9 +20,10 @@ app.use(session({
     cookie: {secure: false}
 }));
 
+app.use(localsMiddleware);
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-app.use(localsMiddleware);
 
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
