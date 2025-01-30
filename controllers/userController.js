@@ -69,20 +69,20 @@ async function postwmLogin(req, res, next) {
         const user = await getUserByUsername(username);
 
         if (!user) {
-            return res.status(401).send('<script>alert("Invalid username or password"); window.location.href="/user/WFMlogin";</script>');
+            return res.status(401).send('Invalid username or password');s
         }
 
         const hashedPassword = crypto.pbkdf2Sync(password, user.salt, 1000, 64, 'sha512').toString('hex');
 
         if (user.password !== hashedPassword) {
-            return res.status(401).send('<script>alert("Invalid username or password"); window.location.href="/user/WFMlogin";</script>');
+            return res.status(401).send('Invalid username or password');
         }
 
         req.session.user = user;
         res.redirect('/');
     }
     catch (error) {
-        res.status(500).send('<script>alert("Error logging in try again later"); window.location.href="/user/WFMlogin";</script>');
+        res.status(500).send('Error logging in');
     }
 }
 
@@ -98,7 +98,7 @@ async function postRegisterNewUser(req, res, next) {
         const existingUser = await getUserByUsername(username);
 
         if (existingUser) {
-            return res.status(400).send('<script>alert("Username already taken please use another"); window.location.href="/user/register";</script>');
+            return res.status(400).send('username taken')
         }
 
         const salt = crypto.randomBytes(16).toString('hex');
@@ -108,8 +108,13 @@ async function postRegisterNewUser(req, res, next) {
 
         res.redirect('/user/WFMlogin');
     } catch (error) {
-        res.status(500).send('<script>alert("Error registering user try again later"); window.location.href="/user/register";</script>');
+        res.status(500).send('Error registering user');
     }
+}
+
+async function userExists(username) {
+    const user = await getUserByUsername(username);
+    return !!user;
 }
 
 //Get rid of all session data
@@ -128,5 +133,6 @@ module.exports = {
     wmLogin,
     postwmLogin,
     registerNewUser,
-    postRegisterNewUser
+    postRegisterNewUser,
+    userExists
 }

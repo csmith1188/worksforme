@@ -8,7 +8,7 @@
             <center>
                 <div class="login-container">
                     <h2>Make an account</h2>
-                    <form action="/user/register" method="POST">
+                    <form action="/user/register" method="POST" onsubmit="return validateLogin()">
                         <div class="form-group">
                             <label for="username">Username:</label>
                             <input type="text" id="username" name="username" required
@@ -30,6 +30,9 @@
                         </div>
                         <button type="submit">Login</button>
                     </form>
+                    <div id="response" style="color: red;"></div>
+                    <!-- Gets file to comunicate with server -->
+                    <script src="../../../public/clientJS/loginError.js"></script>
                 </div>
             </center>
         </div>
