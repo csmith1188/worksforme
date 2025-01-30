@@ -1,23 +1,45 @@
-function validateForm(event) {
+document.addEventListener("DOMContentLoaded", () => {
+    const loginForm = document.querySelector("#login-form");
+    const registerForm = document.querySelector("#register-form");
+    const errorMessage = document.querySelector("#error-message");
 
-    fetch('/user/userExists', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json', //Tell the server we're sending JSON data    
-        },
-        body: JSON.stringify({ username: username }),
-        //Send username to check if user exists  
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.exists) {
-                //User exists, show an error message      
-                document.getElementById('error-message').innerHTML = 'This username is already taken. Please choose another one.';
-                return false;
+    if (loginForm) {
+        loginForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(loginForm);
+            const response = await fetch("/user/WFMlogin", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(Object.fromEntries(formData)),
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                window.location.href = data.redirect;
             } else {
-                //User doesn't exist, proceed to submit the form data via another fetch request      
-                return true;
+                errorMessage.textContent = data.message;
             }
-        })
+        });
+    }
 
-}
+    if (registerForm) {
+        registerForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(registerForm);
+            const response = await fetch("/user/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(Object.fromEntries(formData)),
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                window.location.href = data.redirect;
+            } else {
+                errorMessage.textContent = data.message;
+            }
+        });
+    }
+});
