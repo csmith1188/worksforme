@@ -1,9 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const userController = require('../controllers/userController');
 const redirectWhenDone = require('../middleware/redirect');
 
-router.get('/login', userController.login, redirectWhenDone);
-router.get('/logout', userController.logout);
+const auth = require('../middleware/auth');
+
+const userController = require('../controllers/userController');
+
+router.get('/login', (req, res) => {
+    res.render('pages/loginSystem/login');
+});
+
+router.get('/WFMlogin', userController.wmLogin);
+router.post('/WFMlogin', userController.postwmLogin, redirectWhenDone);
+
+router.get('/register', userController.registerNewUser);
+router.post('/register', userController.postRegisterNewUser);
+
+router.get('/formbar', userController.formbar, redirectWhenDone);
+
+router.get('/logout', userController.logout, auth, redirectWhenDone);
 
 module.exports = router;

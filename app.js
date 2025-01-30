@@ -1,5 +1,3 @@
-//Let it be known that this code is authored by Hayden Frobenius and Robert Ambartsumyan
-
 const express = require('express');
 const app = express();
 const path = require('path');
