@@ -1,15 +1,27 @@
 <%- include('../partials/header.ejs', {pageTitle: 'About' }); %>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    
-</body>
-</html>
+    <link rel="stylesheet" href="/public/css/home.css">
 
-<%- include('../partials/footer.ejs') %>
+    <div class="mainContainer">
+        <div class="content">
+
+            <center>
+                
+                <p>
+                    <h1>CREATE AN EVENT</h1>
+
+                    <form action="/event/createEvent" method="POST">
+                        <label for="name">Event Name:</label><br>
+                        <input type="text" id="name" name="name" required><br><br>
+
+                        <label for="description">Description:</label><br>
+                        <textarea id="description" name="description"></textarea><br><br>
+
+                        <input type="submit" value="Create Event">
+                </p>
+
+            </center>
+
+        </div>
+    </div>
+    <%- include('../partials/footer.ejs') %>

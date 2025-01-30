@@ -7,7 +7,12 @@ router.get('/calender', auth, async(req, res) => {
     res.render('pages/event');
 });
 
-router.post('/createEvent', auth, async (req, res) => {
-   res.render('pages/createEvent');
+router.get('/createEvent', auth, async(req, res) => {
+    res.render('pages/createEvent');
 });
+
+router.post('/createEvent', auth, async(req, res) => {
+    
+}); 
+
 module.exports = router;
