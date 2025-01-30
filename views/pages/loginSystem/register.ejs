@@ -1,4 +1,4 @@
-<%- include('../../partials/header.ejs', {pageTitle: 'Login' }); %>
+<%- include('../../partials/header.ejs', {pageTitle: 'Make an account' }); %>
 
     <link rel="stylesheet" href="/public/css/style.css">
     <link rel="stylesheet" href="/public/css/login.css">
@@ -7,8 +7,8 @@
         <div class="content">
             <center>
                 <div class="login-container">
-                    <h2>Login</h2>
-                    <form action="/user/WFMlogin" method="POST">
+                    <h2>Make an account</h2>
+                    <form action="/user/register" method="POST">
                         <div class="form-group">
                             <label for="username">Username:</label>
                             <input type="text" id="username" name="username" required
@@ -16,12 +16,12 @@
                                 maxlength="<%= loginRules.maxUsernameLength %>">
                         </div>
                         <!--
-                NOT YET IMPLEMENTED (Mr.Smith)
-                <div class="form-group">
-                    <label for="Email">Email:</label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-                -->
+            NOT YET IMPLEMENTED (Mr.Smith)
+            <div class="form-group">
+                <label for="Email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            -->
                         <div class="form-group">
                             <label for="password">Password:</label>
                             <input type="password" id="password" name="password" required

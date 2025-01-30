@@ -1,0 +1,33 @@
+.mainContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.content {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+#choosePrompt {
+    font-size: 1.8em;
+    color: #4a4a3f;
+    margin-bottom: 20px;
+}
+
+.loginButton {
+    font-size: 1.2em;
+    width: 200px;
+    margin: 10px;
+    transition: all 0.3s ease-in-out;
+}
+
+.loginButton:hover {
+    transform: scale(1.05);
+    background-color: #6e6e50;
+    color: white;
+}

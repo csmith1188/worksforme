@@ -7,6 +7,11 @@ async function registerUser(fbID, username, password, salt){
     return lastID;
 }
 
+async function getUserByUsername(username){
+    let user = await db.get('SELECT * FROM users WHERE username = ?;', [username]);
+    return user ?? null;
+}
+
 async function getUserByUID(uid){
     let user = await db.get('SELECT * FROM users WHERE uid = ?;', [uid]);
     return user ?? null;
@@ -20,5 +25,6 @@ async function getUserByFormbarID(fbID){
 module.exports = {
     registerUser,
     getUserByUID,
-    getUserByFormbarID
+    getUserByFormbarID,
+    getUserByUsername
 }
