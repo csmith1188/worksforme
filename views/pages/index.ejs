@@ -10,7 +10,9 @@
                 <h1>Works For Me</h1>
                 
                 <% if(isLoggedIn) { %>
-                    <h2>Hello, <%= user.name %></h2>
+                    <h2>Welcome, <%= user.username %></h2>
+                <% } else { %>
+                    <h2>Please Login</h2>
                 <% } %>
 
             </center>
