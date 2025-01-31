@@ -1,6 +1,7 @@
 const path = require('path');
 const sql = require('sqlite3').verbose();
 const db = require('../util/dbAsyncWrapper');
+const dateRanker = require('./rankDates');
 
 async function registerUser(fbID, username, password, salt){
     let lastID = await db.run('INSERT INTO users (fb_id, username, password, salt) VALUES(?,?,?,?);', [fbID, username, password, salt]);
