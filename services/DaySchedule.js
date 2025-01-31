@@ -21,25 +21,29 @@ class DaySchedule {
         return conflict;
     }
 
-    getClosestTime(preferredMinutes){
-    
+
+
+    getClosestTime(preferredMinutes) {
         let closestTime = null;
         let closestDifference = Infinity;
-    
-        for(let minutes = 0; minutes < 60*24; minutes++){
-            if(!this.isBusy(minutes)){
-    
-                const difference = Math.abs(preferredMinutes - minutes);
-    
+
+        for (let i = 0; i < this.busyTimes.length - 1; i++) {
+            let endOfCurrentBusy = this.busyTimes[i][1];
+            let startOfNextBusy = this.busyTimes[i + 1][0];
+
+            let middlePoint = (endOfCurrentBusy + startOfNextBusy) / 2;
+
+            if (!this.isBusy(middlePoint)) {
+                const difference = Math.abs(preferredMinutes - middlePoint);
+
                 if (difference < closestDifference) {
-                    closestTime = minutes;
+                    closestTime = Math.round(middlePoint);
                     closestDifference = difference;
                 }
             }
         }
-    
+
         return closestTime;
-        
     }
 
 }
