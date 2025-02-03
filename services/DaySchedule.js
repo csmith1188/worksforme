@@ -32,7 +32,7 @@ class DaySchedule {
             let startOfNextBusy = this.busyTimes[i + 1][0];
 
             // return null if there is less than the event length minutes in between two busy times
-            if(Math.abs(startOfNextBusy - endOfCurrentBusy) < eventLength){
+            if(Math.abs(startOfNextBusy - endOfCurrentBusy) < eventLength + this.minutesBuffer){
                 return null;
             }
 
