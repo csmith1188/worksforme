@@ -86,7 +86,7 @@ function getLeastBusyDates(calendar, startDate, endDate){
 }
 
 //returns map of optimal dates to times
-function doIt(calendarArray, preferredTime, startDate, endDate){
+function doIt(calendarArray, preferredTime, startDate, endDate, eventLength){
 
     const combinedCalendar = combineCalendars(calendarArray);
     const leastBusyDates = getLeastBusyDates(combinedCalendar, startDate, endDate);
@@ -94,7 +94,7 @@ function doIt(calendarArray, preferredTime, startDate, endDate){
 
     for(date of leastBusyDates){
         // If the date is not in the combined calendar, it is has no busy times, so the preferred time can be used, else get the closest time
-        let optimalTime = combinedCalendar.hasOwnProperty(date) ? combinedCalendar[date].getClosestTime(preferredTime) : preferredTime;
+        let optimalTime = combinedCalendar.hasOwnProperty(date) ? combinedCalendar[date].getClosestTime(preferredTime, eventLength) : preferredTime;
         optimalDatesMap.set(date, optimalTime);
     }
 
