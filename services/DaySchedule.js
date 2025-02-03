@@ -23,13 +23,18 @@ class DaySchedule {
 
 
 
-    getClosestTime(preferredMinutes) {
+    getClosestTime(preferredMinutes, eventLength) {
         let closestTime = null;
         let closestDifference = Infinity;
 
         for (let i = 0; i < this.busyTimes.length - 1; i++) {
             let endOfCurrentBusy = this.busyTimes[i][1];
             let startOfNextBusy = this.busyTimes[i + 1][0];
+
+            // return null if there is less than the event length minutes in between two busy times
+            if(Math.abs(startOfNextBusy - endOfCurrentBusy) < eventLength){
+                return null;
+            }
 
             let middlePoint = (endOfCurrentBusy + startOfNextBusy) / 2;
 
