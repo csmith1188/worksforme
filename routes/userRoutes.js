@@ -16,9 +16,7 @@ router.post('/register', userController.postRegisterNewUser);
 
 router.post('/userExists', userController.userExists);
 
-router.get('/calender', auth, (req, res) => {
-    res.render('pages/calender');
-});
+router.get('/calendar', auth, userController.calendarPage);
 
 router.get('/formbar', userController.formbar, redirectWhenDone);
 router.get('/logout', userController.logout, auth, redirectWhenDone);

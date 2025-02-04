@@ -37,6 +37,14 @@
     width: 100%;
 }
 
+.day-headers-container {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
 .day-header {
     background-color: #4a4036;
     color: rgb(204, 200, 200);
@@ -46,14 +54,18 @@
 }
 
 .day {
-    background-color: rgb(233, 233, 233);
+    background-color: rgb(197, 197, 197);
     padding: 10px;
     text-align: center;
     border-radius: 5px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.day:hover {
-    background-color: #f0f0f0;
+.day:not(.selected-day):hover {
+    background-color: #a5a5a5;
     cursor: pointer;
+}
+.selected-day {
+    background-color: #5c7a9c;
+    color: white;
 }

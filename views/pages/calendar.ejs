@@ -1,7 +1,7 @@
 <%- include('../partials/header.ejs', { pageTitle: 'Calendar' }); %>
 
 <link rel="stylesheet" href="/public/css/style.css">
-<link rel="stylesheet" href="/public/css/calender.css">
+<link rel="stylesheet" href="/public/css/calendar.css">
 
 <div class="mainContainer">
     <div class="content">
@@ -11,7 +11,7 @@
                 <h2 id="month-year"></h2>
                 <button class="nav-button" id="next-month">&gt;</button>
             </div>
-            <div class="calendar-grid">
+            <div class="day-headers-container">
                 <div class="day-header">Sun</div>
                 <div class="day-header">Mon</div>
                 <div class="day-header">Tue</div>
@@ -20,8 +20,14 @@
                 <div class="day-header">Fri</div>
                 <div class="day-header">Sat</div>
             </div>
+            <div class="calendar-grid">
+            </div>
         </div>
     </div>
+</div>
+
+<div id="timesEditor">
+    
 </div>
 
 <script src="/public/clientJS/calendar.js"></script>

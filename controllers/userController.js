@@ -107,6 +107,10 @@ async function userExists(req, res) {
     return res.json({ exists: !!user });
 }
 
+function calendarPage(req, res) {
+    res.render('pages/calendar', { title: 'Calendar' });
+}
+
 //Logout
 function logout(req, res) {
     req.session.destroy(err => {
@@ -124,5 +128,6 @@ module.exports = {
     postwmLogin,
     registerNewUser,
     postRegisterNewUser,
-    userExists
+    userExists,
+    calendarPage
 };

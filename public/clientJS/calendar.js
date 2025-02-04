@@ -9,6 +9,18 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentDate = new Date();
     const today = new Date();
 
+    // code that does stuff
+    function dayCellClicked(event){
+        const cell = event.target;
+        const selectedCell = document.getElementsByClassName('selected-day')[0];
+
+        if(selectedCell){
+            selectedCell.classList.remove('selected-day');
+        }
+
+        cell.classList.add('selected-day');
+    }
+
     // This function is so skibby
     function renderCalendar() {
         calendarGrid.innerHTML = '';
@@ -33,6 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const dayCell = document.createElement('div');
             dayCell.classList.add('day');
             dayCell.textContent = day;
+            dayCell.addEventListener('click', dayCellClicked);
             calendarGrid.appendChild(dayCell);
         }
 
