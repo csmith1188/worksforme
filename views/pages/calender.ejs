@@ -3,6 +3,27 @@
 <link rel="stylesheet" href="/public/css/style.css">
 <link rel="stylesheet" href="/public/css/calender.css">
 
+<div class="mainContainer">
+    <div class="content">
+        <div class="calendar">
+            <div class="calendar-header">
+                <button class="nav-button" id="prev-month">&lt;</button>
+                <h2 id="month-year"></h2>
+                <button class="nav-button" id="next-month">&gt;</button>
+            </div>
+            <div class="calendar-grid">
+                <div class="day-header">Sun</div>
+                <div class="day-header">Mon</div>
+                <div class="day-header">Tue</div>
+                <div class="day-header">Wed</div>
+                <div class="day-header">Thu</div>
+                <div class="day-header">Fri</div>
+                <div class="day-header">Sat</div>
+            </div>
+        </div>
+    </div>
+</div>
 
+<script src="/public/clientJS/calendar.js"></script>
 
 <%- include('../partials/footer.ejs') %>
