@@ -4,21 +4,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const calendarGrid = document.querySelector('.calendar-grid');
     const prevMonthButton = document.getElementById('prev-month');
     const nextMonthButton = document.getElementById('next-month');
+    const addBusyTimeButton = document.getElementById('add-busy-time-btn');
+    const dateHeader = document.getElementById('date-header');
+
+    let selectedCell = null;
 
     //literly today
     let currentDate = new Date();
     const today = new Date();
 
+
     // code that does stuff
     function dayCellClicked(event){
-        const cell = event.target;
-        const selectedCell = document.getElementsByClassName('selected-day')[0];
+        selectedCell = event.target;
+        const previousSelectedCell = document.getElementsByClassName('selected-day')[0];
 
-        if(selectedCell){
-            selectedCell.classList.remove('selected-day');
+        if(previousSelectedCell){
+            previousSelectedCell.classList.remove('selected-day');
         }
 
-        cell.classList.add('selected-day');
+        selectedCell.classList.add('selected-day');
+        dateHeader.textContent = new Date(selectedCell.id).toDateString();
     }
 
     // This function is so skibby
@@ -45,6 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const dayCell = document.createElement('div');
             dayCell.classList.add('day');
             dayCell.textContent = day;
+            dayCell.id = `${year}-${month + 1}-${day}`;
             dayCell.addEventListener('click', dayCellClicked);
             calendarGrid.appendChild(dayCell);
         }

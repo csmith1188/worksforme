@@ -23,11 +23,26 @@
             <div class="calendar-grid">
             </div>
         </div>
+        <hr>
+        <center>
+            <h1 id="date-header">Select a date</h1>
+            <div id="timesGrid">
+                <table>
+                    <tbody>
+                        <% for (let i = 0; i < 6; i++) { %>
+                            <tr>
+                                <% for (let j = 0; j < 24; j++) { %>
+                                    <td>
+                                        <input type="checkbox" class="time-cell" id="time-<%= i %>-<%= j %>">
+                                    </td>
+                                <% } %>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </center>
     </div>
-</div>
-
-<div id="timesEditor">
-    
 </div>
 
 <script src="/public/clientJS/calendar.js"></script>

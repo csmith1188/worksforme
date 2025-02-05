@@ -65,7 +65,13 @@
     background-color: #a5a5a5;
     cursor: pointer;
 }
+
 .selected-day {
     background-color: #5c7a9c;
     color: white;
+}
+
+.time-cell {
+    width: 30px;
+    height: 30px;
 }
