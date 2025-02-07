@@ -23,6 +23,14 @@
     margin-left: 10px;
 }
 
+#fill-start-time {
+    height: 30px;
+}
+
+#fill-end-time {
+    height: 30px;
+}
+
 #times-grid {
     float: right;
     display: inline-grid;

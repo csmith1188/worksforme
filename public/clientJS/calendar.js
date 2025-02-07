@@ -5,6 +5,7 @@ const timeGridMinutesDivider = 5;
 document.addEventListener('DOMContentLoaded', function() {
     timeGrid();
     calendarControls();
+    parser();
     fillTools();
 });
 
@@ -58,7 +59,6 @@ function fillTools(){
         const endCell = (endHours * timeGridCols) + Math.ceil(endMinutes / timeGridMinutesDivider);
 
         for(let cellNum = startCell; cellNum <= endCell; cellNum++){
-            console.log(cellNum);
             document.getElementById('time-cell-' + cellNum).checked = true;
         }
     });
