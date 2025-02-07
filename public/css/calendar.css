@@ -1,77 +1,61 @@
-.calendar {
+#times-editor-container {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
+    justify-content: center;
 }
 
-.calendar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 10px;
-    background-color: #a3a378;
-    color: white;
-    border-radius: 10px;
-    margin-bottom: 10px;
+#date-header {
+    
 }
 
-.nav-button {
-    background-color: #4a4036;
-    color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
+#controls-panel {
+    margin-right: 70px;
+    margin-top: 50px;
 }
 
-.nav-button:hover {
-    background-color: #858561;
+#calendar {
+    font-size: 1rem;
+    height: 30px;
+    width: 170px;
+    margin-right: 10px;
 }
 
-.calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
-    width: 100%;
+#fill-btn {
+    margin-left: 10px;
 }
 
-.day-headers-container {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
-    margin-bottom: 10px;
-    width: 100%;
-}
-
-.day-header {
-    background-color: #4a4036;
-    color: rgb(204, 200, 200);
-    padding: 10px;
-    text-align: center;
-    border-radius: 5px;
-}
-
-.day {
-    background-color: rgb(197, 197, 197);
-    padding: 10px;
-    text-align: center;
-    border-radius: 5px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.day:not(.selected-day):hover {
-    background-color: #a5a5a5;
-    cursor: pointer;
-}
-
-.selected-day {
-    background-color: #5c7a9c;
-    color: white;
+#times-grid {
+    float: right;
+    display: inline-grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(24, 1fr);
+    gap: 0px;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 .time-cell {
-    width: 30px;
-    height: 30px;
+    width: 25px;
+    height: 25px;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+}
+
+.time-cell:checked {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -o-appearance: none;
+    appearance: none;
+    border: 1px solid #34495E;
+    border-radius: 4px;
+    outline: none;
+    background-color: #008cff;
+}
+
+
+.time-cell-label {
+    display: flex;
+    flex-direction: row-reverse; /* This moves the label to the left of the checkbox */
+    align-items: center;
 }
