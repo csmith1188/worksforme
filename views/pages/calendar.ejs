@@ -44,8 +44,9 @@
             <div id="times-grid">
                 <% const rows = 24; %>
                 <% const cols = 12; %>
+                <% const timeDivider = 5; %>
                 <% for (let i = 0; i < rows * cols; i++) { %>
-                    <% const timeString = minutesToTimeString(i*5); %>
+                    <% const timeString = minutesToTimeString(i*timeDivider); %>
                     <% if(i % cols === 0) { %>
                         <!--<label class="time-cell-label" for="time-cell-<%= i %>"><%= i %></label>-->
                     <% } %>

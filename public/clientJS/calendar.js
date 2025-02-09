@@ -3,19 +3,34 @@ const timeGridRows = 24;
 const timeGridMinutesDivider = 5;
 
 document.addEventListener('DOMContentLoaded', function() {
-    timeGrid();
+
+    let timeCells = Array.from(document.getElementsByClassName('time-cell'));
+
     calendarControls();
-    fillTools();
+    fillTools(timeCells);
+    timeGrid(timeCells);
+    saveFunctionality(timeCells);
 });
 
 function calendarControls(){
     let calendar = document.getElementById('calendar');
+    let dateHeader = document.getElementById('date-header');
     let incrementDateBtn = document.getElementById('date-forward-btn');
     let decrementDateBtn = document.getElementById('date-backward-btn');
-    let selectedDate = null;
+    let selectedDate = new Date();
+
+    function updateDateUI(){
+        // makes sure the dates are the same and not a day off because timezone weirdness
+        let adjustedDate = new Date(selectedDate.toDateString());
+        calendar.value = adjustedDate.toISOString().split('T')[0];
+        dateHeader.innerText = adjustedDate.toDateString();
+    }
+
+    updateDateUI();
 
     calendar.addEventListener('change', (e) => {
         selectedDate = new Date(calendar.value);
+        updateDateUI();
     });
 
     incrementDateBtn.addEventListener('click', (e) => {
@@ -25,7 +40,7 @@ function calendarControls(){
         const newDate = selectedDate.getDate() + 1;
 
         selectedDate.setDate(newDate);
-        calendar.value = selectedDate.toISOString().split('T')[0];
+        updateDateUI();
 
     });
 
@@ -36,12 +51,13 @@ function calendarControls(){
         const newDate = selectedDate.getDate() - 1;
 
         selectedDate.setDate(newDate);
-        calendar.value = selectedDate.toISOString().split('T')[0];
+        updateDateUI();
 
     });
 }
 
-function fillTools(){
+function fillTools(timeCells){
+
     let fillStartTime = document.getElementById('fill-start-time');
     let fillEndTime = document.getElementById('fill-end-time');
     let fillBtn = document.getElementById('fill-btn');
@@ -49,16 +65,16 @@ function fillTools(){
     let fillAllBtn = document.getElementById('fill-all-btn');
     let clearAllBtn = document.getElementById('clear-all-btn');
 
-    let timeCells = Array.from(document.getElementsByClassName('time-cell'));
-
     fillBtn.addEventListener('click', (e) => {
+        // gets the hours and minutes as integers
         const [startHours, startMinutes] = [+fillStartTime.value.split(':')[0], +fillStartTime.value.split(':')[1]];
         const [endHours, endMinutes] = [+fillEndTime.value.split(':')[0], +fillEndTime.value.split(':')[1]];
+        // calculates the target cell numbers based on the times
         const startCell = (startHours * timeGridCols) + Math.ceil(startMinutes / timeGridMinutesDivider);
         const endCell = (endHours * timeGridCols) + Math.ceil(endMinutes / timeGridMinutesDivider);
 
+        // checks da boxes
         for(let cellNum = startCell; cellNum <= endCell; cellNum++){
-            console.log(cellNum);
             document.getElementById('time-cell-' + cellNum).checked = true;
         }
     });
@@ -76,10 +92,19 @@ function fillTools(){
     });
 }
 
-function timeGrid(){
+function saveFunctionality(timeCells){
+
+    let saveBtn = document.getElementById('save-btn');
+
+    saveBtn.addEventListener('click', (e) => {
+        console.log(getBusyTimes(timeCells));
+    });
+
+}
+
+function timeGrid(timeCells){
 
     let timeGrid = document.getElementById('times-grid');
-    let timeCells = Array.from(document.getElementsByClassName('time-cell'));
 
     let isLeftMouseDown = false;
     let isRightMouseDown = false;
@@ -87,7 +112,7 @@ function timeGrid(){
     let lastEditedCell = null;
 
     timeGrid.addEventListener('contextmenu', (e) => {
-        e.preventDefault();  // This prevents the right-click menu from appearing
+        e.preventDefault();  // This prevents the right click menu from appearing
     });
 
     document.addEventListener('mousedown', (e) => {
@@ -108,7 +133,7 @@ function timeGrid(){
 
     timeCells.forEach(cell => {
 
-        // new checkbox behavior (left click to check, right click to uncheck)
+        // new cell behavior (left click to check, right click to uncheck)
         cell.addEventListener('mouseup', (e) => {
             
             if (isLeftMouseDown) {
@@ -126,7 +151,8 @@ function timeGrid(){
       
         cell.addEventListener('mousemove', (e) => {
 
-            if(e.target.className !== 'time-cell' || e.target === lastEditedCell){
+            // prevents editing the cell you just edited
+            if(e.target === lastEditedCell){
                 return;
             }
 
@@ -140,4 +166,37 @@ function timeGrid(){
 
         });
     });
+}
+
+// takes timegrid cells and returns array of busy time pairs.
+function getBusyTimes(timeCells){
+    let busyTimes = [];
+
+    let startCellID = null;
+
+    for (let cellID in timeCells) {
+        let cell = timeCells[cellID];
+        // start of a busy time
+        if (cell.checked && !startCellID) {
+            startCellID = cellID;
+        // end of a busy time
+        } else if (!cell.checked && startCellID) {
+
+            let startTime = startCellID * timeGridMinutesDivider;
+            let endTime = cellID * timeGridMinutesDivider;
+
+            busyTimes.push([startTime, endTime]);
+            startCellID = null;
+        }
+
+    }
+
+    // accounts for edge case where the last cell is filled
+     if(startCellID && timeCells[timeCells.length - 1].checked){
+        let startTime = startCellID * timeGridMinutesDivider;
+        let endTime = timeCells.length * timeGridMinutesDivider;
+         busyTimes.push([startTime, endTime]);
+     }
+
+    return busyTimes;
 }
