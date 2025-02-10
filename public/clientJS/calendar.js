@@ -1,202 +1,104 @@
-const timeGridCols = 12;
-const timeGridRows = 24;
-const timeGridMinutesDivider = 5;
-
 document.addEventListener('DOMContentLoaded', function() {
+    // Set things to other things to manipulate them
+    const monthYear = document.getElementById('month-year');
+    const calendarGrid = document.querySelector('.calendar-grid');
+    const prevMonthButton = document.getElementById('prev-month');
+    const nextMonthButton = document.getElementById('next-month');
+    const weekDayCells = Array.from(document.getElementsByClassName('week-day'));
 
-    let timeCells = Array.from(document.getElementsByClassName('time-cell'));
+    const timeGridPageContainer = document.getElementById('timegrid-page-container');
+    const calendarPageContainer = document.getElementById('calendar-page-container');
 
-    calendarControls();
-    fillTools(timeCells);
-    timeGrid(timeCells);
-    saveFunctionality(timeCells);
+    const backButton = document.getElementById('back-btn');
+
+    //literly today
+    let currentDate = new Date();
+    const today = new Date();
+
+    function goToTimeGridPage(day){
+        timeGridPageContainer.style.display = 'block';
+        calendarPageContainer.style.display = 'none';
+        setTimeGridDay(day);
+    }
+
+    function goToCalendarPage(){
+        timeGridPageContainer.style.display = 'none';
+        calendarPageContainer.style.display = 'block';
+    }
+
+    function dayCellClicked(event){
+        const cell = event.target;
+        let day = null;
+
+
+        if(cell.classList.contains('day')){
+            // get date in yyyy-mm-dd format
+            day = cell.id;
+        } else if(cell.classList.contains('week-day')){
+            // get day of week index
+            day = +cell.id.split('-')[2];
+        }
+
+        console.log(day);
+
+        if(day !== null){
+            goToTimeGridPage(day);
+        }
+        
+    }
+
+    // This function is so skibby
+    function renderCalendar() {
+        calendarGrid.innerHTML = '';
+        const month = currentDate.getMonth();
+        const year = currentDate.getFullYear();
+
+        // This sets the month and year in the calendar header
+        monthYear.textContent = `${currentDate.toLocaleString('default', { month: 'long' })} ${year}`;
+
+        // This is obv I dont think you need a comment here
+        const firstDayOfMonth = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        // For every empty cell before the first day of the month, create an empty cell
+        for (let i = 0; i < firstDayOfMonth; i++) {
+            const emptyCell = document.createElement('div');
+            calendarGrid.appendChild(emptyCell);
+        }
+
+        weekDayCells.forEach((weekDay, index) => {
+            weekDay.addEventListener('click', dayCellClicked);
+        });
+
+        // For every day in the month, create a cell with the day number
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dayCell = document.createElement('div');
+            dayCell.classList.add('day');
+            dayCell.textContent = day;
+            dayCell.id = `${year}-${month + 1}-${day}`;
+            dayCell.addEventListener('click', dayCellClicked);
+            calendarGrid.appendChild(dayCell);
+        }
+
+        // No going back in time for you
+        // Yet...
+        prevMonthButton.disabled = currentDate.getFullYear() === today.getFullYear() && currentDate.getMonth() === today.getMonth();
+    }
+
+    
+    prevMonthButton.addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        renderCalendar();
+    });
+
+    nextMonthButton.addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        renderCalendar();
+    });
+
+    backButton.addEventListener('click',  () => {
+        goToCalendarPage();
+    });
+
+    renderCalendar();
 });
-
-function calendarControls(){
-    let calendar = document.getElementById('calendar');
-    let dateHeader = document.getElementById('date-header');
-    let incrementDateBtn = document.getElementById('date-forward-btn');
-    let decrementDateBtn = document.getElementById('date-backward-btn');
-    let selectedDate = new Date();
-
-    function updateDateUI(){
-        // makes sure the dates are the same and not a day off because timezone weirdness
-        let adjustedDate = new Date(selectedDate.toDateString());
-        calendar.value = adjustedDate.toISOString().split('T')[0];
-        dateHeader.innerText = adjustedDate.toDateString();
-    }
-
-    updateDateUI();
-
-    calendar.addEventListener('change', (e) => {
-        selectedDate = new Date(calendar.value);
-        updateDateUI();
-    });
-
-    incrementDateBtn.addEventListener('click', (e) => {
-
-        if(!selectedDate) return;
-
-        const newDate = selectedDate.getDate() + 1;
-
-        selectedDate.setDate(newDate);
-        updateDateUI();
-
-    });
-
-    decrementDateBtn.addEventListener('click', (e) => {
-
-        if(!selectedDate) return;
-
-        const newDate = selectedDate.getDate() - 1;
-
-        selectedDate.setDate(newDate);
-        updateDateUI();
-
-    });
-}
-
-function fillTools(timeCells){
-
-    let fillStartTime = document.getElementById('fill-start-time');
-    let fillEndTime = document.getElementById('fill-end-time');
-    let fillBtn = document.getElementById('fill-btn');
-
-    let fillAllBtn = document.getElementById('fill-all-btn');
-    let clearAllBtn = document.getElementById('clear-all-btn');
-
-    fillBtn.addEventListener('click', (e) => {
-        // gets the hours and minutes as integers
-        const [startHours, startMinutes] = [+fillStartTime.value.split(':')[0], +fillStartTime.value.split(':')[1]];
-        const [endHours, endMinutes] = [+fillEndTime.value.split(':')[0], +fillEndTime.value.split(':')[1]];
-        // calculates the target cell numbers based on the times
-        const startCell = (startHours * timeGridCols) + Math.ceil(startMinutes / timeGridMinutesDivider);
-        const endCell = (endHours * timeGridCols) + Math.ceil(endMinutes / timeGridMinutesDivider);
-
-        // checks da boxes
-        for(let cellNum = startCell; cellNum <= endCell; cellNum++){
-            document.getElementById('time-cell-' + cellNum).checked = true;
-        }
-    });
-
-    fillAllBtn.addEventListener('click', (e) => {
-        timeCells.forEach(cell => {
-            cell.checked = true;
-        })
-    });
-
-    clearAllBtn.addEventListener('click', (e) => {
-        timeCells.forEach(cell => {
-            cell.checked = false;
-        })
-    });
-}
-
-function saveFunctionality(timeCells){
-
-    let saveBtn = document.getElementById('save-btn');
-
-    saveBtn.addEventListener('click', (e) => {
-        console.log(getBusyTimes(timeCells));
-    });
-
-}
-
-function timeGrid(timeCells){
-
-    let timeGrid = document.getElementById('times-grid');
-
-    let isLeftMouseDown = false;
-    let isRightMouseDown = false;
-
-    let lastEditedCell = null;
-
-    timeGrid.addEventListener('contextmenu', (e) => {
-        e.preventDefault();  // This prevents the right click menu from appearing
-    });
-
-    document.addEventListener('mousedown', (e) => {
-        if (e.button === 0) {
-            isLeftMouseDown = true; 
-        } else if (e.button === 2) {
-            isRightMouseDown = true;
-        }
-    });
-    
-    document.addEventListener('mouseup', (e) => {
-        if (e.button === 0) {
-            isLeftMouseDown = false;
-        } else if (e.button === 2) {
-            isRightMouseDown = false;
-        }
-    });
-
-    timeCells.forEach(cell => {
-
-        // new cell behavior (left click to check, right click to uncheck)
-        cell.addEventListener('mouseup', (e) => {
-            
-            if (isLeftMouseDown) {
-                // hacky but necessary
-                setTimeout(() => {
-                    e.target.checked = true;
-                }, 10);
-            } else if (isRightMouseDown) {
-                e.target.checked = false;
-            }
-
-            lastEditedCell = e.target;
-        });
-    
-      
-        cell.addEventListener('mousemove', (e) => {
-
-            // prevents editing the cell you just edited
-            if(e.target === lastEditedCell){
-                return;
-            }
-
-            if(isLeftMouseDown){
-                e.target.checked = true;
-                lastEditedCell = e.target;
-            } else if(isRightMouseDown){
-                e.target.checked = false;
-                lastEditedCell = e.target;
-            }
-
-        });
-    });
-}
-
-// takes timegrid cells and returns array of busy time pairs.
-function getBusyTimes(timeCells){
-    let busyTimes = [];
-
-    let startCellID = null;
-
-    for (let cellID in timeCells) {
-        let cell = timeCells[cellID];
-        // start of a busy time
-        if (cell.checked && !startCellID) {
-            startCellID = cellID;
-        // end of a busy time
-        } else if (!cell.checked && startCellID) {
-
-            let startTime = startCellID * timeGridMinutesDivider;
-            let endTime = cellID * timeGridMinutesDivider;
-
-            busyTimes.push([startTime, endTime]);
-            startCellID = null;
-        }
-
-    }
-
-    // accounts for edge case where the last cell is filled
-     if(startCellID && timeCells[timeCells.length - 1].checked){
-        let startTime = startCellID * timeGridMinutesDivider;
-        let endTime = timeCells.length * timeGridMinutesDivider;
-         busyTimes.push([startTime, endTime]);
-     }
-
-    return busyTimes;
-}

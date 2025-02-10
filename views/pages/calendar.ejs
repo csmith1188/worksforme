@@ -1,62 +1,40 @@
 <%- include('../partials/header.ejs', { pageTitle: 'Calendar' }); %>
-<% 
-    function minutesToTimeString(minutes) {
 
-        const typeM = (minutes >= 12*60) ? 'PM' : 'AM';
-
-        minutes = (minutes % (12*60));
-
-        let hours = String(Math.floor(minutes / 60)).padStart(2, '0');
-        const remainingMinutes = String(minutes % 60).padStart(2, '0');
-
-        if (hours === '00'){
-            hours = '12';
-        }
-
-        return `${hours}:${remainingMinutes} ${typeM}`;
-    } 
-%>
-
-<link rel="stylesheet" href="/public/css/style.css">
 <link rel="stylesheet" href="/public/css/calendar.css">
+<link rel="stylesheet" href="/public/css/timegridEditor.css">
 
 <div class="mainContainer">
     <div class="content">
-        <center><h1 id="date-header">Select a date</h1></center>
-        <hr>
-        <br>
-        <div id="times-editor-container">
-            <div id="controls-panel">
-                <input type="date" id="calendar">
-                <button id="date-backward-btn"><</button>
-                <button id="date-forward-btn">></button>
-                <br><br><br>
-                <hr>
-                <br>
-                <input type="time" id="fill-start-time"> - <input type="time" id="fill-end-time">
-                <button id="fill-btn">Fill</button>
-                <br><br>
-                <button id="fill-all-btn">Fill All</button>
-                <button id="clear-all-btn">Clear All</button>
-                <br><br><br><br><br>
-                <button id="save-btn">Save</button>
+        <div id="calendar-page-container">
+            <div id="calendar-container">
+                <div class="calendar-header">
+                    <button class="nav-button" id="prev-month">&lt;</button>
+                    <h2 id="month-year"></h2>
+                    <button class="nav-button" id="next-month">&gt;</button>
+                </div>
+                <div class="week-days-container">
+                    <div class="week-day" id="week-day-0">Sun</div>
+                    <div class="week-day" id="week-day-1">Mon</div>
+                    <div class="week-day" id="week-day-2">Tue</div>
+                    <div class="week-day" id="week-day-3">Wed</div>
+                    <div class="week-day" id="week-day-4">Thu</div>
+                    <div class="week-day" id="week-day-5">Fri</div>
+                    <div class="week-day" id="week-day-6">Sat</div>
+                </div>
+                <div class="calendar-grid">
+                </div>
             </div>
-            <div id="times-grid">
-                <% const rows = 24; %>
-                <% const cols = 12; %>
-                <% const timeDivider = 5; %>
-                <% for (let i = 0; i < rows * cols; i++) { %>
-                    <% const timeString = minutesToTimeString(i*timeDivider); %>
-                    <% if(i % cols === 0) { %>
-                        <!--<label class="time-cell-label" for="time-cell-<%= i %>"><%= i %></label>-->
-                    <% } %>
-                    <input type="checkbox" class="time-cell" id="time-cell-<%= i %>" title="<%= timeString %>">
-                <% } %>
-            </div>
+        </div>
+
+        <div id="timegrid-page-container">
+            <button id="back-btn">Back</button>
+            <%- include('../partials/timegridEditor'); %>
         </div>
     </div>
 </div>
 
+<script src="/public/clientJS/dayjs.min.js"></script>
+<script src="/public/clientJS/timegridEditor.js"></script>
 <script src="/public/clientJS/calendar.js"></script>
 
 <%- include('../partials/footer.ejs') %>
