@@ -16,6 +16,8 @@ router.post('/register', userController.postRegisterNewUser);
 
 router.post('/userExists', userController.userExists);
 
+router.get('/calendar', auth, userController.calendarPage);
+
 router.get('/formbar', userController.formbar, redirectWhenDone);
 router.get('/logout', userController.logout, auth, redirectWhenDone);
 

@@ -1,0 +1,62 @@
+#timegrid-editor {
+    display: flex;
+    justify-content: center;
+}
+
+#date-header {
+    
+}
+
+#controls-panel {
+    margin-right: 70px;
+    margin-top: 50px;
+}
+
+#fill-btn {
+    margin-left: 10px;
+}
+
+#fill-start-time {
+    height: 30px;
+}
+
+#fill-end-time {
+    height: 30px;
+}
+
+#timegrid {
+    float: right;
+    display: inline-grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(24, 1fr);
+    gap: 0px;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.time-cell {
+    width: 25px;
+    height: 25px;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+}
+
+.time-cell:checked {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -o-appearance: none;
+    appearance: none;
+    border: 1px solid #34495E;
+    border-radius: 4px;
+    outline: none;
+    background-color: #008cff;
+}
+
+
+.time-cell-label {
+    display: flex;
+    flex-direction: row-reverse; /* This moves the label to the left of the checkbox */
+    align-items: center;
+}

@@ -3,7 +3,7 @@ const router = express.Router();
 
 const auth = require('../middleware/auth');
 
-router.get('/calender', auth, (req, res) => {
+router.get('/event', auth, (req, res) => {
     res.render('pages/event');
 });
 
