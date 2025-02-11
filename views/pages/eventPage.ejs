@@ -1,0 +1,31 @@
+<%- include('../partials/header.ejs', {pageTitle: 'About' }); %>
+
+    <link rel="stylesheet" href="/public/css/home.css">
+    
+    <div class="mainContainer">
+        <div class="content">
+            
+            <center>
+                <h1>page for certain events</h1>
+                <div id="messages">
+                    <% event_page.forEach(message=> { %>
+                        <div>
+                            <strong>
+                                <%= message.user %>
+                            </strong> [<%= new Date(message.date).toLocaleString() %>]: <%= message.content %>
+                        </div>
+                        <% }) %>
+                </div>
+                <form action="/eventPage/<%= aEvent %>" method="post">
+                    <input type="text" name="message" placeholder="Message">
+                    <input type="submit" value="Send">
+                </form>
+                <script>
+                    var messagesDiv = document.getElementById('event_page');
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                </script>
+            </center>
+
+        </div>
+    </div>
+    <%- include('../partials/footer.ejs') %>
