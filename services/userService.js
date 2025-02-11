@@ -23,9 +23,15 @@ async function getUserByFormbarID(fbID){
     return user ?? null;
 }
 
+async function getUserByEmail(email){
+    let user = await db.get('SELECT * FROM users WHERE email = ?;', [email]);
+    return user ?? null;
+}
+
 module.exports = {
     registerUser,
     getUserByUID,
     getUserByFormbarID,
-    getUserByUsername
+    getUserByUsername,
+    getUserByEmail
 }
