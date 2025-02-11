@@ -4,11 +4,17 @@
 
     <div class="mainContainer">
         <div class="content">
-
+            
             <center>
                 <h1>Events</h1>
                 <p>here are the current event you are involved in:</p>
                 <!--put the events the user is involved in here-->
+                <% events.forEach(function(event) { %>
+                    <div class="event">
+                        <h2><%= event.name %></h2>
+                        <p><%= event.description %></p>
+                    </div>
+                <% }); %>
             </center>
 
         </div>

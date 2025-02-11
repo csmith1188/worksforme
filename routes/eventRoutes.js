@@ -5,7 +5,11 @@ const eventController = require('../controllers/eventController');
 const auth = require('../middleware/auth');
 
 router.get('/calendar', auth, async (req, res) => {
-    res.render('pages/event');
+    const { uid, name, description,  } = req.body;
+    const sql = 'SELECT * FROM events';
+    let rows = await db.all(sql);
+    console.log(rows);
+    res.render('pages/event', { events: rows });
 });
 
 router.get('/createEvent', auth, async (req, res) => {
