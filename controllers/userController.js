@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 const userService = require('../services/userService.js');
-const { getUserByUsername, registerUser } = require('../services/userService.js');
+const { getUserByUsernameOrEmail, registerUser } = require('../services/userService.js');
 
 //Load login rules
 const loginRulesPath = path.join(__dirname, '../rules/loginRules.json');
@@ -57,7 +57,7 @@ async function postwmLogin(req, res) {
     const { username, password } = req.body;
 
     try {
-        const user = await getUserByUsername(username);
+        const user = await getUserByUsernameOrEmail(username);
         if (!user) {
             return res.json({ success: false, message: 'Invalid username or password' });
         }
@@ -81,18 +81,29 @@ async function registerNewUser(req, res) {
 }
 
 async function postRegisterNewUser(req, res) {
-    const { username, password } = req.body;
+    const { username, email, password } = req.body;
+
+    // Check for valid email (thx google)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return res.json({ success: false, message: 'Invalid email format' });
+    }
 
     try {
-        const existingUser = await getUserByUsername(username);
+        const existingUser = await getUserByUsernameOrEmail(username);
         if (existingUser) {
             return res.json({ success: false, message: 'Username is already taken' });
+        }
+
+        const existingEmail = await userService.getUserByEmail(email);
+        if (existingEmail) {
+            return res.json({ success: false, message: 'Email is already taken' });
         }
 
         const salt = crypto.randomBytes(16).toString('hex');
         const hashedPassword = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
 
-        await registerUser(null, username, hashedPassword, salt);
+        await registerUser(null, username, email, hashedPassword, salt);
 
         return res.json({ success: true, redirect: '/user/WFMlogin' });
     } catch (error) {

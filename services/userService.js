@@ -3,8 +3,8 @@ const sql = require('sqlite3').verbose();
 const db = require('../util/dbAsyncWrapper');
 const dateRanker = require('./rankDates');
 
-async function registerUser(fbID, username, password, salt){
-    let lastID = await db.run('INSERT INTO users (fb_id, username, password, salt) VALUES(?,?,?,?);', [fbID, username, password, salt]);
+async function registerUser(fbID, username, email, password, salt){
+    let lastID = await db.run('INSERT INTO users (fb_id, username, email, password, salt) VALUES(?,?,?,?,?);', [fbID, username, email, password, salt]);
     return lastID;
 }
 
@@ -28,10 +28,15 @@ async function getUserByEmail(email){
     return user ?? null;
 }
 
+async function getUserByUsernameOrEmail(identifier){
+    let user = await db.get('SELECT * FROM users WHERE username = ? OR email = ?;', [identifier, identifier]);
+    return user ?? null;
+}
+
 module.exports = {
     registerUser,
     getUserByUID,
     getUserByFormbarID,
-    getUserByUsername,
+    getUserByUsernameOrEmail,
     getUserByEmail
 }
