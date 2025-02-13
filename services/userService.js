@@ -3,6 +3,10 @@ const sql = require('sqlite3').verbose();
 const db = require('../util/dbAsyncWrapper');
 const dateRanker = require('./rankDates');
 
+function sanitizeInput(input) {
+    return input.replace(/[^a-zA-Z0-9@.]/g, '');
+}
+
 async function registerUser(fbID, username, email, password, salt){
     let lastID = await db.run('INSERT INTO users (fb_id, username, email, password, salt) VALUES(?,?,?,?,?);', [fbID, username, email, password, salt]);
     return lastID;

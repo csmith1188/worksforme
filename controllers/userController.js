@@ -11,6 +11,10 @@ const { getUserByUsernameOrEmail, registerUser } = require('../services/userServ
 const loginRulesPath = path.join(__dirname, '../rules/loginRules.json');
 const loginRules = JSON.parse(fs.readFileSync(loginRulesPath, 'utf8'));
 
+function sanitizeInput(input) {
+    return input.replace(/[^a-zA-Z0-9@.]/g, '');
+}
+
 //Formbar login system
 async function formbar(req, res, next) {
     const path = req.get('Referer');
@@ -54,7 +58,8 @@ async function wmLogin(req, res) {
 }
 
 async function postwmLogin(req, res) {
-    const { username, password } = req.body;
+    let { username, password } = req.body;
+    username = sanitizeInput(username);
 
     try {
         const user = await getUserByUsernameOrEmail(username);
@@ -81,7 +86,9 @@ async function registerNewUser(req, res) {
 }
 
 async function postRegisterNewUser(req, res) {
-    const { username, email, password } = req.body;
+    let { username, email, password } = req.body;
+    username = sanitizeInput(username);
+    email = sanitizeInput(email);
 
     // Check for valid email (thx google)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -113,7 +120,8 @@ async function postRegisterNewUser(req, res) {
 
 //Check if user exists
 async function userExists(req, res) {
-    const { username } = req.body;
+    let { username } = req.body;
+    username = sanitizeInput(username);
     const user = await getUserByUsername(username);
     return res.json({ exists: !!user });
 }
