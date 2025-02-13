@@ -8,6 +8,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const localsMiddleware = require('./middleware/locals');
+const sanitizeInput = require('./util/sanitizeInput');
 
 const homeRoutes = require('./routes/homeRoutes');
 const userRoutes = require('./routes/userRoutes');

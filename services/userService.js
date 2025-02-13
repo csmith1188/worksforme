@@ -3,10 +3,7 @@ const sql = require('sqlite3').verbose();
 const db = require('../util/dbAsyncWrapper');
 const dateRanker = require('./rankDates');
 
-function sanitizeInput(input) {
-    return input.replace(/[^a-zA-Z0-9@.]/g, '');
-}
-
+// User functions
 async function registerUser(fbID, username, email, password, salt){
     let lastID = await db.run('INSERT INTO users (fb_id, username, email, password, salt) VALUES(?,?,?,?,?);', [fbID, username, email, password, salt]);
     return lastID;
@@ -37,10 +34,32 @@ async function getUserByUsernameOrEmail(identifier){
     return user ?? null;
 }
 
+
+// Notification functions
+// Going to use this for almost all notifications
+async function getNotificationsByUser(receivingUser){
+    let notifications = await db.all('SELECT * FROM notifications WHERE receiving_user = ?;', [receivingUser]);
+    return notifications ?? null;
+}
+
+async function getNotificationByEvent(event){
+    let notification = await db.get('SELECT * FROM notifications WHERE event = ?;', [event]);
+    return notification ?? null;
+}
+
+async function getNotificationType(type){
+    let notification = await db.get('SELECT * FROM notifications WHERE notif_type = ?;', [type]);
+    return notification ?? null;
+}
+
 module.exports = {
     registerUser,
     getUserByUID,
     getUserByFormbarID,
     getUserByUsernameOrEmail,
-    getUserByEmail
+    getUserByEmail,
+    getUserByUsername,
+    getNotificationsByUser,
+    getNotificationByEvent,
+    getNotificationType
 }

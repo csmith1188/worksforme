@@ -3,6 +3,7 @@ const urlHelper = require('../util/urlHelper.js');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const sanitizeInput = require('../util/sanitizeInput');
 
 const userService = require('../services/userService.js');
 const { getUserByUsernameOrEmail, registerUser } = require('../services/userService.js');
@@ -10,10 +11,6 @@ const { getUserByUsernameOrEmail, registerUser } = require('../services/userServ
 //Load login rules
 const loginRulesPath = path.join(__dirname, '../rules/loginRules.json');
 const loginRules = JSON.parse(fs.readFileSync(loginRulesPath, 'utf8'));
-
-function sanitizeInput(input) {
-    return input.replace(/[^a-zA-Z0-9@.]/g, '');
-}
 
 //Formbar login system
 async function formbar(req, res, next) {
@@ -140,6 +137,20 @@ function logout(req, res) {
     });
 }
 
+//Inbox System
+async function inboxPage(req, res) {
+    res.render('pages/notificationSystem/inbox.ejs', { title: 'Inbox' });
+}
+
+async function postInboxPage(req, res) {
+    try {
+        const notifications = await userService.getNotificationsByUser(req.session.user.username);
+        res.json({ success: true, notifications });
+    } catch (error) {
+        res.json({ success: false, message: 'Error fetching notifications' });
+    }
+}
+
 module.exports = {
     formbar,
     logout,
@@ -148,5 +159,7 @@ module.exports = {
     registerNewUser,
     postRegisterNewUser,
     userExists,
-    calendarPage
+    calendarPage,
+    inboxPage,
+    postInboxPage
 };

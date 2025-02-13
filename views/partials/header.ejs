@@ -15,8 +15,8 @@
         <h1 id="logo" onclick="window.location.href = '/'">Works For Me</h1>
         <% if(isLoggedIn) { %>          
             <a href="/user/calendar"><button class="headerButton">Calendar</button></a>
-            <a href="/user/inbox"><button class="headerButton">Inbox</button></a>
             <a href="/user/logout"><button class="headerButton">Logout</button></a>
+            <a href="/user/inbox"><button class="headerButton"><img src="/public/images/inbox-icon.png" alt="Inbox" class="headerIcon"></button></a>
         <% } else { %>
             <a href="/user/register"><button class="headerButton">Register</button></a>
             <a href="/user/login"><button class="headerButton">Login</button></a>
