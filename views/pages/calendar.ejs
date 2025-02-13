@@ -23,18 +23,20 @@
                 </div>
                 <div class="calendar-grid">
                 </div>
+                <p>Right click to reset a date.</p>
+                <br>
+                <button id="save-btn">Save</button>
             </div>
         </div>
 
         <div id="timegrid-page-container">
-            <button id="back-btn">Back</button>
             <%- include('../partials/timegridEditor'); %>
         </div>
     </div>
 </div>
 
 <script src="/public/clientJS/dayjs.min.js"></script>
-<script src="/public/clientJS/timegridEditor.js"></script>
 <script src="/public/clientJS/calendar.js"></script>
+<script src="/public/clientJS/timegridEditor.js"></script>
 
 <%- include('../partials/footer.ejs') %>

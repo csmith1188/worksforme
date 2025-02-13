@@ -6,40 +6,72 @@ const daysOfTheWeek = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Frida
 
 const dateFormat = "ddd MMM DD YYYY";
 
+let timeGrid;
+let timeCells;
+
+let fillStartTime;
+let fillEndTime;
+let fillBtn;
+
+let fillAllBtn;
+let clearAllBtn;
+
+let dateHeader;
+let backButton;
+
+let timeGridEdited = false;
+
 document.addEventListener('DOMContentLoaded', function() {
 
-    let timeCells = Array.from(document.getElementsByClassName('time-cell'));
+    timeGrid = document.getElementById('timegrid');
+    timeCells = Array.from(document.getElementsByClassName('time-cell'));
 
-    fillTools(timeCells);
-    timeGrid(timeCells);
-    saveFunctionality(timeCells);
+    fillStartTime = document.getElementById('fill-start-time');
+    fillEndTime = document.getElementById('fill-end-time');
+    fillBtn = document.getElementById('fill-btn');
+
+    fillAllBtn = document.getElementById('fill-all-btn');
+    clearAllBtn = document.getElementById('clear-all-btn');
+
+    dateHeader = document.getElementById('date-header');
+    backButton = document.getElementById('back-btn');
+
+    initTimeGrid();
+    initFillTools();
 });
 
+function setTimeGrid(day, busyTimes, isTemplate){
 
-function setTimeGridDay(day){
-    const dateHeader = document.getElementById('date-header');
+    timeGridEdited = false;
+    selectedDay = day;
 
-    // day is an exact date
-    if(typeof day === 'string'){
+    dateHeader.innerText = (isTemplate) ? `${daysOfTheWeek[day]} Template` : dayjs(day).format(dateFormat);
 
-        dateHeader.innerText = dayjs(day).format(dateFormat);
+    initializeCells(busyTimes);
+}
 
-    // day is a day of the week
-    } else if(typeof day === 'number'){
+function getCellID(cellElement){
+    return +cellElement.id.split('-')[2];
+}
 
-        dateHeader.innerText = `${daysOfTheWeek[day]} Template`;
+function fillCell(cellID, value, isUser = false){
+    document.getElementById('time-cell-' + cellID).checked = value;
+    if (isUser) timeGridEdited = true;
+}
 
+function fillAllCells(value, isUser){
+    timeCells.forEach((cell, index) => {
+        fillCell(index, value, isUser);
+    })
+};
+
+function fillSelectedCells(startCellID, endCellID, value, isUser){
+    for(let cellNum = startCellID; cellNum <= endCellID; cellNum++){
+        fillCell(cellNum, value, isUser);
     }
 }
 
-function fillTools(timeCells){
-
-    const fillStartTime = document.getElementById('fill-start-time');
-    const fillEndTime = document.getElementById('fill-end-time');
-    const fillBtn = document.getElementById('fill-btn');
-
-    const fillAllBtn = document.getElementById('fill-all-btn');
-    const clearAllBtn = document.getElementById('clear-all-btn');
+function initFillTools(){
 
     fillBtn.addEventListener('click', (e) => {
         // gets the hours and minutes as integers
@@ -49,38 +81,14 @@ function fillTools(timeCells){
         const startCell = (startHours * timeGridCols) + Math.ceil(startMinutes / timeGridMinutesDivider);
         const endCell = (endHours * timeGridCols) + Math.ceil(endMinutes / timeGridMinutesDivider);
 
-        // checks da boxes
-        for(let cellNum = startCell; cellNum <= endCell; cellNum++){
-            document.getElementById('time-cell-' + cellNum).checked = true;
-        }
+        fillSelectedCells(startCell, endCell, true, true);
     });
 
-    fillAllBtn.addEventListener('click', (e) => {
-        timeCells.forEach(cell => {
-            cell.checked = true;
-        })
-    });
-
-    clearAllBtn.addEventListener('click', (e) => {
-        timeCells.forEach(cell => {
-            cell.checked = false;
-        })
-    });
+    fillAllBtn.addEventListener('click', (e) => {fillAllCells(true, true)});
+    clearAllBtn.addEventListener('click', (e) => {fillAllCells(false, true)});
 }
 
-function saveFunctionality(timeCells){
-
-    const saveBtn = document.getElementById('save-btn');
-
-    saveBtn.addEventListener('click', (e) => {
-        console.log(getBusyTimes(timeCells));
-    });
-
-}
-
-function timeGrid(timeCells){
-
-    const timeGrid = document.getElementById('timegrid');
+function initTimeGrid(){
 
     let isLeftMouseDown = false;
     let isRightMouseDown = false;
@@ -111,14 +119,15 @@ function timeGrid(timeCells){
 
         // new cell behavior (left click to check, right click to uncheck)
         cell.addEventListener('mouseup', (e) => {
-            
+            const cellID = getCellID(e.target);
+
             if (isLeftMouseDown) {
                 // hacky but necessary
                 setTimeout(() => {
-                    e.target.checked = true;
+                    fillCell(cellID, true, true);
                 }, 10);
             } else if (isRightMouseDown) {
-                e.target.checked = false;
+                fillCell(cellID, false, true);
             }
 
             lastEditedCell = e.target;
@@ -126,26 +135,47 @@ function timeGrid(timeCells){
     
       
         cell.addEventListener('mousemove', (e) => {
-
+            const cellID = getCellID(e.target);
             // prevents editing the cell you just edited
             if(e.target === lastEditedCell){
                 return;
             }
 
             if(isLeftMouseDown){
-                e.target.checked = true;
+                fillCell(cellID, true, true);
                 lastEditedCell = e.target;
             } else if(isRightMouseDown){
-                e.target.checked = false;
+                fillCell(cellID, false, true);
                 lastEditedCell = e.target;
             }
 
         });
     });
+
+    backButton.addEventListener('click',  () => {
+        exitTimeGridPage(selectedDay, getBusyTimes(), timeGridEdited);
+    });
+}
+
+// takes busy times and sets the cells based on that.
+function initializeCells(busyTimes){
+
+    fillAllCells(false, false);
+
+    for(i in busyTimes){
+        let busyTime = busyTimes[i];
+        let startCellID = Math.floor(busyTime[0] / timeGridMinutesDivider);
+        let endCellID = Math.floor(busyTime[1] / timeGridMinutesDivider);
+
+        for(let cellID = startCellID; cellID < endCellID; cellID++){
+            fillCell(cellID, true, false);
+        }
+
+    }
 }
 
 // takes timegrid cells and returns array of busy time pairs.
-function getBusyTimes(timeCells){
+function getBusyTimes(){
     let busyTimes = [];
 
     let startCellID = null;

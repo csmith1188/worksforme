@@ -60,3 +60,9 @@
     flex-direction: row-reverse; /* This moves the label to the left of the checkbox */
     align-items: center;
 }
+
+#back-btn {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
