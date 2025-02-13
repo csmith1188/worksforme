@@ -23,16 +23,12 @@ router.get('/eventPage/:aEvent', auth, async (req, res) => {
         return res.status(404).send('Event not found');
     }
 
-    res.render('pages/eventPage');
+    res.render('pages/eventPage', {event});
 });
 
 
 //temporary code
 //move to eventController and eventroutes later -chicken sandwich
-router.post('/eventPage/:aEvent', (req, res) => {
-})
-
-
 router.post('/createEvent', auth, async (req, res) => {
     const { uid, name, description } = req.body;
     const sql = 'INSERT INTO events (uid, name, description) VALUES (?, ?, ?)';

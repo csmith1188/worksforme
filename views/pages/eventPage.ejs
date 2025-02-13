@@ -4,8 +4,22 @@
     
     <div class="mainContainer">
         <div class="content">
-            
+            <!--i hate having 2 ../ in the line below-->
+            <img src="../../public/images/gear.png" alt="Gear" onclick="handleClick()">
+
+            <script>
+                function handleClick() {
+                    var eventName = '<%= event.name %>';
+                    var eventName = prompt('Do you want to change the event name? If yes, please enter the new name:');
+                    if (eventName) {
+                        alert('Event name changed to: ' + eventName);
+                    } else {
+                        alert('Event name not changed.');
+                    }
+                }
+            </script>
             <center>
+
                 <h1>page for certain events</h1>
                 
             </center>
