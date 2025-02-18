@@ -16,35 +16,26 @@ router.get('/createEvent', auth, async (req, res) => {
 
 router.get('/eventPage/:aEvent', auth, async (req, res) => {
     const aEvent = req.params.aEvent;
+    const sql = 'SELECT * FROM events WHERE uid = ?';
+    const event = await db.get(sql, [aEvent]);
 
-    db.all('SELECT user, content, date FROM event_page WHERE events = ? ORDER BY date ASC;', [aEvent], (err, rows) => {
-        if (err) {
-            console.error(err);
-            res.send("ERROR:\n" + err);
-        } else {
-            res.render('eventPage', { user: req.session.user, aEvent: aEvent, event_page: rows });
-        }
-    });
+    if (!event) {
+        return res.status(404).send('Event not found');
+    }
+
+    res.render('pages/eventPage', {event});
 });
 
 
 //temporary code
 //move to eventController and eventroutes later -chicken sandwich
-router.post('/eventPage/:aEvent', (req, res) => {
+router.post('/eventPage/<%= event.uid %>', auth, async (req, res) => {
     const aEvent = req.params.aEvent;
-    const user = req.session.user;
-    const message = req.body.message;
-    const date = new Date().toISOString();
-
-    db.run('INSERT INTO event_page (user, forum, content, date) VALUES (?, ?, ?, ?);', [user, aEvent, message, date], (err) => {
-        if (err) {
-            res.send('DB ERROR:\n' + err);
-        } else {
-            res.redirect(`/eventPage/${aEvent}`);
-        }
-    });
+    const newEventName = req.body.newEventName;
+    const sql = 'UPDATE events SET name = ? WHERE uid = ?';
+    await db.run(sql, [newEventName, aEvent]);
+    res.redirect(`/eventPage/${aEvent}`);
 });
-
 
 router.post('/createEvent', auth, async (req, res) => {
     const { uid, name, description } = req.body;

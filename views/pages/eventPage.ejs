@@ -1,31 +1,34 @@
 <%- include('../partials/header.ejs', {pageTitle: 'About' }); %>
 
     <link rel="stylesheet" href="/public/css/home.css">
-    
+
     <div class="mainContainer">
         <div class="content">
-            
+            <!--i hate having 2 ../ in the line below-->
+            <img src="../../public/images/gear.png" alt="Gear" height="35px" width="50px" onclick="handleClick()">
+
             <center>
-                <h1>page for certain events</h1>
-                <div id="messages">
-                    <% event_page.forEach(message=> { %>
-                        <div>
-                            <strong>
-                                <%= message.user %>
-                            </strong> [<%= new Date(message.date).toLocaleString() %>]: <%= message.content %>
-                        </div>
-                        <% }) %>
-                </div>
-                <form action="/eventPage/<%= aEvent %>" method="post">
-                    <input type="text" name="message" placeholder="Message">
-                    <input type="submit" value="Send">
-                </form>
-                <script>
-                    var messagesDiv = document.getElementById('event_page');
-                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-                </script>
+
+                <h1>page for <%= event.name %>
+                </h1>
+
             </center>
 
+            <script>
+                function handleClick() {
+                    var newEventName = prompt('Do you want to change the event name? If yes, please enter the new name:');
+                    if (newEventName) {
+                        document.getElementById('eventNameInput').value = newEventName;
+                        document.getElementById('eventNameForm').submit();
+                    } else {
+                        alert('Event name not changed.');
+                    }
+                }
+            </script>
+
+<form id="eventNameForm" action="/eventPage/<%= event.uid %>" method="POST" style="display: none;">
+    <input type="hidden" id="eventNameInput" name="newEventName">
+</form>
         </div>
     </div>
     <%- include('../partials/footer.ejs') %>
