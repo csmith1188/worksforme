@@ -29,6 +29,14 @@ router.get('/eventPage/:aEvent', auth, async (req, res) => {
 
 //temporary code
 //move to eventController and eventroutes later -chicken sandwich
+router.post('/eventPage/<%= event.uid %>', auth, async (req, res) => {
+    const aEvent = req.params.aEvent;
+    const newEventName = req.body.newEventName;
+    const sql = 'UPDATE events SET name = ? WHERE uid = ?';
+    await db.run(sql, [newEventName, aEvent]);
+    res.redirect(`/eventPage/${aEvent}`);
+});
+
 router.post('/createEvent', auth, async (req, res) => {
     const { uid, name, description } = req.body;
     const sql = 'INSERT INTO events (uid, name, description) VALUES (?, ?, ?)';

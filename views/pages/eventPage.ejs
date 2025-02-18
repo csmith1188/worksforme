@@ -1,29 +1,34 @@
 <%- include('../partials/header.ejs', {pageTitle: 'About' }); %>
 
     <link rel="stylesheet" href="/public/css/home.css">
-    
+
     <div class="mainContainer">
         <div class="content">
             <!--i hate having 2 ../ in the line below-->
-            <img src="../../public/images/gear.png" alt="Gear" onclick="handleClick()">
+            <img src="../../public/images/gear.png" alt="Gear" height="35px" width="50px" onclick="handleClick()">
+
+            <center>
+
+                <h1>page for <%= event.name %>
+                </h1>
+
+            </center>
 
             <script>
                 function handleClick() {
-                    var eventName = '<%= event.name %>';
-                    var eventName = prompt('Do you want to change the event name? If yes, please enter the new name:');
-                    if (eventName) {
-                        alert('Event name changed to: ' + eventName);
+                    var newEventName = prompt('Do you want to change the event name? If yes, please enter the new name:');
+                    if (newEventName) {
+                        document.getElementById('eventNameInput').value = newEventName;
+                        document.getElementById('eventNameForm').submit();
                     } else {
                         alert('Event name not changed.');
                     }
                 }
             </script>
-            <center>
 
-                <h1>page for certain events</h1>
-                
-            </center>
-
+<form id="eventNameForm" action="/eventPage/<%= event.uid %>" method="POST" style="display: none;">
+    <input type="hidden" id="eventNameInput" name="newEventName">
+</form>
         </div>
     </div>
     <%- include('../partials/footer.ejs') %>
