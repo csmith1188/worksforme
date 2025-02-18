@@ -58,7 +58,7 @@
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
     width: 80%;
     max-width: 500px;
-    text-align: center;
+    text-align: left;
 }
 
 .popup-content .close {
@@ -67,4 +67,9 @@
     right: 10px;
     font-size: 1.5em;
     cursor: pointer;
+}
+
+.notif-utils {
+    margin-left: 5%;
+    width: 90%;
 }
