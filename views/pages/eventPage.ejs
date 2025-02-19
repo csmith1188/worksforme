@@ -3,40 +3,53 @@
     <link rel="stylesheet" href="/public/css/home.css">
 
     <div class="mainContainer">
-    <div class="content">
-        <img src="/public/images/gear.png" alt="Gear" height="35px" width="50px" onclick="updateEvent()">
+        <div class="content">
+            <button onclick="updateName()">Change Event Name</button> <br>
+            <button onclick="updateDesc()">Change Event Description</button>
 
-        <center>
-            <h1>page for <%= event.name %></h1>
-        </center>
 
-        <script>
-            function updateEvent() {
-            var newEventName = prompt('Do you want to change the event name? If yes, please enter the new name:');
-            var newEventDesc = prompt('Do you want to change the event description? If yes, please enter the new description:');
-            
-            if (newEventName) {
-                document.getElementById('eventNameInput').value = newEventName;
-                document.getElementById('eventNameForm').submit();
-            }
-            
-            if (newEventDesc) {
-                document.getElementById('eventDescInput').value = newEventDesc;
-                document.getElementById('eventDescForm').submit();
-            }
-            
-            if (!newEventName && !newEventDesc) {
-                alert('No changes made.');
-            }
-            }
-        </script>
-        <form id="eventDescForm" action="/event/eventPage/<%= event.uid %>" method="POST" style="display: none;">
-            <input type="hidden" id="eventDescInput" name="newEventDesc">
-        </form>
-        <form id="eventNameForm" action="/event/eventPage/<%= event.uid %>" method="POST" style="display: none;">
-            <input type="hidden" id="eventNameInput" name="newEventName">
-        </form></form>
-        
+            <center>
+                <h1>page for <%= event.name %>
+                </h1>
+                <!--unbold the event description-->
+                <h2 id="eventDescription">
+                    <%= event.description %>
+                </h2>
+            </center>
+
+            <script>
+                function updateName() {
+                    var newEventName = prompt('Do you want to change the event description? If yes, please enter the new description:');
+
+                    if (newEventName) {
+                        document.getElementById('eventNameInput').value = newEventName;
+                        document.getElementById('eventNameForm').submit();
+                    }
+
+                    if (!newEventName) {
+                        alert('No changes made.');
+                    }
+                }
+
+                function updateDesc() {
+                    var newEventDesc = prompt('Do you want to change the event description? If yes, please enter the new description:');
+
+                    if (newEventDesc) {
+                        document.getElementById('eventDescInput').value = newEventDesc;
+                        document.getElementById('eventDescForm').submit();
+                    }
+
+                    if (!newEventDesc) {
+                        alert('No changes made.');
+                    }
+                }
+            </script>
+            <form id="eventDescForm" action="/event/eventPage/<%= event.uid %>" method="POST" style="display: none;">
+                <input type="hidden" id="eventDescInput" name="newEventDesc">
+            </form>
+            <form id="eventNameForm" action="/event/eventPage/<%= event.uid %>" method="POST" style="display: none;">
+                <input type="hidden" id="eventNameInput" name="newEventName">
+            </form>
+        </div>
     </div>
-</div>
-<%- include('../partials/footer.ejs') %>
+    <%- include('../partials/footer.ejs') %>
