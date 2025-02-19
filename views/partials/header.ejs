@@ -14,9 +14,14 @@
 
         <h1 id="logo" onclick="window.location.href = '/'">Works For Me</h1>
         <% if(isLoggedIn) { %>          
-            <a href="/user/calendar"><button class="headerButton">Calendar</button></a>
-            <a href="/event/event"><button class="headerButton">Events</button></a>
-            <a href="/event/createEvent"><button class="headerButton">Create Event</button></a>
+            <div class="dropdown">
+                <button class="headerButton" onclick="toggleDropdown()">Menu</button>
+                <div id="dropdownContent" class="dropdown-content">
+                    <a href="/user/calendar"><button class="headerButton">Calendar</button></a>
+                    <a href="/event/events"><button class="headerButton">Events</button></a>
+                    <a href="/event/createEvent"><button class="headerButton">Create Event</button></a>
+                </div>
+            </div>
             <a href="/user/logout"><button class="headerButton">Logout</button></a>
             <a href="/user/inbox"><button class="headerButton"><img src="/public/images/inbox-icon.png" alt="Inbox" class="headerIcon"></button></a>
         <% } else { %>
@@ -25,3 +30,20 @@
         <% } %>
 
     </div>
+    <script>
+        function toggleDropdown() {
+            document.getElementById("dropdownContent").classList.toggle("show");
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.headerButton')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+    </script>
