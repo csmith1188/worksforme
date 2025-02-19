@@ -43,7 +43,16 @@ router.post('/eventPage/:aEvent', auth, async (req, res) => {
         const updateDesc = 'UPDATE events SET description = ? WHERE uid = ?;';
         await db.run(updateDesc, [newEventDesc, aEvent]);
     }
-    res.redirect(`/event/eventPage/${aEvent}`);
+
+    const deleteEvent = 'DELETE FROM events WHERE uid = ?';
+    await db.run(deleteEvent, [aEvent]);
+
+    const event = await db.get('SELECT * FROM events WHERE uid = ?', [aEvent]);
+    if (!event) {
+        return res.redirect('/event/calendar');
+    } else {
+        return res.redirect(`/event/eventPage/${aEvent}`);
+    }
 });
 
 router.post('/createEvent', auth, async (req, res) => {

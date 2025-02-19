@@ -4,9 +4,9 @@
 
     <div class="mainContainer">
         <div class="content">
-            <button onclick="updateName()">Change Event Name</button> <br>
+            <button onclick="updateName()">Change Event Name</button>
             <button onclick="updateDesc()">Change Event Description</button>
-
+            <button onclick="deleteEvent()">DELETE current event</button>
 
             <center>
                 <h1>page for <%= event.name %>
@@ -43,12 +43,27 @@
                         alert('No changes made.');
                     }
                 }
+
+                function deleteEvent() {
+                    var deleteEvent = confirm('Are you sure you want to delete this event?');
+
+                    if (deleteEvent) {
+                        document.getElementById('deleteEventForm').submit();
+                    }
+
+                    if (!deleteEvent) {
+                        alert('Event not deleted.');
+                    }
+                }
             </script>
             <form id="eventDescForm" action="/event/eventPage/<%= event.uid %>" method="POST" style="display: none;">
                 <input type="hidden" id="eventDescInput" name="newEventDesc">
             </form>
             <form id="eventNameForm" action="/event/eventPage/<%= event.uid %>" method="POST" style="display: none;">
                 <input type="hidden" id="eventNameInput" name="newEventName">
+            </form>
+            <form id="deleteEventForm" action="/event/eventPage/<%= event.uid %>" method="POST" style="display: none;">
+                <input type="hidden" name="deleteEvent">
             </form>
         </div>
     </div>
