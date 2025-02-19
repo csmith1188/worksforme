@@ -1,0 +1,60 @@
+<%- include('../partials/header.ejs', {pageTitle: 'Calendar'}); %>
+
+<link rel="stylesheet" href="/public/css/calendar.css">
+
+    <div class="mainContainer">
+        <div class="content">
+            <div id="controls">
+                <input type="date" id="date-select">
+                <button id="prev-week-btn" class=""><</button>
+                <button id="next-week-btn">></button>
+            </div>
+            <hr>
+            <div id="day-headers">
+                <div class="day-header">
+                    <span class="day-text">Sunday</span>
+                    <br>
+                    <span class="date-text" id="date-text-0">1</span>
+                </div>
+                <div class="day-header">
+                    <span class="day-text">Monday</span>
+                    <br>
+                    <span class="date-text" id="date-text-1">2</span>
+                </div>
+                <div class="day-header">
+                    <span class="day-text">Tuesday</span>
+                    <br>
+                    <span class="date-text" id="date-text-2">3</span>
+                </div>
+                <div class="day-header">
+                    <span class="day-text">Wednesday</span>
+                    <br>
+                    <span class="date-text" id="date-text-3">4</span>
+                </div>
+                <div class="day-header">
+                    <span class="day-text">Thursday</span>
+                    <br>
+                    <span class="date-text" id="date-text-4">5</span>
+                </div>
+                <div class="day-header">
+                    <span class="day-text">Friday</span>
+                    <br>
+                    <span class="date-text" id="date-text-5">6</span>
+                </div>
+                <div class="day-header">
+                    <span class="day-text">Saturday</span>
+                    <br>
+                    <span class="date-text" id="date-text-6">7</span>
+                </div>
+            </div>
+
+            <div id="grid">
+                
+                <div class="cell"></div>
+                
+            </div>
+
+        </div>
+    </div>
+
+<%- include('../partials/footer.ejs') %>
