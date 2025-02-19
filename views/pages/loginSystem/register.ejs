@@ -1,0 +1,26 @@
+<%- include('../../partials/header.ejs', {pageTitle: 'Make an account' }); %>
+
+    <link rel="stylesheet" href="/public/css/style.css">
+    <link rel="stylesheet" href="/public/css/login.css"> <!-- Changed to login.css for consistency -->
+
+    <div class="mainContainer">
+        <div class="content">
+            <div class="login-container">
+                <h2>Make an account</h2>
+                <form id="register-form">
+                    
+                    <input type="text" id="username" name="username" required class="form-input"
+                        minlength="<%= loginRules.minUsernameLength %>" maxlength="<%= loginRules.maxUsernameLength %>">
+
+                    <input type="password" id="password" name="password" required class="form-input"
+                        minlength="<%= loginRules.minPasswordLength %>" maxlength="<%= loginRules.maxPasswordLength %>">
+
+                    <button type="submit" class="form-button">Register</button>
+                </form>
+                <div id="error-message" style="color: red;"></div>
+                <script src="/public/clientJS/loginError.js"></script>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../../partials/footer.ejs') %>
