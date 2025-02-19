@@ -11,6 +11,8 @@ router.get('/calendar', auth, async (req, res) => {
 });
 
 router.get('/createEvent', auth, async (req, res) => {
+    const eventSql = 'SELECT * FROM events';
+    const usersSql = 'SELECT * FROM users';
     res.render('pages/createEvent');
 });
 
@@ -33,6 +35,7 @@ router.post('/eventPage/:aEvent', auth, async (req, res) => {
     const aEvent = req.params.aEvent;
     const newEventName = req.body.newEventName;
     const newEventDesc = req.body.newEventDesc;
+    const deleteEvent = req.body.deleteEvent;
 
     if (newEventName) {
         const updateName = 'UPDATE events SET name = ? WHERE uid = ?;';
@@ -44,21 +47,19 @@ router.post('/eventPage/:aEvent', auth, async (req, res) => {
         await db.run(updateDesc, [newEventDesc, aEvent]);
     }
 
-    const deleteEvent = 'DELETE FROM events WHERE uid = ?';
-    await db.run(deleteEvent, [aEvent]);
-
-    const event = await db.get('SELECT * FROM events WHERE uid = ?', [aEvent]);
-    if (!event) {
-        return res.redirect('/event/calendar');
-    } else {
-        return res.redirect(`/event/eventPage/${aEvent}`);
+    if (deleteEvent) {
+        const deleteSql = 'DELETE FROM events WHERE uid = ?';
+        await db.run(deleteSql, [aEvent]);
     }
+
+    res.redirect(`/event/eventPage/${aEvent}`);
 });
 
-router.post('/createEvent', auth, async (req, res) => {
+router.post('/createEvent', auth, async (req, res) => { 
     const { uid, name, description } = req.body;
-    const sql = 'INSERT INTO events (uid, name, description) VALUES (?, ?, ?)';
-    const params = [uid, name, description];
+    const creator = req.session.user.uid;
+    const sql = 'INSERT INTO events (uid, name, description, creator) VALUES (?, ?, ?, ?)';
+    const params = [uid, name, description, creator];
     
     await db.run(sql, params);
     res.redirect('/event/calendar');
