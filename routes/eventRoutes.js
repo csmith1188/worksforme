@@ -55,7 +55,7 @@ router.post('/eventPage/:aEvent', auth, async (req, res) => {
     res.redirect(`/event/eventPage/${aEvent}`);
 });
 
-router.post('/createEvent', auth, async (req, res) => { 
+router.post('/createEvent', auth, async (req, res) => {
     const { uid, name, description } = req.body;
     const creator = req.session.user.uid;
     const sql = 'INSERT INTO events (uid, name, description, creator) VALUES (?, ?, ?, ?)';
