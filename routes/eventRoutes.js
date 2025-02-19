@@ -3,7 +3,7 @@ const router = express.Router();
 
 const auth = require('../middleware/auth');
 
-router.get('/calendar', auth, async (req, res) => {
+router.get('/event', auth, async (req, res) => {
     const sql = 'SELECT * FROM events';
     let rows = await db.all(sql);
     res.render('pages/event', { events: rows });
