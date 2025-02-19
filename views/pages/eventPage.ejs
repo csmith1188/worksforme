@@ -1,0 +1,42 @@
+<%- include('../partials/header.ejs', {pageTitle: 'About' }); %>
+
+    <link rel="stylesheet" href="/public/css/home.css">
+
+    <div class="mainContainer">
+    <div class="content">
+        <img src="/public/images/gear.png" alt="Gear" height="35px" width="50px" onclick="updateEvent()">
+
+        <center>
+            <h1>page for <%= event.name %></h1>
+        </center>
+
+        <script>
+            function updateEvent() {
+            var newEventName = prompt('Do you want to change the event name? If yes, please enter the new name:');
+            var newEventDesc = prompt('Do you want to change the event description? If yes, please enter the new description:');
+            
+            if (newEventName) {
+                document.getElementById('eventNameInput').value = newEventName;
+                document.getElementById('eventNameForm').submit();
+            }
+            
+            if (newEventDesc) {
+                document.getElementById('eventDescInput').value = newEventDesc;
+                document.getElementById('eventDescForm').submit();
+            }
+            
+            if (!newEventName && !newEventDesc) {
+                alert('No changes made.');
+            }
+            }
+        </script>
+        <form id="eventDescForm" action="/event/eventPage/<%= event.uid %>" method="POST" style="display: none;">
+            <input type="hidden" id="eventDescInput" name="newEventDesc">
+        </form>
+        <form id="eventNameForm" action="/event/eventPage/<%= event.uid %>" method="POST" style="display: none;">
+            <input type="hidden" id="eventNameInput" name="newEventName">
+        </form></form>
+        
+    </div>
+</div>
+<%- include('../partials/footer.ejs') %>
