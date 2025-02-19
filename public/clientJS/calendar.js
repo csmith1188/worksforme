@@ -42,16 +42,15 @@ function goToTimeGridPage(day){
     // day is an exact date
     if(typeof day === 'string'){
 
-        // if the user has the date in their calendar, get that
+        // if the user has a timegrid for that date in their calendar, load that
         if(userCalendar.has(day)){
             busyTimes = userCalendar.get(day);
-        }
-
-        let dayOfWeek = dayjs(day).day();
-        if(userWeekDayTemplates.has(dayOfWeek)){
-            // if the user has a template for that day of the week, merge it with the main timegrid.
-            // if there is no main timegrid, it will just be merged with the empty array and it just becomes the template.
-            busyTimes = busyTimes.concat(userWeekDayTemplates.get(dayOfWeek));
+        } else {
+            let dayOfWeek = dayjs(day).day();
+            // if the user has a template for that day of the week, load that
+            if(userWeekDayTemplates.has(dayOfWeek)){
+                busyTimes = userWeekDayTemplates.get(dayOfWeek);
+            }
         }
 
     // day is a day of the week
