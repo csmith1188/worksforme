@@ -10,29 +10,24 @@
                 <button id="next-week-btn">></button>
             </div>
             <br>
-            <div id="editor">
-                <div id="day-headers">
-                    <% const daysOfTheWeek = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']; %>
-                    <% for (let i = 0; i < daysOfTheWeek.length; i++) { %>
-                        <div class="day-header <%= (i === 0) ? 'first' : ''; %>">
-                            <span class="day-text"><%= daysOfTheWeek[i] %></span>
-                            <br>
-                            <span class="date-text" id="date-text-<%= i %>">69</span>
+            <div id="day-headers">
+                <% const daysOfTheWeek = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']; %>
+                <% for (let i = 0; i < daysOfTheWeek.length; i++) { %>
+                    <div class="day-header <%= (i === 0) ? 'first' : ''; %>">
+                        <span class="day-text"><%= daysOfTheWeek[i] %></span>
+                        <br>
+                        <span class="date-text" id="date-text-<%= i %>">69</span>
+                    </div>
+                <% } %>
+            </div>
+
+            <div id="grid">
+                <div id="cells">
+                    <% for (let i = 0; i < 7*24; i++) { %>
+                        <div class="cell <%= (i % 7 === 0) ? 'first' : ''; %>" id="cell-<%= i %>">
                         </div>
                     <% } %>
                 </div>
-
-                <div id="grid">
-                    <div id="cells">
-                        <% for (let i = 0; i < 7*24; i++) { %>
-                            <div class="cell <%= (i % 7 === 0) ? 'first' : ''; %>"></div>
-                        <% } %>
-                    </div>
-                    <div id="time-blocks">
-                        <div class="time-block">69:00 AM - 69:00 PM</div>
-                    </div>
-                </div>
-
             </div>
         </div>
     </div>
