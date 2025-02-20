@@ -32,7 +32,13 @@
     </div>
     <script>
         function toggleDropdown() {
-            document.getElementById("dropdownContent").classList.toggle("show");
+            var dropdown = document.getElementById("dropdownContent");
+            dropdown.classList.toggle("show");
+            if (dropdown.classList.contains("show")) {
+                dropdown.style.animation = "slideDown 0.3s ease-out";
+            } else {
+                dropdown.style.animation = "slideUp 0.3s ease-in";
+            }
         }
 
         window.onclick = function(event) {
@@ -42,8 +48,12 @@
                     var openDropdown = dropdowns[i];
                     if (openDropdown.classList.contains('show')) {
                         openDropdown.classList.remove('show');
+                        openDropdown.style.animation = "slideUp 0.3s ease-in";
                     }
                 }
             }
         }
     </script>
+</body>
+
+</html>
