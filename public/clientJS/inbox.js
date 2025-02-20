@@ -25,17 +25,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                 data.notifications.forEach((notification) => {
                     const inboxItem = document.createElement('div');
                     inboxItem.className = 'inboxItem';
+                    let buttonHTML = '';
 
                     // Determine the icon and message for the notification based on its type
                     switch (notification.notif_type) {
                         case 'Invite':
                             inboxItem.innerHTML = `<i class="fas fa-bell"></i> ${notification.notif_type} to join ${notification.event}.`;
+                            buttonHTML = `<center><button class="check-mark">✔</button><button class="x-mark">✖</button></center>`;
                             break;
                         case 'Message':
                             inboxItem.innerHTML = `<i class="fas fa-envelope"></i> ${notification.notif_type} from ${notification.sending_user}.`;
+                            buttonHTML = `<center><button class="check-mark">✔</button><button class="x-mark">✖</button></center>`;
                             break;
                         case 'Alert':
                             inboxItem.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${notification.notif_type} from ${notification.event}.`;
+                            buttonHTML = `<center><button class="x-mark">✖</button></center>`;
                             break;
                     }
 
@@ -47,10 +51,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <div class="popup-content">
                                 <span class="close">&times;</span>
                                 <h2>Notification Details</h2>
-                                <p><strong>Type:</strong> ${notification.notif_type}</p>
-                                <p><strong>Event:</strong> ${notification.event}</p>
-                                <p><strong>From:</strong> ${notification.sending_user}</p>
-                                <p><strong>Message:</strong> ${notification.notif_content}</p>
+                                <div class="notif-utils">
+                                    <p><strong>Type:</strong> ${notification.notif_type}</p>
+                                    <p><strong>Event:</strong> ${notification.event}</p>
+                                    <p><strong>From:</strong> ${notification.sending_user}</p>
+                                    <p><strong>Message:</strong> ${notification.notif_content}</p>
+                                </div>
+                                <br>
+
+                                <div class="notif_buttons">
+                                ${buttonHTML}
+                                </div>
+
                             </div>
                         `;
 

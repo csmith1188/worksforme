@@ -31,6 +31,11 @@ async function isEventCreator(eventUID, userUID) {
     return result.count > 0;
 }
 
+async function GetEventCreatorByEventUID(eventUID) {
+    const sql = 'SELECT creator FROM events WHERE uid = ?';
+    return await db.get(sql, [eventUID]);
+}
+
 // Modifying events
 async function updateEventName(uid, newName) {
     const sql = 'UPDATE events SET name = ? WHERE uid = ?;';
@@ -55,5 +60,6 @@ module.exports = {
     deleteEvent,
     createEvent,
     isEventCreator,
-    getEventsByUserUID
+    getEventsByUserUID,
+    GetEventCreatorByEventUID
 };
