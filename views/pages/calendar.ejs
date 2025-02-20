@@ -9,52 +9,33 @@
                 <button id="prev-week-btn" class=""><</button>
                 <button id="next-week-btn">></button>
             </div>
-            <hr>
-            <div id="day-headers">
-                <div class="day-header">
-                    <span class="day-text">Sunday</span>
-                    <br>
-                    <span class="date-text" id="date-text-0">1</span>
+            <br>
+            <div id="editor">
+                <div id="day-headers">
+                    <% const daysOfTheWeek = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']; %>
+                    <% for (let i = 0; i < daysOfTheWeek.length; i++) { %>
+                        <div class="day-header <%= (i === 0) ? 'first' : ''; %>">
+                            <span class="day-text"><%= daysOfTheWeek[i] %></span>
+                            <br>
+                            <span class="date-text" id="date-text-<%= i %>">69</span>
+                        </div>
+                    <% } %>
                 </div>
-                <div class="day-header">
-                    <span class="day-text">Monday</span>
-                    <br>
-                    <span class="date-text" id="date-text-1">2</span>
-                </div>
-                <div class="day-header">
-                    <span class="day-text">Tuesday</span>
-                    <br>
-                    <span class="date-text" id="date-text-2">3</span>
-                </div>
-                <div class="day-header">
-                    <span class="day-text">Wednesday</span>
-                    <br>
-                    <span class="date-text" id="date-text-3">4</span>
-                </div>
-                <div class="day-header">
-                    <span class="day-text">Thursday</span>
-                    <br>
-                    <span class="date-text" id="date-text-4">5</span>
-                </div>
-                <div class="day-header">
-                    <span class="day-text">Friday</span>
-                    <br>
-                    <span class="date-text" id="date-text-5">6</span>
-                </div>
-                <div class="day-header">
-                    <span class="day-text">Saturday</span>
-                    <br>
-                    <span class="date-text" id="date-text-6">7</span>
-                </div>
-            </div>
 
-            <div id="grid">
-                
-                <div class="cell"></div>
-                
-            </div>
+                <div id="grid">
+                    <div id="cells">
+                        <% for (let i = 0; i < 7*24; i++) { %>
+                            <div class="cell <%= (i % 7 === 0) ? 'first' : ''; %>"></div>
+                        <% } %>
+                    </div>
+                    <div id="time-blocks">
+                        <div class="time-block">69:00 AM - 69:00 PM</div>
+                    </div>
+                </div>
 
+            </div>
         </div>
     </div>
+    <script src="/public/clientJS/calendar.js"></script>
 
 <%- include('../partials/footer.ejs') %>

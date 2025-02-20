@@ -6,14 +6,27 @@
 
 .day-header {
     text-align: center;
-    border: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.day-header:not(.first) {
+    /* border-top: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc; */
+}
+.day-header.first {
+    /* border: 1px solid #ccc; */
 }
 
 .day-text {
+    font-size: 0.9rem;
 }
 
 .date-text {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
 }
 
 .date-header {
@@ -37,11 +50,43 @@
 
 #grid {
     overflow: auto;
-    width: 100%;
+    width: 102%;
     height: 50vh;
+    position: relative;
+}
+
+#cells {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(24, 1fr);
 }
 
 .cell {
-    border: 1px solid #ccc;
+    height: 40px;
+}
 
+.cell:not(.first) {
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
+
+.cell.first {
+
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
+
+.time-block {
+    background-color: #008cff;
+    width: 14.5%;
+    height: 40px;
+    border-radius: 5px;
+    font-size: 0.75rem;
+    font-family: Arial, Helvetica, sans-serif;
+    user-select: none;
+
+    position: absolute;
+    top: 0px;
+    left: 0px;
 }
