@@ -37,8 +37,8 @@ async function getUserByUsernameOrEmail(identifier){
 
 // Notification functions
 // Going to use this for almost all notifications
-async function getNotificationsByUser(receivingUser){
-    let notifications = await db.all('SELECT * FROM notifications WHERE receiving_user = ?;', [receivingUser]);
+async function getNotificationsByUser(receivingUserUID){
+    let notifications = await db.all('SELECT * FROM notifications WHERE receiving_user_uid = ?;', [receivingUserUID]);
     return notifications ?? null;
 }
 

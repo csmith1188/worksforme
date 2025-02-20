@@ -144,7 +144,7 @@ async function inboxPage(req, res) {
 
 async function postInboxPage(req, res) {
     try {
-        const notifications = await userService.getNotificationsByUser(req.session.user.username);
+        const notifications = await userService.getNotificationsByUser(req.session.user.uid);
         res.json({ success: true, notifications });
     } catch (error) {
         res.json({ success: false, message: 'Error fetching notifications' });
