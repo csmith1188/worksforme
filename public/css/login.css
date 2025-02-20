@@ -2,19 +2,11 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    background-color: #a3a378; /* Matches your design */
+    height: 50vh;
 }
 
 .content {
     text-align: center;
-}
-
-.login-container {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 h2 {

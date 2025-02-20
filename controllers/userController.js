@@ -3,9 +3,10 @@ const urlHelper = require('../util/urlHelper.js');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const sanitizeInput = require('../util/sanitizeInput');
 
 const userService = require('../services/userService.js');
-const { getUserByUsername, registerUser } = require('../services/userService.js');
+const { getUserByUsernameOrEmail, registerUser } = require('../services/userService.js');
 
 //Load login rules
 const loginRulesPath = path.join(__dirname, '../rules/loginRules.json');
@@ -54,10 +55,11 @@ async function wmLogin(req, res) {
 }
 
 async function postwmLogin(req, res) {
-    const { username, password } = req.body;
+    let { username, password } = req.body;
+    username = sanitizeInput(username);
 
     try {
-        const user = await getUserByUsername(username);
+        const user = await getUserByUsernameOrEmail(username);
         if (!user) {
             return res.json({ success: false, message: 'Invalid username or password' });
         }
@@ -81,18 +83,31 @@ async function registerNewUser(req, res) {
 }
 
 async function postRegisterNewUser(req, res) {
-    const { username, password } = req.body;
+    let { username, email, password } = req.body;
+    username = sanitizeInput(username);
+    email = sanitizeInput(email);
+
+    // Check for valid email (thx google)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return res.json({ success: false, message: 'Invalid email format' });
+    }
 
     try {
-        const existingUser = await getUserByUsername(username);
+        const existingUser = await getUserByUsernameOrEmail(username);
         if (existingUser) {
             return res.json({ success: false, message: 'Username is already taken' });
+        }
+
+        const existingEmail = await userService.getUserByEmail(email);
+        if (existingEmail) {
+            return res.json({ success: false, message: 'Email is already taken' });
         }
 
         const salt = crypto.randomBytes(16).toString('hex');
         const hashedPassword = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
 
-        await registerUser(null, username, hashedPassword, salt);
+        await registerUser(null, username, email, hashedPassword, salt);
 
         return res.json({ success: true, redirect: '/user/WFMlogin' });
     } catch (error) {
@@ -102,7 +117,8 @@ async function postRegisterNewUser(req, res) {
 
 //Check if user exists
 async function userExists(req, res) {
-    const { username } = req.body;
+    let { username } = req.body;
+    username = sanitizeInput(username);
     const user = await getUserByUsername(username);
     return res.json({ exists: !!user });
 }
@@ -121,6 +137,20 @@ function logout(req, res) {
     });
 }
 
+//Inbox System
+async function inboxPage(req, res) {
+    res.render('pages/notificationSystem/inbox.ejs', { title: 'Inbox' });
+}
+
+async function postInboxPage(req, res) {
+    try {
+        const notifications = await userService.getNotificationsByUser(req.session.user.uid);
+        res.json({ success: true, notifications });
+    } catch (error) {
+        res.json({ success: false, message: 'Error fetching notifications' });
+    }
+}
+
 module.exports = {
     formbar,
     logout,
@@ -129,5 +159,7 @@ module.exports = {
     registerNewUser,
     postRegisterNewUser,
     userExists,
-    calendarPage
+    calendarPage,
+    inboxPage,
+    postInboxPage
 };

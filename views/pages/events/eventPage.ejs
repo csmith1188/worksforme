@@ -1,0 +1,35 @@
+<%- include('../../partials/header.ejs', {pageTitle: 'About' }); %>
+
+    <link rel="stylesheet" href="/public/css/home.css">
+
+    <div class="mainContainer">
+        <div class="content">
+            <% if (isCreator) { %>
+                <center>
+                    <form method="POST" action="/event/eventPage/<%= event.uid %>">
+                        <h3>Update Event</h3>
+                        <input type="text" id="newEventName" name="newEventName"placeholder="New Event Name">
+
+                        <input id="newEventDesc" name="newEventDesc" placeholder="New Event Description"></input>
+
+                        <br>
+
+                        <button type="submit">Update Event</button>
+
+                        <button type="submit" name="deleteEvent" value="true">Delete Event</button>
+                    </form>
+                </center>
+                <% } %>
+
+                    <center>
+                        <h1>
+                            <%= event.name %>
+                        </h1>
+                        <p>
+                            <%= event.description %>
+                        </p>
+                    </center>
+
+        </div>
+    </div>
+    <%- include('../../partials/footer.ejs') %>
