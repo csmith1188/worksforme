@@ -1,22 +1,25 @@
 <%- include('../../partials/header.ejs', {pageTitle: 'About' }); %>
 
-    <link rel="stylesheet" href="/public/css/home.css">
+    <link rel="stylesheet" href="/public/css/style.css">
+    <link rel="stylesheet" href="/public/css/eventPage.css">
 
     <div class="mainContainer">
-        <div class="content">
+        <div class="content" style="position: relative;">
             <% if (isCreator) { %>
                 <center>
-                    <form method="POST" action="/event/eventPage/<%= event.uid %>">
+                    <form action="/event/invite/<%= event.uid %>" method="GET" style="display: inline;">
+                        <button type="submit" class="inviteIcon" id="invite-button"></button>
+                    </form>
+
+                    <form method="POST" action="/event/eventPage/<%= event.uid %>" class="eventForm">
                         <h3>Update Event</h3>
-                        <input type="text" id="newEventName" name="newEventName"placeholder="New Event Name">
+                        <input type="text" id="newEventName" name="newEventName" placeholder="New Event Name">
 
                         <input id="newEventDesc" name="newEventDesc" placeholder="New Event Description"></input>
 
-                        <br>
+                        <button type="submit" class="btn">Update Event</button>
 
-                        <button type="submit">Update Event</button>
-
-                        <button type="submit" name="deleteEvent" value="true">Delete Event</button>
+                        <button type="submit" name="deleteEvent" value="true" class="btn btn-delete">Delete Event</button>
                     </form>
                 </center>
                 <% } %>
@@ -29,7 +32,9 @@
                             <%= event.description %>
                         </p>
                     </center>
-
         </div>
     </div>
+
+    <script src="/public/clientJS/eventPage.js"></script>
+
     <%- include('../../partials/footer.ejs') %>
