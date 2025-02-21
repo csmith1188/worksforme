@@ -68,6 +68,13 @@
 .cell {
     position: relative;
     height: 40px;
+    user-select: none;
+}
+
+.inner-cell {
+    width: 95%;
+    height: 90%;
+    transform: translate(2.5%, 5%);
 }
 
 .cell:not(.first) {
@@ -90,6 +97,9 @@
     font-size: 0.75rem;
     font-family: Arial, Helvetica, sans-serif;
     user-select: none;
+
+    /* big number */
+    z-index: 1000;
 
     position: absolute;
     top: 0px;

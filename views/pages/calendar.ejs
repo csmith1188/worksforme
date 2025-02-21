@@ -16,7 +16,7 @@
                     <div class="day-header <%= (i === 0) ? 'first' : ''; %>">
                         <span class="day-text"><%= daysOfTheWeek[i] %></span>
                         <br>
-                        <span class="date-text" id="date-text-<%= i %>">69</span>
+                        <span class="date-text" id="date-text-<%= i %>"><%= i+1 %></span>
                     </div>
                 <% } %>
             </div>
@@ -24,7 +24,8 @@
             <div id="grid">
                 <div id="cells">
                     <% for (let i = 0; i < 7*24; i++) { %>
-                        <div class="cell <%= (i % 7 === 0) ? 'first' : ''; %>" id="cell-<%= i %>">
+                        <div class="cell <%= (i % 7 === 0) ? 'first' : ''; %>" data-hour="<%= Math.floor(i / 7) %>">
+                            <div class="inner-cell"></div>
                         </div>
                     <% } %>
                 </div>
