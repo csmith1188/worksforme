@@ -79,6 +79,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                             }
                         });
 
+                        // Add event listener to the check mark button
+                        const checkMark = popup.querySelector('.check-mark');
+                        checkMark.addEventListener('click', async () => {
+                            const response = await fetch('/user/add', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    action: 'accept',
+                                    notif_uid: notification.uid
+                                })
+                            });
+
+                            const data = await response.json();
+                            if (data.success) {
+                                document.body.removeChild(popup);
+                            } else {
+                                alert('Error accepting notification');
+                            }
+                        });
+
                         document.body.appendChild(popup);
                     });
                     inboxContainer.appendChild(inboxItem);

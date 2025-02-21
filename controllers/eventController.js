@@ -7,6 +7,7 @@ const sanitizeInput = require('../util/sanitizeInput');
 const db = require('../util/dbAsyncWrapper');
 
 const eventService = require('../services/eventService.js');
+const notifServce = require('../services/notifServce.js');
 
 async function events(req, res) {
     const userUID = req.session.user.uid;
@@ -59,10 +60,34 @@ async function postCreateEvent(req, res) {
     res.redirect('/event/events');
 }
 
+async function invite(req, res) {
+    const { username, eventUID } = req.body;
+    const sendingUser = req.session.user.username;
+    //console.log(username, eventUID, sendingUser);
+
+    try {
+        const user = await notifServce.getUidByNameOrEmail(username);
+        if (!user) {
+            res.status(404).send('User not found');
+            return;
+        }
+
+        await notifServce.addUserToEvent(user.uid, eventUID);
+        const eventName = await notifServce.getEventNameByUID(eventUID);
+        await notifServce.inviteNotifications('Invite', sendingUser, user.uid, eventName.name, 'You have been invited to an event.');
+
+        res.status(200).send('User invited successfully');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+}
+
 module.exports = {
     events,
     createEvent,
     eventPage,
     postEventPage,
-    postCreateEvent
+    postCreateEvent,
+    invite
 };

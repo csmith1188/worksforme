@@ -7,6 +7,7 @@ const sanitizeInput = require('../util/sanitizeInput');
 
 const userService = require('../services/userService.js');
 const { getUserByUsernameOrEmail, registerUser } = require('../services/userService.js');
+const notifservce = require('../services/notifServce.js');
 
 //Load login rules
 const loginRulesPath = path.join(__dirname, '../rules/loginRules.json');
@@ -151,6 +152,26 @@ async function postInboxPage(req, res) {
     }
 }
 
+async function add(req, res) {
+    const notifUID = req.body.notif_uid;
+    const action = req.body.action;
+
+    try {
+
+        if (action === 'accept') {
+            const notifData = await notifservce.getNotificationsByUID(notifUID);
+            // Idk if this works
+            const eventUID = await  notifservce.getEventUIDByEventName(notifData.event)
+            return;
+        }
+
+        res.json({ success: false, message: 'Invalid action' });
+
+    }catch{
+        res.json({ success: false, message: 'Error accepting notification' });
+    }
+}
+
 module.exports = {
     formbar,
     logout,
@@ -161,5 +182,6 @@ module.exports = {
     userExists,
     calendarPage,
     inboxPage,
-    postInboxPage
+    postInboxPage,
+    add
 };
