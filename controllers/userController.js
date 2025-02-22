@@ -3,9 +3,11 @@ const urlHelper = require('../util/urlHelper.js');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const sanitizeInput = require('../util/sanitizeInput');
 
 const userService = require('../services/userService.js');
-const { getUserByUsername, registerUser } = require('../services/userService.js');
+const { getUserByUsernameOrEmail, registerUser } = require('../services/userService.js');
+const notifservce = require('../services/notifServce.js');
 
 //Load login rules
 const loginRulesPath = path.join(__dirname, '../rules/loginRules.json');
@@ -54,10 +56,11 @@ async function wmLogin(req, res) {
 }
 
 async function postwmLogin(req, res) {
-    const { username, password } = req.body;
+    let { username, password } = req.body;
+    username = sanitizeInput(username);
 
     try {
-        const user = await getUserByUsername(username);
+        const user = await getUserByUsernameOrEmail(username);
         if (!user) {
             return res.json({ success: false, message: 'Invalid username or password' });
         }
@@ -81,18 +84,31 @@ async function registerNewUser(req, res) {
 }
 
 async function postRegisterNewUser(req, res) {
-    const { username, password } = req.body;
+    let { username, email, password } = req.body;
+    username = sanitizeInput(username);
+    email = sanitizeInput(email);
+
+    // Check for valid email (thx google)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return res.json({ success: false, message: 'Invalid email format' });
+    }
 
     try {
-        const existingUser = await getUserByUsername(username);
+        const existingUser = await getUserByUsernameOrEmail(username);
         if (existingUser) {
             return res.json({ success: false, message: 'Username is already taken' });
+        }
+
+        const existingEmail = await userService.getUserByEmail(email);
+        if (existingEmail) {
+            return res.json({ success: false, message: 'Email is already taken' });
         }
 
         const salt = crypto.randomBytes(16).toString('hex');
         const hashedPassword = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
 
-        await registerUser(null, username, hashedPassword, salt);
+        await registerUser(null, username, email, hashedPassword, salt);
 
         return res.json({ success: true, redirect: '/user/WFMlogin' });
     } catch (error) {
@@ -102,7 +118,8 @@ async function postRegisterNewUser(req, res) {
 
 //Check if user exists
 async function userExists(req, res) {
-    const { username } = req.body;
+    let { username } = req.body;
+    username = sanitizeInput(username);
     const user = await getUserByUsername(username);
     return res.json({ exists: !!user });
 }
@@ -121,6 +138,61 @@ function logout(req, res) {
     });
 }
 
+//Inbox System
+async function inboxPage(req, res) {
+    res.render('pages/notificationSystem/inbox.ejs', { title: 'Inbox' });
+}
+
+async function postInboxPage(req, res) {
+    try {
+        const notifications = await userService.getNotificationsByUser(req.session.user.uid);
+        res.json({ success: true, notifications });
+    } catch (error) {
+        res.json({ success: false, message: 'Error fetching notifications' });
+    }
+}
+
+async function add(req, res) {
+    const notifUID = req.body.notif_uid;
+    const action = req.body.action;
+
+    try {
+        if (action === 'accept') {
+            const notifData = await notifservce.getNotificationsByUID(notifUID);
+            // console.log('Notification Data:', notifData);
+
+            if (!notifData) {
+                return res.json({ success: false, message: 'Notification not found' });
+            }
+
+            // console.log(notifData[0].event);
+            const eventUID = await notifservce.getEventUIDByEventName(notifData[0].event);
+            // console.log('Event UID:', eventUID);
+
+            if (!eventUID) {
+                return res.json({ success: false, message: 'Event not found' });
+            }
+
+            await notifservce.addUserToEvent(eventUID.uid, notifData[0].receiving_user_uid);
+            // console.log('User added to event with UID:', notifData[0].receiving_user_uid, 'and Event UID:', eventUID.uid);
+
+            await notifservce.deleteNotification(notifUID);
+
+            return res.json({ success: true });
+        }
+
+        if (action === 'reject') {
+            await notifservce.deleteNotification(notifUID);
+            return res.json({ success: true });
+        }
+
+        res.json({ success: false, message: 'Invalid action' });
+    } catch (error) {
+        console.error('Error handling notification action:', error);
+        res.json({ success: false, message: 'Error handling notification action' });
+    }
+}
+
 module.exports = {
     formbar,
     logout,
@@ -129,5 +201,8 @@ module.exports = {
     registerNewUser,
     postRegisterNewUser,
     userExists,
-    calendarPage
+    calendarPage,
+    inboxPage,
+    postInboxPage,
+    add
 };
