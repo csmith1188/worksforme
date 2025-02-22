@@ -29,13 +29,18 @@ async function getEventNameByUID(uid) {
 }
 
 async function getNotificationsByUID(uid) {
-    const sql = 'SELECT * FROM notifications WHERE notif_uid';
+    const sql = 'SELECT * FROM notifications WHERE uid = ?';
     return await db.all(sql, [uid]);
 }
 
 async function getEventUIDByEventName(name) {
     const sql = 'SELECT uid FROM events WHERE name = ?';
     return await db.get(sql, [name]);
+}
+
+async function deleteNotification(uid) {
+    const sql = 'DELETE FROM notifications WHERE uid = ?';
+    return await db.run(sql, [uid]);
 }
 
 module.exports = {
@@ -45,5 +50,6 @@ module.exports = {
     inviteNotifications,
     getEventNameByUID,
     getNotificationsByUID,
-    getEventUIDByEventName
+    getEventUIDByEventName,
+    deleteNotification
 };

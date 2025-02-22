@@ -157,18 +157,39 @@ async function add(req, res) {
     const action = req.body.action;
 
     try {
-
         if (action === 'accept') {
             const notifData = await notifservce.getNotificationsByUID(notifUID);
-            // Idk if this works
-            const eventUID = await  notifservce.getEventUIDByEventName(notifData.event)
-            return;
+            // console.log('Notification Data:', notifData);
+
+            if (!notifData) {
+                return res.json({ success: false, message: 'Notification not found' });
+            }
+
+            // console.log(notifData[0].event);
+            const eventUID = await notifservce.getEventUIDByEventName(notifData[0].event);
+            // console.log('Event UID:', eventUID);
+
+            if (!eventUID) {
+                return res.json({ success: false, message: 'Event not found' });
+            }
+
+            await notifservce.addUserToEvent(eventUID.uid, notifData[0].receiving_user_uid);
+            // console.log('User added to event with UID:', notifData[0].receiving_user_uid, 'and Event UID:', eventUID.uid);
+
+            await notifservce.deleteNotification(notifUID);
+
+            return res.json({ success: true });
+        }
+
+        if (action === 'reject') {
+            await notifservce.deleteNotification(notifUID);
+            return res.json({ success: true });
         }
 
         res.json({ success: false, message: 'Invalid action' });
-
-    }catch{
-        res.json({ success: false, message: 'Error accepting notification' });
+    } catch (error) {
+        console.error('Error handling notification action:', error);
+        res.json({ success: false, message: 'Error handling notification action' });
     }
 }
 
