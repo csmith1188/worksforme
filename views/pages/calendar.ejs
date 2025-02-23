@@ -23,9 +23,13 @@
 
             <div id="grid">
                 <div id="cells">
-                    <% for (let i = 0; i < 7*24; i++) { %>
-                        <div class="cell <%= (i % 7 === 0) ? 'first' : ''; %>" data-hour="<%= Math.floor(i / 7) %>">
-                            <div class="inner-cell"></div>
+                    <% for (let i = 0; i < 7; i++) { %>
+                        <div class="day-column" data-index="<%= i %>">
+                            <% for (let j = 0; j < 24; j++) { %>
+                                <div class="cell <%= (i % 7 === 0) ? 'first' : ''; %>" data-hour="<%= j %>">
+                                    <div class="inner-cell"></div>
+                                </div>
+                            <% } %>
                         </div>
                     <% } %>
                 </div>
