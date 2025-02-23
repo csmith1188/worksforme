@@ -10,10 +10,12 @@ let resizingBlock = null;
 let movingBlock = null;
 
 let movingBlockOriginalY = null;
+let movingBlockMouseOffsetY = null;
 
 let targetCell = null;
 
 let grid;
+let dayColumns;
 
 function snapNum(num, snapTo) {
     return Math.round(num / snapTo) * snapTo;
@@ -21,6 +23,7 @@ function snapNum(num, snapTo) {
 
 document.addEventListener('DOMContentLoaded', function() {
     grid = document.getElementById('grid');
+    dayColumns = Array.from(document.getElementsByClassName('day-column'));
 
     grid.addEventListener('mousedown', function(e) {
         isMouseDown = true;
@@ -76,10 +79,6 @@ document.addEventListener('DOMContentLoaded', function() {
             movePoint.classList.add('time-block-move-point');
             newBlock.appendChild(movePoint);
 
-            // initialize the block's time data
-            newBlock.dataset.hour = targetCell.dataset.hour;
-            newBlock.dataset.minute = parseInt(newBlock.style.top);
-
             // finished creating block
             newBlock = null;
             targetCell = null;
@@ -126,35 +125,40 @@ document.addEventListener('DOMContentLoaded', function() {
         // moving block
         } else if (movingBlock) {
 
+            const blockBox = movingBlock.getBoundingClientRect();
+            const cellBox = movingBlock.parentElement.getBoundingClientRect();
+
             // a little awkward but it ok
             if(movingBlockOriginalY === null){
-                movingBlockOriginalY = movingBlock.getBoundingClientRect().top;
+                movingBlockOriginalY = blockBox.top;
             }
 
             let yDiff = e.clientY - movingBlockOriginalY;
-            // can't use snapnum for mins
-            let mins = snapNum(yDiff, pxPer15Mins);
+            let newY = snapNum(yDiff, pxPer15Mins);
 
-            movingBlock.dataset.minutes = mins % 60;
-            movingBlock.dataset.hour = Math.floor(mins / 60);
+            // if the block is moved an hour or more, reparent it to new cell and reset the y offset
+            if(Math.abs(newY - parseInt(movingBlock.style.top)) >= pxPer15Mins * 4){
 
-            // reparent the block if it crosses into a new cell
-            /*const dayColumn = movingBlock.parentElement.parentElement;
-            const cells = Array.from(dayColumn.children);
-            const newParentCell = cells.find(cell => cell.dataset.hour === movingBlock.dataset.hour);
+                const dayColumn = movingBlock.parentElement.parentElement;
+                const dayCells = Array.from(dayColumn.children);
+                const currentCell = movingBlock.parentElement;
 
-            // no need to reparent if it's the same cell
-            if (newParentCell && newParentCell !== movingBlock.parentElement){
-                console.log('reparenting');
-                newParentCell.append(movingBlock);
-                movingBlock.style.top = '0px';
+                // calculate the current hour the block is in, then find the cell for that hour
+                const currentHour = +currentCell.dataset.hour + Math.floor(((newY / pxPer15Mins) * 15) / 60);
+                let newParentCell = dayCells.find(cell => +cell.dataset.hour === currentHour);
+
+                // reparent the cell and reset the y offset
+                if (newParentCell) {
+
+                    newParentCell.append(movingBlock);
+                    movingBlock.style.top = '0px';
+                    movingBlockOriginalY = null;
+
+                }
+
             } else {
-                movingBlock.style.top = mins + 'px';
-            }*/
-
-            movingBlock.style.top = mins + 'px';
-
-            console.log(`${movingBlock.dataset.hour}:${movingBlock.dataset.minute}`);
+                movingBlock.style.top = newY + 'px';
+            }
 
         }
 
