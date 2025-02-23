@@ -12,7 +12,7 @@ let movingBlock = null;
 let movingBlockOriginalY = null;
 let movingBlockMouseOffsetY = null;
 
-let targetCell = null;
+let targetColumn = null;
 
 let grid;
 let dayColumns;
@@ -31,12 +31,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // if you clicked on a cell (you are placing a new block)
         if (e.target.classList.contains('inner-cell')) {
 
-            targetCell = e.target.parentElement;
+            targetColumn = e.target.parentElement.parentElement;
             newBlock = document.createElement('div');
             newBlock.classList.add('time-block');
 
-            let cellBox = targetCell.getBoundingClientRect();
-            let yDiff = e.clientY - cellBox.top;
+            let yDiff = e.clientY - newBlock.getBoundingClientRect().top;
             // round to the nearest 15 minutes
             let blockY = snapNum(yDiff, pxPer15Mins);
 
@@ -66,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (newBlock) {
             // add the block to the cell if the user releases the mouse
             if(!newBlock.parentElement){
-                targetCell.appendChild(newBlock);
+                targetColumn.appendChild(newBlock);
             }
 
             // create point on the timeblock where you can click and drag to resize it
@@ -81,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // finished creating block
             newBlock = null;
-            targetCell = null;
+            targetColumn = null;
 
         } else if (resizingBlock) {
             // finished resizing
@@ -98,11 +97,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if(newBlock){
             // if the block hasn't been added to the cell, add it
             if(!newBlock.parentElement){
-                targetCell.appendChild(newBlock);
+                targetColumn.appendChild(newBlock);
             }
 
-            let cellBox = targetCell.getBoundingClientRect();
-            let yDiff = e.clientY - cellBox.top;
+            let yDiff = e.clientY - newBlock.getBoundingClientRect().top;
+            console.log(yDiff);
             // round to the nearest 15 minutes
             let height = snapNum(yDiff, pxPer15Mins);
 
@@ -126,7 +125,6 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (movingBlock) {
 
             const blockBox = movingBlock.getBoundingClientRect();
-            const cellBox = movingBlock.parentElement.getBoundingClientRect();
 
             // a little awkward but it ok
             if(movingBlockOriginalY === null){
@@ -136,29 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let yDiff = e.clientY - movingBlockOriginalY;
             let newY = snapNum(yDiff, pxPer15Mins);
 
-            // if the block is moved an hour or more, reparent it to new cell and reset the y offset
-            if(Math.abs(newY - parseInt(movingBlock.style.top)) >= pxPer15Mins * 4){
-
-                const dayColumn = movingBlock.parentElement.parentElement;
-                const dayCells = Array.from(dayColumn.children);
-                const currentCell = movingBlock.parentElement;
-
-                // calculate the current hour the block is in, then find the cell for that hour
-                const currentHour = +currentCell.dataset.hour + Math.floor(((newY / pxPer15Mins) * 15) / 60);
-                let newParentCell = dayCells.find(cell => +cell.dataset.hour === currentHour);
-
-                // reparent the cell and reset the y offset
-                if (newParentCell) {
-
-                    newParentCell.append(movingBlock);
-                    movingBlock.style.top = '0px';
-                    movingBlockOriginalY = null;
-
-                }
-
-            } else {
-                movingBlock.style.top = newY + 'px';
-            }
+            movingBlock.style.top = newY + 'px';
 
         }
 

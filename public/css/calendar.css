@@ -59,6 +59,10 @@
     position: relative;
 }
 
+.day-column {
+    position: relative;
+}
+
 #cells {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -67,7 +71,6 @@
 }
 
 .cell {
-    position: relative;
     height: 40px;
     user-select: none;
 }
