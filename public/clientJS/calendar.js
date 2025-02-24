@@ -21,6 +21,7 @@ let targetColumn = null;
 
 let grid;
 let gridBox;
+let gridStyle;
 let dayColumns;
 
 function snapNum(num, snapTo) {
@@ -30,6 +31,7 @@ function snapNum(num, snapTo) {
 document.addEventListener('DOMContentLoaded', function() {
     grid = document.getElementById('grid');
     gridBox = grid.getBoundingClientRect();
+    gridStyle = getComputedStyle(grid);
     dayColumns = Array.from(document.getElementsByClassName('day-column'));
 
     grid.addEventListener('mousedown', function(e) {
@@ -76,6 +78,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 targetColumn.appendChild(newBlock);
             }
 
+            updateTimeBlock(newBlock);
+
             // finished creating block
             newBlock = null;
             targetColumn = null;
@@ -110,6 +114,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // resizing an already existing block
         } else if (resizingBlock) {
+
+            console.log('its resizing');
 
             let blockBox = resizingBlock.getBoundingClientRect();
             let yDiff = e.clientY - blockBox.top;
@@ -147,8 +153,27 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function updateTimeBlock(timeBlock){
-    let blockTop = parseInt(timeBlock.style.top);
-    let blockBottom = blockTop + parseInt(timeBlock.style.height);
+
+    const blockBox = timeBlock.getBoundingClientRect();
+
+    // clamp it
+
+    console.log(parseInt(timeBlock.style.top) + parseInt(timeBlock.style.height));
+    console.log(grid.scrollHeight);
+
+    if (parseInt(timeBlock.style.top) < 0) {
+        timeBlock.style.top = 0;
+    }
+
+    if (parseInt(timeBlock.style.top) + parseInt(timeBlock.style.height) > grid.scrollHeight) {
+        console.log('yes');
+        //timeBlock.style.top = grid.scrollHeight - blockBox.height + 'px';
+    }
+
+    let timeBlockStyle = getComputedStyle(timeBlock);
+
+    let blockTop = parseInt(timeBlockStyle.top);
+    let blockBottom = blockTop + parseInt(timeBlockStyle.height);
 
     let startMinutes = (blockTop / pxPer15Mins * 15);
     let endMinutes = (blockBottom / pxPer15Mins * 15);
