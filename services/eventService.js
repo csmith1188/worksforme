@@ -2,10 +2,16 @@ const path = require('path');
 const sql = require('sqlite3').verbose();
 const db = require('../util/dbAsyncWrapper');
 const dateRanker = require('./rankDates');
+const { AsyncResource } = require('async_hooks');
 
 // Getting events or creating
 async function getAllEvents() {
     const sql = 'SELECT * FROM events';
+    return await db.all(sql);
+}
+//gets all the message boards
+async function getEventMB() {
+    const sql = 'SELECT * FROM eventsMB';
     return await db.all(sql);
 }
 
@@ -48,12 +54,14 @@ async function updateEventDescription(uid, newDescription) {
 }
 
 async function deleteEvent(uid) {
+
     const sql = 'DELETE FROM events WHERE uid = ?';
     return await db.run(sql, [uid]);
 }
 
 module.exports = {
     getAllEvents,
+    getEventMB,
     getEventByUID,
     updateEventName,
     updateEventDescription,
