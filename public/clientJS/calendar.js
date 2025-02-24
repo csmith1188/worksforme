@@ -9,12 +9,12 @@ let newBlock = null;
 let resizingBlock = null;
 let movingBlock = null;
 
-let movingBlockOriginalY = null;
-let movingBlockMouseOffsetY = null;
+let movingBlockMouseOffset = null;
 
 let targetColumn = null;
 
 let grid;
+let gridBox;
 let dayColumns;
 
 function snapNum(num, snapTo) {
@@ -23,6 +23,7 @@ function snapNum(num, snapTo) {
 
 document.addEventListener('DOMContentLoaded', function() {
     grid = document.getElementById('grid');
+    gridBox = grid.getBoundingClientRect();
     dayColumns = Array.from(document.getElementsByClassName('day-column'));
 
     grid.addEventListener('mousedown', function(e) {
@@ -35,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
             newBlock = document.createElement('div');
             newBlock.classList.add('time-block');
 
-            let yDiff = e.clientY - newBlock.getBoundingClientRect().top;
+            let yDiff = e.clientY - targetColumn.getBoundingClientRect().top;
             // round to the nearest 15 minutes
             let blockY = snapNum(yDiff, pxPer15Mins);
 
@@ -88,7 +89,6 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (movingBlock){
             // finished moving
             movingBlock = null;
-            movingBlockOriginalY = null;
         }
     });
 
@@ -125,14 +125,15 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (movingBlock) {
 
             const blockBox = movingBlock.getBoundingClientRect();
+            const columnBox = movingBlock.parentElement.getBoundingClientRect();
 
-            // a little awkward but it ok
-            if(movingBlockOriginalY === null){
-                movingBlockOriginalY = blockBox.top;
+            let yDiff = e.clientY - columnBox.top;
+
+            if(movingBlockMouseOffset === null){
+                movingBlockMouseOffset = e.clientY - blockBox.top;
             }
 
-            let yDiff = e.clientY - movingBlockOriginalY;
-            let newY = snapNum(yDiff, pxPer15Mins);
+            let newY = snapNum(yDiff - movingBlockMouseOffset, pxPer15Mins);
 
             movingBlock.style.top = newY + 'px';
 
