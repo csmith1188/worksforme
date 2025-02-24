@@ -1,6 +1,12 @@
 // the .25 accounts for the border of the cell
 // biggest brain blast of my entire life
-const pxPer15Mins = 10.25;
+const pxPer15Mins = 10;
+
+const timeBlockInnerHTML = `
+    <p class="time-block-text"></p>
+    <div class="time-block-resize-point"></div>
+    <div class="time-block-move-point"></div>
+`;
 
 let isMouseDown = false;
 let draggingElement = null;
@@ -33,8 +39,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target.classList.contains('inner-cell')) {
 
             targetColumn = e.target.parentElement.parentElement;
+
             newBlock = document.createElement('div');
             newBlock.classList.add('time-block');
+            newBlock.innerHTML = timeBlockInnerHTML;
 
             let yDiff = e.clientY - targetColumn.getBoundingClientRect().top;
             // round to the nearest 15 minutes
@@ -57,27 +65,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         }
 
-
     });
 
     document.addEventListener('mouseup', function(e) {
         isMouseDown = false;
 
         if (newBlock) {
-            // add the block to the cell if the user releases the mouse
+            // add the block to the cell
             if(!newBlock.parentElement){
                 targetColumn.appendChild(newBlock);
             }
-
-            // create point on the timeblock where you can click and drag to resize it
-            let resizePoint = document.createElement('div');
-            resizePoint.classList.add('time-block-resize-point');
-            newBlock.appendChild(resizePoint);
-
-            // create point on the timeblock where you can click and drag to move it
-            let movePoint = document.createElement('div');
-            movePoint.classList.add('time-block-move-point');
-            newBlock.appendChild(movePoint);
 
             // finished creating block
             newBlock = null;
@@ -89,6 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (movingBlock){
             // finished moving
             movingBlock = null;
+            movingBlockMouseOffset = null;
         }
     });
 
@@ -101,13 +99,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             let yDiff = e.clientY - newBlock.getBoundingClientRect().top;
-            console.log(yDiff);
             // round to the nearest 15 minutes
             let height = snapNum(yDiff, pxPer15Mins);
 
             if (height < pxPer15Mins) height = pxPer15Mins;
 
             newBlock.style.height = height + 'px';
+
+            updateTimeBlock(newBlock);
         
         // resizing an already existing block
         } else if (resizingBlock) {
@@ -120,6 +119,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (height < pxPer15Mins) height = pxPer15Mins;
 
             resizingBlock.style.height = height + 'px';
+
+            updateTimeBlock(resizingBlock);
 
         // moving block
         } else if (movingBlock) {
@@ -137,8 +138,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
             movingBlock.style.top = newY + 'px';
 
+            updateTimeBlock(movingBlock);
+
         }
 
     });
     
 });
+
+function updateTimeBlock(timeBlock){
+    let blockTop = parseInt(timeBlock.style.top);
+    let blockBottom = blockTop + parseInt(timeBlock.style.height);
+
+    let startMinutes = (blockTop / pxPer15Mins * 15);
+    let endMinutes = (blockBottom / pxPer15Mins * 15);
+    let startHour = Math.floor(startMinutes / 60);
+    let endHour = Math.floor(endMinutes / 60);
+    let startMinutesPadded = String(Math.ceil(startMinutes % 60)).padStart(2, '0');
+    let endMinutesPadded = String(Math.ceil(endMinutes % 60)).padStart(2, '0');
+    let startTimeString = `${startHour}:${startMinutesPadded}`;
+    let endTimeString = `${endHour}:${endMinutesPadded}`;
+
+    timeBlock.querySelector('.time-block-text').innerText = `${startTimeString} - ${endTimeString}`;
+}
