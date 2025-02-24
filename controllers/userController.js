@@ -7,6 +7,7 @@ const sanitizeInput = require('../util/sanitizeInput');
 
 const userService = require('../services/userService.js');
 const { getUserByUsernameOrEmail, registerUser } = require('../services/userService.js');
+const notifservce = require('../services/notifServce.js');
 
 //Load login rules
 const loginRulesPath = path.join(__dirname, '../rules/loginRules.json');
@@ -151,6 +152,47 @@ async function postInboxPage(req, res) {
     }
 }
 
+async function add(req, res) {
+    const notifUID = req.body.notif_uid;
+    const action = req.body.action;
+
+    try {
+        if (action === 'accept') {
+            const notifData = await notifservce.getNotificationsByUID(notifUID);
+            // console.log('Notification Data:', notifData);
+
+            if (!notifData) {
+                return res.json({ success: false, message: 'Notification not found' });
+            }
+
+            // console.log(notifData[0].event);
+            const eventUID = await notifservce.getEventUIDByEventName(notifData[0].event);
+            // console.log('Event UID:', eventUID);
+
+            if (!eventUID) {
+                return res.json({ success: false, message: 'Event not found' });
+            }
+
+            await notifservce.addUserToEvent(eventUID.uid, notifData[0].receiving_user_uid);
+            // console.log('User added to event with UID:', notifData[0].receiving_user_uid, 'and Event UID:', eventUID.uid);
+
+            await notifservce.deleteNotification(notifUID);
+
+            return res.json({ success: true });
+        }
+
+        if (action === 'reject') {
+            await notifservce.deleteNotification(notifUID);
+            return res.json({ success: true });
+        }
+
+        res.json({ success: false, message: 'Invalid action' });
+    } catch (error) {
+        console.error('Error handling notification action:', error);
+        res.json({ success: false, message: 'Error handling notification action' });
+    }
+}
+
 module.exports = {
     formbar,
     logout,
@@ -161,5 +203,6 @@ module.exports = {
     userExists,
     calendarPage,
     inboxPage,
-    postInboxPage
+    postInboxPage,
+    add
 };

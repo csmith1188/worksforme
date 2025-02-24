@@ -34,7 +34,6 @@ async function getUserByUsernameOrEmail(identifier){
     return user ?? null;
 }
 
-
 // Notification functions
 // Going to use this for almost all notifications
 async function getNotificationsByUser(receivingUserUID){
@@ -52,6 +51,11 @@ async function getNotificationType(type){
     return notification ?? null;
 }
 
+async function getNotificationsByUser(receivingUserUID) {
+    let notifications = await db.all('SELECT * FROM notifications WHERE receiving_user_uid = ?;', [receivingUserUID]);
+    return notifications ?? null;
+}
+
 module.exports = {
     registerUser,
     getUserByUID,
@@ -61,5 +65,6 @@ module.exports = {
     getUserByUsername,
     getNotificationsByUser,
     getNotificationByEvent,
-    getNotificationType
-}
+    getNotificationType,
+    getNotificationsByUser
+};

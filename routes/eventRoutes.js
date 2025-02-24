@@ -14,4 +14,6 @@ router.post('/eventPage/:aEvent', auth, eventController.postEventPage);
 
 router.post('/createEvent', auth, eventController.postCreateEvent);
 
+router.post('/invite', auth, eventController.invite);
+
 module.exports = router;

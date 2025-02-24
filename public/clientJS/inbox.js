@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 noNotificationsMessage.innerText = 'You have no notifications.';
                 inboxContainer.appendChild(noNotificationsMessage);
             } else {
-
                 // Iterate over each notification and create an inbox item
                 data.notifications.forEach((notification) => {
                     const inboxItem = document.createElement('div');
@@ -76,6 +75,66 @@ document.addEventListener('DOMContentLoaded', async () => {
                         window.addEventListener('click', (e) => {
                             if (e.target === popup) {
                                 document.body.removeChild(popup);
+                            }
+                        });
+
+                        // Add event listener to the check mark button
+                        const checkMark = popup.querySelector('.check-mark');
+                        checkMark.addEventListener('click', async () => {
+                            try {
+                                const response = await fetch('/user/add', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        action: 'accept',
+                                        notif_uid: notification.uid
+                                    })
+                                });
+
+                                const data = await response.json();
+                                if (data.success) {
+                                    alert('Notification accepted');
+                                    document.body.removeChild(popup);
+                                    window.location.reload();
+                                } else {
+                                    // console.log(data);
+                                    alert('Error just happened, please try again later.');
+                                }
+                            } catch (error) {
+                                console.error('Error:', error);
+                                alert('Error just happened, please try again later.');
+                            }
+                        });
+
+                        // Add event listener to the x-mark button (reject notification)
+                        const xMark = popup.querySelector('.x-mark');
+                        xMark.addEventListener('click', async () => {
+                            try {
+                                const response = await fetch('/user/add', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        action: 'reject',
+                                        notif_uid: notification.uid
+                                    })
+                                });
+
+                                const data = await response.json();
+                                if (data.success) {
+                                    alert('Notification rejected');
+                                    document.body.removeChild(popup);
+                                    window.location.reload();
+                                } else {
+                                    // console.log(data);
+                                    alert('Error just happened, please try again later.');
+                                }
+                            } catch (error) {
+                                console.error('Error:', error);
+                                alert('Error just happened, please try again later.');
                             }
                         });
 
