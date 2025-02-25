@@ -8,6 +8,8 @@ const db = require('../util/dbAsyncWrapper');
 
 const eventService = require('../services/eventService.js');
 const notifServce = require('../services/notifServce.js');
+const { log } = require('console');
+const e = require('express');
 
 async function events(req, res) {
     const userUID = req.session.user.uid;
@@ -16,23 +18,25 @@ async function events(req, res) {
 }
 
 async function createEvent(req, res) {
-    res.render('pages/events/createEvent');
+    res.render('pages/events/createEvent');           
 }
 
 async function eventPage(req, res) {
     const aEvent = req.params.aEvent;
     const aEventMB = req.params.aEventMB;
+
     const event = await eventService.getEventByUID(aEvent);
     const eventMB = await eventService.getEventMBByUID(aEventMB);
+    console.log(eventMB);
+    
     const userUID = req.session.user.uid;
     const isCreator = await eventService.isEventCreator(aEvent, userUID);
 
     if (!event) {
-        res.redirect('/event/events');
-        return;
+        return res.status(404).send('Event not found');
     }
 
-    res.render('pages/events/eventPage', { event, isCreator });
+    res.render('pages/events/eventPage', { event, eventMB, isCreator });
 }
 
 async function postEventPage(req, res) {
