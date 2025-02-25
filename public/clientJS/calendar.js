@@ -21,6 +21,7 @@ let targetColumn = null;
 
 let grid;
 let gridBox;
+let gridBottom;
 let gridStyle;
 let dayColumns;
 
@@ -31,6 +32,7 @@ function snapNum(num, snapTo) {
 document.addEventListener('DOMContentLoaded', function() {
     grid = document.getElementById('grid');
     gridBox = grid.getBoundingClientRect();
+    gridBottom = grid.scrollHeight;
     gridStyle = getComputedStyle(grid);
     dayColumns = Array.from(document.getElementsByClassName('day-column'));
 
@@ -45,6 +47,8 @@ document.addEventListener('DOMContentLoaded', function() {
             newBlock = document.createElement('div');
             newBlock.classList.add('time-block');
             newBlock.innerHTML = timeBlockInnerHTML;
+
+
 
             let yDiff = e.clientY - targetColumn.getBoundingClientRect().top;
             // round to the nearest 15 minutes
@@ -156,24 +160,23 @@ function updateTimeBlock(timeBlock){
 
     const blockBox = timeBlock.getBoundingClientRect();
 
+    let blockTop = parseInt(timeBlock.style.top);
+    let blockBottom = blockTop + parseInt(timeBlock.style.height);
+
     // clamp it
 
-    console.log(parseInt(timeBlock.style.top) + parseInt(timeBlock.style.height));
-    console.log(grid.scrollHeight);
-
-    if (parseInt(timeBlock.style.top) < 0) {
+    if (blockTop < 0) {
         timeBlock.style.top = 0;
     }
 
-    if (parseInt(timeBlock.style.top) + parseInt(timeBlock.style.height) > grid.scrollHeight) {
-        console.log('yes');
-        //timeBlock.style.top = grid.scrollHeight - blockBox.height + 'px';
+    if (blockBottom > gridBottom) {
+        timeBlock.style.top = gridBottom - blockBox.height + 'px';
     }
 
-    let timeBlockStyle = getComputedStyle(timeBlock);
+    // get them again after clamping
 
-    let blockTop = parseInt(timeBlockStyle.top);
-    let blockBottom = blockTop + parseInt(timeBlockStyle.height);
+    blockTop = parseInt(timeBlock.style.top);
+    blockBottom = blockTop + parseInt(timeBlock.style.height);
 
     let startMinutes = (blockTop / pxPer15Mins * 15);
     let endMinutes = (blockBottom / pxPer15Mins * 15);
