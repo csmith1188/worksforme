@@ -21,7 +21,9 @@ async function createEvent(req, res) {
 
 async function eventPage(req, res) {
     const aEvent = req.params.aEvent;
+    const aEventMB = req.params.aEventMB;
     const event = await eventService.getEventByUID(aEvent);
+    const eventMB = await eventService.getEventMBByUID(aEventMB);
     const userUID = req.session.user.uid;
     const isCreator = await eventService.isEventCreator(aEvent, userUID);
 
