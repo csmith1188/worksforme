@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
             newBlock.classList.add('time-block');
             newBlock.innerHTML = timeBlockInnerHTML;
 
-
+            resizingBlock = newBlock;
 
             let yDiff = e.clientY - targetColumn.getBoundingClientRect().top;
             // round to the nearest 15 minutes
@@ -86,6 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // finished creating block
             newBlock = null;
+            resizingBlock = null;
             targetColumn = null;
 
         } else if (resizingBlock) {
@@ -99,36 +100,29 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.addEventListener('mousemove', function(e) {
-        // resizing block while it's being created
-        if(newBlock){
+        if (newBlock){
             // if the block hasn't been added to the cell, add it
             if(!newBlock.parentElement){
                 targetColumn.appendChild(newBlock);
             }
 
-            let yDiff = e.clientY - newBlock.getBoundingClientRect().top;
-            // round to the nearest 15 minutes
-            let height = snapNum(yDiff, pxPer15Mins);
-
-            if (height < pxPer15Mins) height = pxPer15Mins;
-
-            newBlock.style.height = height + 'px';
-
-            updateTimeBlock(newBlock);
+        }
         
-        // resizing an already existing block
-        } else if (resizingBlock) {
+        if (resizingBlock) {
 
-            console.log('its resizing');
+            const blockBox = resizingBlock.getBoundingClientRect();
+            const blockTop = parseInt(resizingBlock.style.top);
+            const blockBottom = parseInt(resizingBlock.style.top) + parseInt(resizingBlock.style.height);
 
-            let blockBox = resizingBlock.getBoundingClientRect();
             let yDiff = e.clientY - blockBox.top;
-            // round to the nearest 15 minutes
-            let height = snapNum(yDiff, pxPer15Mins);
+            let newHeight = yDiff;
 
-            if (height < pxPer15Mins) height = pxPer15Mins;
+            if (newHeight < pxPer15Mins) newHeight = pxPer15Mins;
 
-            resizingBlock.style.height = height + 'px';
+            // if the new height is bigger than the old height and the block is at the bottom of the grid, don't resize
+            if (newHeight > blockBox.height && blockBottom >= gridBottom) return;
+
+            resizingBlock.style.height = snapNum(newHeight, pxPer15Mins) + 'px';
 
             updateTimeBlock(resizingBlock);
 
@@ -146,6 +140,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
             let newY = snapNum(yDiff - movingBlockMouseOffset, pxPer15Mins);
 
+
+            // clamp
+            if(newY < 0) newY = 0;
+            if(newY + blockBox.height > columnBox.height) newY = gridBottom - blockBox.height;
+
             movingBlock.style.top = newY + 'px';
 
             updateTimeBlock(movingBlock);
@@ -158,25 +157,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function updateTimeBlock(timeBlock){
 
+    const blockStyle = getComputedStyle(timeBlock);
     const blockBox = timeBlock.getBoundingClientRect();
 
-    let blockTop = parseInt(timeBlock.style.top);
-    let blockBottom = blockTop + parseInt(timeBlock.style.height);
-
-    // clamp it
-
-    if (blockTop < 0) {
-        timeBlock.style.top = 0;
-    }
-
-    if (blockBottom > gridBottom) {
-        timeBlock.style.top = gridBottom - blockBox.height + 'px';
-    }
-
-    // get them again after clamping
-
-    blockTop = parseInt(timeBlock.style.top);
-    blockBottom = blockTop + parseInt(timeBlock.style.height);
+    let blockTop = parseInt(blockStyle.top);
+    let blockBottom = blockTop + parseInt(blockStyle.height);
 
     let startMinutes = (blockTop / pxPer15Mins * 15);
     let endMinutes = (blockBottom / pxPer15Mins * 15);
