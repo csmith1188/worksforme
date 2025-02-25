@@ -17,9 +17,9 @@ async function addUserToEvent(uid, eventUID) {
     return await db.run(sql, [eventUID, uid]);
 }
 
-async function inviteNotifications(notif_type, sending_user, receiving_user_uid, event, notif_content) {
-    const sql = 'INSERT INTO notifications (notif_type, sending_user, receiving_user_uid, event, notif_content) VALUES (?, ?, ?, ?, ?)';
-    const params = [notif_type, sending_user, receiving_user_uid, event, notif_content];
+async function inviteNotifications(notif_type, sending_user, receiving_user_uid, event, notif_content, timestamp) {
+    const sql = 'INSERT INTO notifications (notif_type, sending_user, receiving_user_uid, event, notif_content, timestamp) VALUES (?, ?, ?, ?, ?, ?)';
+    const params = [notif_type, sending_user, receiving_user_uid, event, notif_content, timestamp];
     return await db.run(sql, params);
 }
 

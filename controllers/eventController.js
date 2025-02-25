@@ -8,6 +8,7 @@ const db = require('../util/dbAsyncWrapper');
 
 const eventService = require('../services/eventService.js');
 const notifServce = require('../services/notifServce.js');
+const { date } = require('joi');
 
 async function events(req, res) {
     const userUID = req.session.user.uid;
@@ -72,9 +73,11 @@ async function invite(req, res) {
             return;
         }
 
+        let date = new Date();
+
         await notifServce.addUserToEvent(user.uid, eventUID);
         const eventName = await notifServce.getEventNameByUID(eventUID);
-        await notifServce.inviteNotifications('Invite', sendingUser, user.uid, eventName.name, 'You have been invited to an event.');
+        await notifServce.inviteNotifications('Invite', sendingUser, user.uid, eventName.name, 'You have been invited to an event.', date.toISOString());
 
         res.status(200).send('User invited successfully');
     } catch (error) {

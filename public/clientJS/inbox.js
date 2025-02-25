@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 inboxContainer.appendChild(noNotificationsMessage);
             } else {
                 // Iterate over each notification and create an inbox item
-                data.notifications.forEach((notification) => {
+                data.notifications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).forEach((notification) => {
                     const inboxItem = document.createElement('div');
                     inboxItem.className = 'inboxItem';
                     let buttonHTML = '';
