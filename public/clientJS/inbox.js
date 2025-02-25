@@ -29,17 +29,84 @@ document.addEventListener('DOMContentLoaded', async () => {
                     // Determine the icon and message for the notification based on its type
                     switch (notification.notif_type) {
                         case 'Invite':
+                            buttonHTML = `<div class="button-container"><button class="check-mark">✔</button><button class="x-mark">✖</button></div>`;
                             inboxItem.innerHTML = `<i class="fas fa-bell"></i> ${notification.notif_type} to join ${notification.event}.`;
-                            buttonHTML = `<center><button class="check-mark">✔</button><button class="x-mark">✖</button></center>`;
                             break;
                         case 'Message':
+                            buttonHTML = `<div class="button-container"><button class="check-mark">✔</button><button class="x-mark">✖</button></div>`;
                             inboxItem.innerHTML = `<i class="fas fa-envelope"></i> ${notification.notif_type} from ${notification.sending_user}.`;
-                            buttonHTML = `<center><button class="check-mark">✔</button><button class="x-mark">✖</button></center>`;
                             break;
                         case 'Alert':
+                            buttonHTML = `<div class="button-container"><button class="x-mark">✖</button></div>`;
                             inboxItem.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${notification.notif_type} from ${notification.event}.`;
-                            buttonHTML = `<center><button class="x-mark">✖</button></center>`;
                             break;
+                    }
+
+                    // Append the buttonHTML to the inboxItem
+                    inboxItem.innerHTML += buttonHTML;
+
+                    // Add event listener to the check mark button
+                    const checkMark = inboxItem.querySelector('.check-mark');
+                    if (checkMark) {
+                        checkMark.addEventListener('click', async (e) => {
+                            e.stopPropagation();
+                            try {
+                                const response = await fetch('/user/add', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        action: 'accept',
+                                        notif_uid: notification.uid
+                                    })
+                                });
+
+                                const data = await response.json();
+                                if (data.success) {
+                                    alert('Notification accepted');
+                                    inboxItem.remove();
+                                    window.location.reload();
+                                } else {
+                                    alert('Error accepting notification');
+                                }
+                            } catch (error) {
+                                console.error('Error:', error);
+                                alert('Error accepting notification');
+                            }
+                        });
+                    }
+
+                    // Add event listener to the x-mark button (reject notification)
+                    const xMark = inboxItem.querySelector('.x-mark');
+                    if (xMark) {
+                        xMark.addEventListener('click', async (e) => {
+                            e.stopPropagation();
+                            try {
+                                const response = await fetch('/user/add', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        action: 'reject',
+                                        notif_uid: notification.uid
+                                    })
+                                });
+
+                                const data = await response.json();
+                                if (data.success) {
+                                    alert('Notification rejected');
+                                    inboxItem.remove();
+                                    window.location.reload();
+                                } else {
+                                    alert('Error rejecting notification');
+                                }
+                            } catch (error) {
+                                console.error('Error:', error);
+                                alert('Error rejecting notification');
+                            }
+                        });
                     }
 
                     // Click event to show a pop-up with more details
@@ -57,11 +124,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     <p><strong>Message:</strong> ${notification.notif_content}</p>
                                 </div>
                                 <br>
-
                                 <div class="notif_buttons">
                                 ${buttonHTML}
                                 </div>
-
                             </div>
                         `;
 
@@ -80,63 +145,67 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                         // Add event listener to the check mark button
                         const checkMark = popup.querySelector('.check-mark');
-                        checkMark.addEventListener('click', async () => {
-                            try {
-                                const response = await fetch('/user/add', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json'
-                                    },
-                                    body: JSON.stringify({
-                                        action: 'accept',
-                                        notif_uid: notification.uid
-                                    })
-                                });
+                        if (checkMark) {
+                            checkMark.addEventListener('click', async (e) => {
+                                e.stopPropagation();
+                                try {
+                                    const response = await fetch('/user/add', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify({
+                                            action: 'accept',
+                                            notif_uid: notification.uid
+                                        })
+                                    });
 
-                                const data = await response.json();
-                                if (data.success) {
-                                    alert('Notification accepted');
-                                    document.body.removeChild(popup);
-                                    window.location.reload();
-                                } else {
-                                    // console.log(data);
-                                    alert('Error just happened, please try again later.');
+                                    const data = await response.json();
+                                    if (data.success) {
+                                        alert('Notification accepted');
+                                        window.location.reload();
+                                        inboxItem.remove();
+                                    } else {
+                                        alert('Error accepting notification');
+                                    }
+                                } catch (error) {
+                                    console.error('Error:', error);
+                                    alert('Error accepting notification');
                                 }
-                            } catch (error) {
-                                console.error('Error:', error);
-                                alert('Error just happened, please try again later.');
-                            }
-                        });
+                            });
+                        }
 
                         // Add event listener to the x-mark button (reject notification)
                         const xMark = popup.querySelector('.x-mark');
-                        xMark.addEventListener('click', async () => {
-                            try {
-                                const response = await fetch('/user/add', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json'
-                                    },
-                                    body: JSON.stringify({
-                                        action: 'reject',
-                                        notif_uid: notification.uid
-                                    })
-                                });
+                        if (xMark) {
+                            xMark.addEventListener('click', async (e) => {
+                                e.stopPropagation();
+                                try {
+                                    const response = await fetch('/user/add', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify({
+                                            action: 'reject',
+                                            notif_uid: notification.uid
+                                        })
+                                    });
 
-                                const data = await response.json();
-                                if (data.success) {
-                                    alert('Notification rejected');
-                                    document.body.removeChild(popup);
-                                    window.location.reload();
-                                } else {
-                                    // console.log(data);
-                                    alert('Error just happened, please try again later.');
+                                    const data = await response.json();
+                                    if (data.success) {
+                                        alert('Notification rejected');
+                                        inboxItem.remove();
+                                        window.location.reload();
+                                    } else {
+                                        alert('Error rejecting notification');
+                                    }
+                                } catch (error) {
+                                    console.error('Error:', error);
+                                    alert('Error rejecting notification');
                                 }
-                            } catch (error) {
-                                console.error('Error:', error);
-                                alert('Error just happened, please try again later.');
-                            }
-                        });
+                            });
+                        }
 
                         document.body.appendChild(popup);
                     });

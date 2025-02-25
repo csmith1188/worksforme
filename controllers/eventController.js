@@ -6,6 +6,7 @@ const path = require('path');
 const sanitizeInput = require('../util/sanitizeInput');
 const db = require('../util/dbAsyncWrapper');
 
+const userService = require('../services/userService.js');
 const eventService = require('../services/eventService.js');
 const notifServce = require('../services/notifServce.js');
 const { date } = require('joi');
@@ -13,7 +14,21 @@ const { date } = require('joi');
 async function events(req, res) {
     const userUID = req.session.user.uid;
     const rows = await eventService.getEventsByUserUID(userUID);
-    res.render('pages/events/event', { events: rows });
+    // console.log(rows);
+
+    let events = [];
+    for(row of rows){
+        let event = {
+            name: row.name,
+            description: row.description,
+            creator: await userService.getUserByUID(row.creator),
+            allowed: row.allowed === null ? [] : await row.allowed.split(',').map(async uid => await userService.getUserByUID(+uid))
+        }
+        events.push(event);
+    }
+    console.log(events);
+
+    res.render('pages/events/event', { events });
 }
 
 async function createEvent(req, res) {

@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 alert('User invited successfully!');
             } else {
-                alert('Failed to invite user.');
+                alert('Failed to invite user, please try again.');
             }
 
             document.body.removeChild(popup);
