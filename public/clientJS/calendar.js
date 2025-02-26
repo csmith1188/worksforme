@@ -2,13 +2,16 @@
 // biggest brain blast of my entire life
 const pxPer15Mins = 10;
 
+const horizontalBlockMovingThreshold = 10;
+
 const timeBlockInnerHTML = `
     <p class="time-block-text"></p>
     <div class="time-block-resize-point"></div>
     <div class="time-block-move-point"></div>
 `;
 
-let isMouseDown = false;
+let isLeftMouseDown = false;
+let isRightMouseDown = false;
 let draggingElement = null;
 
 let newBlock = null;
@@ -36,8 +39,19 @@ document.addEventListener('DOMContentLoaded', function() {
     gridStyle = getComputedStyle(grid);
     dayColumns = Array.from(document.getElementsByClassName('day-column'));
 
+    grid.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
+
     grid.addEventListener('mousedown', function(e) {
-        isMouseDown = true;
+        if (e.button === 0) {
+            isLeftMouseDown = true; 
+        } else if (e.button === 2) {
+            isRightMouseDown = true;
+        }
+
+        // right click to delete timeblock
+        if (e.button === 2) return;
 
         // if you clicked on a cell (you are placing a new block)
         if (e.target.classList.contains('inner-cell')) {
@@ -74,7 +88,18 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.addEventListener('mouseup', function(e) {
-        isMouseDown = false;
+        if (e.button === 0) {
+            isLeftMouseDown = false;
+        } else if (e.button === 2) {
+            isRightMouseDown = false;
+        }
+
+        // right click to delete timeblock
+        if(e.button === 2 && e.target.parentElement.classList.contains('time-block')) {
+            const block = e.target.parentElement;
+            block.remove();
+            return;
+        }
 
         if (newBlock) {
             // add the block to the cell
@@ -100,6 +125,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.addEventListener('mousemove', function(e) {
+
+        if (isRightMouseDown && e.target.parentElement.classList.contains('time-block')) {
+            const block = e.target.parentElement;
+            block.remove();
+            return;
+        }
+
         if (newBlock){
             // if the block hasn't been added to the cell, add it
             if(!newBlock.parentElement){
@@ -120,7 +152,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (newHeight < pxPer15Mins) newHeight = pxPer15Mins;
 
             // if the new height is bigger than the old height and the block is at the bottom of the grid, don't resize
-            if (newHeight > blockBox.height && blockBottom >= gridBottom) return;
+            if (newHeight > blockBox.height && blockBottom >= gridBottom) {
+                newHeight = gridBottom - blockTop;
+            }
 
             resizingBlock.style.height = snapNum(newHeight, pxPer15Mins) + 'px';
 
@@ -129,17 +163,30 @@ document.addEventListener('DOMContentLoaded', function() {
         // moving block
         } else if (movingBlock) {
 
+            const column = movingBlock.parentElement;
+
             const blockBox = movingBlock.getBoundingClientRect();
-            const columnBox = movingBlock.parentElement.getBoundingClientRect();
+            const columnBox = column.getBoundingClientRect();
 
             let yDiff = e.clientY - columnBox.top;
+
+            // if the mouse is not on the block
+            if (e.target.parentElement !== movingBlock && e.clientY > blockBox.top && e.clientY < blockBox.bottom) {
+                // -1 if mouse is left of the block, 1 if mouse is right of the block
+                let direction = Math.sign(e.clientX - (blockBox.left + blockBox.width / 2));
+                
+                const newColumn = dayColumns[dayColumns.indexOf(column) + direction];
+                if(newColumn){
+                    newColumn.appendChild(movingBlock);
+                }
+
+            }
 
             if(movingBlockMouseOffset === null){
                 movingBlockMouseOffset = e.clientY - blockBox.top;
             }
 
             let newY = snapNum(yDiff - movingBlockMouseOffset, pxPer15Mins);
-
 
             // clamp
             if(newY < 0) newY = 0;
@@ -158,7 +205,6 @@ document.addEventListener('DOMContentLoaded', function() {
 function updateTimeBlock(timeBlock){
 
     const blockStyle = getComputedStyle(timeBlock);
-    const blockBox = timeBlock.getBoundingClientRect();
 
     let blockTop = parseInt(blockStyle.top);
     let blockBottom = blockTop + parseInt(blockStyle.height);
