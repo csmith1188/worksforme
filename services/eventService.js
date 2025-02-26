@@ -9,6 +9,7 @@ async function getAllEvents() {
     const sql = 'SELECT * FROM events';
     return await db.all(sql);
 }
+
 //gets all the message boards
 async function getEventsMB() {
     const sql = 'SELECT * FROM eventsMB';
