@@ -17,6 +17,7 @@
     border-left: 5px solid #00acc1;
     cursor: pointer;
     transition: background-color 0.3s;
+    justify-content: space-between;
 }
 
 .inboxItem i {
@@ -72,4 +73,34 @@
 .notif-utils {
     margin-left: 5%;
     width: 90%;
+}
+
+.button-container {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+}
+
+.check-mark, .x-mark {
+    cursor: pointer;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.check-mark:hover {
+    background-color: #4caf50;
+    color: white;
+}
+
+.x-mark:hover {
+    background-color: #f44336;
+    color: white;
+}
+
+.notif_buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
 }

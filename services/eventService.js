@@ -21,8 +21,22 @@ async function createEvent(uid, name, description, creator) {
 }
 
 async function getEventsByUserUID(userUID) {
-    const sql = 'SELECT * FROM events WHERE creator = ? OR allowed = ?';
-    return await db.all(sql, [userUID, userUID]);
+    const sql = `
+        SELECT * FROM events 
+        WHERE creator = ? 
+        OR allowed LIKE ? 
+        OR allowed LIKE ? 
+        OR allowed LIKE ? 
+        OR allowed = ?
+    `;
+    const params = [
+        userUID, 
+        `${userUID},%`, 
+        `%,${userUID},%`, 
+        `%,${userUID}`, 
+        userUID
+    ];
+    return await db.all(sql, params);
 }
 
 async function isEventCreator(eventUID, userUID) {

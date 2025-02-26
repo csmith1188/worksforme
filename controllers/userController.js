@@ -8,6 +8,7 @@ const sanitizeInput = require('../util/sanitizeInput');
 const userService = require('../services/userService.js');
 const { getUserByUsernameOrEmail, registerUser } = require('../services/userService.js');
 const notifservce = require('../services/notifServce.js');
+const eventService = require('../services/eventService.js');
 
 //Load login rules
 const loginRulesPath = path.join(__dirname, '../rules/loginRules.json');
@@ -155,6 +156,7 @@ async function postInboxPage(req, res) {
 async function add(req, res) {
     const notifUID = req.body.notif_uid;
     const action = req.body.action;
+    let updatedAllowed = null;
 
     try {
         if (action === 'accept') {
@@ -173,7 +175,16 @@ async function add(req, res) {
                 return res.json({ success: false, message: 'Event not found' });
             }
 
-            await notifservce.addUserToEvent(eventUID.uid, notifData[0].receiving_user_uid);
+            let event = await eventService.getEventByUID(eventUID.uid);
+            //console.log('Event:', event);
+
+            if (event.allowed !== null) {
+                updatedAllowed = event.allowed + ',' + notifData[0].receiving_user_uid;
+            } else {
+                updatedAllowed = notifData[0].receiving_user_uid;
+            }
+
+            await notifservce.addUserToEvent(eventUID.uid, updatedAllowed);
             // console.log('User added to event with UID:', notifData[0].receiving_user_uid, 'and Event UID:', eventUID.uid);
 
             await notifservce.deleteNotification(notifUID);
