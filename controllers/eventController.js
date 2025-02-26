@@ -14,21 +14,28 @@ const { date } = require('joi');
 async function events(req, res) {
     const userUID = req.session.user.uid;
     const rows = await eventService.getEventsByUserUID(userUID);
-    // console.log(rows);
 
     let events = [];
-    for(row of rows){
+    for (let row of rows) {
         let event = {
+            uid: row.uid,
             name: row.name,
             description: row.description,
             creator: await userService.getUserByUID(row.creator),
-            allowed: row.allowed === null ? [] : await row.allowed.split(',').map(async uid => await userService.getUserByUID(+uid))
+            allowed: []
+        };
+
+        if (row.allowed !== null) {
+            let allowedUIDs = row.allowed.split(',');
+            for (let i = 0; i < allowedUIDs.length; i++) {
+                event.allowed.push(await userService.getUserByUID(allowedUIDs[i]));
+            }
         }
+
         events.push(event);
     }
-    console.log(events);
 
-    res.render('pages/events/event', { events });
+    res.render('pages/events/event', { events: events });
 }
 
 async function createEvent(req, res) {
