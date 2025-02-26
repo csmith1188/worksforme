@@ -1,13 +1,15 @@
-<%- include('../../partials/header.ejs', {pageTitle: event.name }); %>
+<%- include('../../partials/header.ejs', {pageTitle: 'About' }); %>
 
 <link rel="stylesheet" href="/public/css/style.css">
-<link rel="stylesheet" href="/public/css/event.css">
+<link rel="stylesheet" href="/public/css/eventPage.css">
 
 <div class="mainContainer">
-    <div class="content">
+    <div class="content" style="position: relative;">
         <% if (isCreator) { %>
-            <form action="/event/eventPage/<%= event.uid %>" method="POST">
-                <input type="text" name="newEventName" placeholder="New Event Name">
+            <button class="inviteIcon" id="invite-button"></button>
+            <center>
+                <form method="POST" action="/event/eventPage/<%= event.uid %>" class="eventForm">
+                    <h3>Update Event</h3>
                     <input type="text" id="newEventName" name="newEventName" placeholder="New Event Name">
                     <input id="newEventDesc" name="newEventDesc" placeholder="New Event Description"></input>
                     <input type="hidden" name="eventUID" value="<%= event.uid %>">
