@@ -18,8 +18,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 <center>
                 <h2>Invite User</h2>
                 <div class="notif-utils">
+                <span>
                     <input type="text" id="username" placeholder="Enter username or email">
                     <input type="hidden" id="eventUID" value="${eventdata.uid}">
+                    <br>
+                </span>
                     <button id="invite_button">Invite User</button>
                 </div>
                 </center>

@@ -13,24 +13,28 @@
                     <% } %>
                         <% if (events.length> 0) { %>
                             <p>Here are the current event you are involved in:</p>
-                            <% } %>
 
-                                <% events.forEach(function(event) { %>
-                                    <div class="mainContainer">
-                                        <div class="content">
-                                            <div class="event">
-                                                <h2>
-                                                    <a href="/event/eventPage/<%= event.uid %>" class="eventLink">
-                                                        <%= event.name %>
-                                                    </a>
-                                                </h2>
-                                                <p>
-                                                    <%= event.description %>
-                                                </p>
-                                            </div>
+                            <div class="mainContainer">
+                                <div class="content">
+                                    <% events.forEach(function(event) { %>
+
+
+                                        <div class="event">
+                                            <h2>
+                                                <a href="/event/eventPage/<%= event.uid %>" class="eventLink">
+                                                    <%= event.name %>
+                                                </a>
+                                            </h2>
+                                            <p class="text">
+                                                <%= event.description %>
+                                            </p>
                                         </div>
-                                    </div>
-                                    <% }); %>
+
+
+                                        <% }); %>
+                                </div>
+                            </div>
+                            <% } %>
             </center>
 
         </div>
