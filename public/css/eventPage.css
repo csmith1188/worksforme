@@ -62,6 +62,7 @@
     margin: 0;
     border-radius: 50%;
     position: absolute;
+    background-color: #dadada;
 }
 
 .popup {
@@ -79,7 +80,7 @@
 
 .popup-content {
     position: relative;
-    background-color: #fff;
+    background-color: #424242;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
@@ -94,9 +95,12 @@
     right: 10px;
     font-size: 1.5em;
     cursor: pointer;
+    color: rgb(206, 206, 206);
 }
 
 .notif-utils {
     margin-left: 5%;
+    margin-top: 5%;
+    margin-bottom: 5%;
     width: 90%;
 }

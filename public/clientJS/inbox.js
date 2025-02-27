@@ -30,15 +30,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                     switch (notification.notif_type) {
                         case 'Invite':
                             buttonHTML = `<div class="button-container"><button class="check-mark">✔</button><button class="x-mark">✖</button></div>`;
-                            inboxItem.innerHTML = `<i class="fas fa-bell"></i> <span class="text">${notification.notif_type} to join ${notification.event}.</span>`;
+                            inboxItem.innerHTML = `<i class="fas fa-bell"></i> ${notification.notif_type} to join ${notification.event}.`;
                             break;
                         case 'Message':
                             buttonHTML = `<div class="button-container"><button class="check-mark">✔</button><button class="x-mark">✖</button></div>`;
-                            inboxItem.innerHTML = `<i class="fas fa-envelope"></i> <span class="text">${notification.notif_type} from ${notification.sending_user}.</span>`;
+                            inboxItem.innerHTML = `<i class="fas fa-envelope"></i> ${notification.notif_type} from ${notification.sending_user}.`;
                             break;
                         case 'Alert':
                             buttonHTML = `<div class="button-container"><button class="x-mark">✖</button></div>`;
-                            inboxItem.innerHTML = `<i class="fas fa-exclamation-triangle"></i> <span class="text">${notification.notif_type} from ${notification.event}.</span>`;
+                            inboxItem.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${notification.notif_type} from ${notification.event}.`;
                             break;
                     }
 
@@ -116,12 +116,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                         popup.innerHTML = `
                             <div class="popup-content">
                                 <span class="close">&times;</span>
-                                <h2>Notification Details</h2>
+                                <h2 class="text">Notification Details</h2>
                                 <div class="notif-utils">
+                                <span class="text">
                                     <p><strong>Type:</strong> ${notification.notif_type}</p>
                                     <p><strong>Event:</strong> ${notification.event}</p>
                                     <p><strong>From:</strong> ${notification.sending_user}</p>
                                     <p><strong>Message:</strong> ${notification.notif_content}</p>
+                                    </span>
                                 </div>
                                 <br>
                                 <div class="notif_buttons">
