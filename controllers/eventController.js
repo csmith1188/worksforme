@@ -16,7 +16,9 @@ async function events(req, res) {
     const rows = await eventService.getEventsByUserUID(userUID);
 
     let events = [];
+    // Get raw data from database then format it
     for (let row of rows) {
+        // Get the creator of the event
         let event = {
             uid: row.uid,
             name: row.name,
@@ -25,8 +27,10 @@ async function events(req, res) {
             allowed: []
         };
 
+        // Get the allowed users to view the event on the page
         if (row.allowed !== null) {
             let allowedUIDs = row.allowed.split(',');
+            // Push all the allowed users to the event object
             for (let i = 0; i < allowedUIDs.length; i++) {
                 event.allowed.push(await userService.getUserByUID(allowedUIDs[i]));
             }
