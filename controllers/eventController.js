@@ -18,28 +18,17 @@ async function events(req, res) {
 }
 
 async function createEvent(req, res) {
-    res.render('pages/events/createEvent');           
+    res.render('pages/events/createEvent');
 }
 
 async function eventPage(req, res) {
     const aEvent = req.params.aEvent;
-    console.log(aEvent);
-    
-    const aEventMB = req.params.aEventMB;
-    console.log(aEventMB);
 
     const event = await eventService.getEventByUID(aEvent);
-    console.log(event);
-    
-    const eventMB = await eventService.getEventMBByUID(aEventMB);
-    
+    const eventMB = await eventService.getEventsMB();
     
     const userUID = req.session.user.uid;
     const isCreator = await eventService.isEventCreator(aEvent, userUID);
-
-    if (!event) {
-        return res.status(404).send('Event not found');
-    }
 
     res.render('pages/events/eventPage', { event, eventMB, isCreator });
 }
