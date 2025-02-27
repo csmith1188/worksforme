@@ -30,15 +30,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                     switch (notification.notif_type) {
                         case 'Invite':
                             buttonHTML = `<div class="button-container"><button class="check-mark">✔</button><button class="x-mark">✖</button></div>`;
-                            inboxItem.innerHTML = `<i class="fas fa-bell"></i> ${notification.notif_type} to join ${notification.event}.`;
+                            inboxItem.innerHTML = `<i class="fas fa-bell"></i> <span class="text">${notification.notif_type} to join ${notification.event}.</span>`;
                             break;
                         case 'Message':
                             buttonHTML = `<div class="button-container"><button class="check-mark">✔</button><button class="x-mark">✖</button></div>`;
-                            inboxItem.innerHTML = `<i class="fas fa-envelope"></i> ${notification.notif_type} from ${notification.sending_user}.`;
+                            inboxItem.innerHTML = `<i class="fas fa-envelope"></i> <span class="text">${notification.notif_type} from ${notification.sending_user}.</span>`;
                             break;
                         case 'Alert':
                             buttonHTML = `<div class="button-container"><button class="x-mark">✖</button></div>`;
-                            inboxItem.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${notification.notif_type} from ${notification.event}.`;
+                            inboxItem.innerHTML = `<i class="fas fa-exclamation-triangle"></i> <span class="text">${notification.notif_type} from ${notification.event}.</span>`;
                             break;
                     }
 

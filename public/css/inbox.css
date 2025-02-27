@@ -7,14 +7,14 @@
 
 .inboxItem {
     width: 80%;
-    background-color: #cfe4e6;
+    background-color: #a574c5a6;
     padding: 15px;
     margin: 10px 0;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     display: flex;
     align-items: center;
-    border-left: 5px solid #00acc1;
+    border-left: 5px solid #592570c0;
     cursor: pointer;
     transition: background-color 0.3s;
     justify-content: space-between;
@@ -22,7 +22,7 @@
 
 .inboxItem i {
     margin-right: 10px;
-    color: #00acc1;
+    color: #ffffffc0;
 }
 
 .inboxItem::before {
@@ -30,12 +30,12 @@
     display: inline-block;
     width: 1px;
     height: 20px;
-    background-color: #001e8171;
+    background-color: #390950c0;
     margin-right: 10px;
 }
 
 .inboxItem:hover {
-    background-color: #b2ebf2;
+    background-color: #ab52df63;
 }
 
 .popup {
