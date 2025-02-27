@@ -32,6 +32,12 @@ async function createEvent(uid, name, description, creator) {
     return await db.run(sql, params);
 }
 
+async function createMB(uid, name) {
+    const sql = 'INSERT INTO eventsMB (uid, name) VALUES (?, ?)';
+    const params = [uid, name];
+    return await db.run(sql, params);
+}
+
 async function getEventsByUserUID(userUID) {
     const sql = 'SELECT * FROM events WHERE creator = ? OR allowed = ?';
     return await db.all(sql, [userUID, userUID]);
@@ -74,6 +80,7 @@ module.exports = {
     updateEventDescription,
     deleteEvent,
     createEvent,
+    createMB,
     isEventCreator,
     getEventsByUserUID,
     GetEventCreatorByEventUID

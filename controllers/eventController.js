@@ -22,15 +22,20 @@ async function createEvent(req, res) {
 }
 
 async function eventPage(req, res) {
+    //stuff to get events
     const aEvent = req.params.aEvent;
-
     const event = await eventService.getEventByUID(aEvent);
+    //stuff to get event message board
     const eventMB = await eventService.getEventsMB();
-    
+    //stuff to check if user is creator
     const userUID = req.session.user.uid;
     const isCreator = await eventService.isEventCreator(aEvent, userUID);
 
     res.render('pages/events/eventPage', { event, eventMB, isCreator });
+}
+
+async function createEventMB(req, res) {
+    res.render('pages/events/createEvent');
 }
 
 async function postEventPage(req, res) {
@@ -57,6 +62,12 @@ async function postCreateEvent(req, res) {
     const creator = req.session.user.uid;
 
     await eventService.createEvent(uid, name, description, creator);
+    res.redirect('/event/events');
+}
+
+async function postCreateMB(req, res) { 
+    const { uid, name } = req.body;
+    await eventService.createMB(uid, name);
     res.redirect('/event/events');
 }
 
@@ -87,7 +98,9 @@ module.exports = {
     events,
     createEvent,
     eventPage,
+    createEventMB,
     postEventPage,
     postCreateEvent,
+    postCreateMB,
     invite
 };
