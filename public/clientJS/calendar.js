@@ -1,14 +1,12 @@
-// the .25 accounts for the border of the cell
-// biggest brain blast of my entire life
 const pxPer15Mins = 10;
-
-const horizontalBlockMovingThreshold = 10;
 
 const timeBlockInnerHTML = `
     <p class="time-block-text"></p>
     <div class="time-block-resize-point"></div>
     <div class="time-block-move-point"></div>
 `;
+
+let userCalendar = new Map();
 
 let isLeftMouseDown = false;
 let isRightMouseDown = false;
@@ -22,22 +20,49 @@ let movingBlockMouseOffset = null;
 
 let targetColumn = null;
 
+let weekOf;
+let dayHeaders;
+let prevWeekButton;
+let nextWeekButton;
+
 let grid;
 let gridBox;
 let gridBottom;
 let gridStyle;
 let dayColumns;
 
+let selectedDate = dayjs();
+
 function snapNum(num, snapTo) {
     return Math.round(num / snapTo) * snapTo;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+
+    weekOf = document.getElementById('week-of');
+    dayHeaders = Array.from(document.getElementsByClassName('day-header'));
+    prevWeekButton = document.getElementById('prev-week-btn');
+    nextWeekButton = document.getElementById('next-week-btn');
+
+    console.log(dayHeaders);
+
     grid = document.getElementById('grid');
     gridBox = grid.getBoundingClientRect();
     gridBottom = grid.scrollHeight;
     gridStyle = getComputedStyle(grid);
     dayColumns = Array.from(document.getElementsByClassName('day-column'));
+
+    setWeek(selectedDate);
+
+    prevWeekButton.addEventListener('click', function() {
+        saveWeek();
+        setWeek(selectedDate.subtract(1, 'week'));
+    });
+
+    nextWeekButton.addEventListener('click', function() {
+        saveWeek();
+        setWeek(selectedDate.add(1, 'week'));
+    });
 
     grid.addEventListener('contextmenu', function(e) {
         e.preventDefault();
@@ -149,12 +174,12 @@ document.addEventListener('DOMContentLoaded', function() {
             let yDiff = e.clientY - blockBox.top;
             let newHeight = yDiff;
 
+            // clamp
+
             if (newHeight < pxPer15Mins) newHeight = pxPer15Mins;
 
-            // if the new height is bigger than the old height and the block is at the bottom of the grid, don't resize
-            if (newHeight > blockBox.height && blockBottom >= gridBottom) {
-                newHeight = gridBottom - blockTop;
-            }
+            const maxHeight = gridBottom - blockTop;
+            if (newHeight > maxHeight) newHeight = maxHeight;
 
             resizingBlock.style.height = snapNum(newHeight, pxPer15Mins) + 'px';
 
@@ -172,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // if the mouse is not on the block
             if (e.target.parentElement !== movingBlock && e.clientY > blockBox.top && e.clientY < blockBox.bottom) {
-                // -1 if mouse is left of the block, 1 if mouse is right of the block
+                // -1 if mouse is left of the block center, 1 if mouse is right of the block center
                 let direction = Math.sign(e.clientX - (blockBox.left + blockBox.width / 2));
                 
                 const newColumn = dayColumns[dayColumns.indexOf(column) + direction];
@@ -202,8 +227,49 @@ document.addEventListener('DOMContentLoaded', function() {
     
 });
 
-function updateTimeBlock(timeBlock){
+function setWeek(date){
+    
+    selectedDate = dayjs(date);
 
+    let startOfWeek = selectedDate.startOf('week');
+
+    weekOf.innerText = startOfWeek.format('MMMM D, YYYY');
+
+    for (let i = 0; i < 7; i++) {
+        // I love dayjs so much
+        dayHeaders[i].querySelector('.date-text').innerText = startOfWeek.add(i, 'day').format('D');
+    }
+
+}
+
+function saveWeek(){
+    
+        let weekData = [];
+    
+        dayColumns.forEach((dayColumn, index) => {
+    
+            let dayBusyTimes = getDayBusyTimes(dayColumn);
+
+            weekData[index] = (dayBusyTimes.length !== 0) ? dayBusyTimes : null;
+    
+        });
+
+        let startOfWeek = selectedDate.startOf('week');
+
+        for (i in weekData) {
+
+            let dayData = weekData[i];
+
+            if (dayData !== null) {
+                userCalendar.set(startOfWeek.add(i, 'day').format('YYYY-MM-DD'), dayData);
+            }
+            
+        }
+    
+        console.log(userCalendar);
+}
+
+function getTimeBlockTime(timeBlock){
     const blockStyle = getComputedStyle(timeBlock);
 
     let blockTop = parseInt(blockStyle.top);
@@ -215,8 +281,46 @@ function updateTimeBlock(timeBlock){
     let endHour = Math.floor(endMinutes / 60);
     let startMinutesPadded = String(Math.ceil(startMinutes % 60)).padStart(2, '0');
     let endMinutesPadded = String(Math.ceil(endMinutes % 60)).padStart(2, '0');
-    let startTimeString = `${startHour}:${startMinutesPadded}`;
-    let endTimeString = `${endHour}:${endMinutesPadded}`;
 
-    timeBlock.querySelector('.time-block-text').innerText = `${startTimeString} - ${endTimeString}`;
+    // normie time
+    let startPeriod = startHour >= 12 ? 'PM' : 'AM';
+    let endPeriod = endHour >= 12 ? 'PM' : 'AM';
+    let startHour12 = startHour % 12 || 12;
+    let endHour12 = endHour % 12 || 12;
+
+    let startTimeString = `${startHour12}:${startMinutesPadded} ${startPeriod}`;
+    let endTimeString = `${endHour12}:${endMinutesPadded} ${endPeriod}`;
+
+    return {
+        startMinutes,
+        endMinutes,
+        startHour,
+        endHour,
+        startMinutesPadded,
+        endMinutesPadded,
+        startTimeString,
+        endTimeString
+    }
+
+}
+
+function getDayBusyTimes(dayColumn){
+    let busyTimes = [];
+
+    let timeBlocks = Array.from(dayColumn.getElementsByClassName('time-block'));
+
+    timeBlocks.forEach(timeBlock => {
+        let blockTime = getTimeBlockTime(timeBlock);
+
+        busyTimes.push([blockTime.startMinutes, blockTime.endMinutes]);
+    });
+
+    return busyTimes;
+}
+
+function updateTimeBlock(timeBlock){
+
+    const timeBlockTime = getTimeBlockTime(timeBlock);
+
+    timeBlock.querySelector('.time-block-text').innerText = `${timeBlockTime.startTimeString} - ${timeBlockTime.endTimeString}`;
 }

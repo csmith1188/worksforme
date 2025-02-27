@@ -4,6 +4,7 @@
 
     <div class="mainContainer">
         <div class="content">
+            <h1 id="week-title">Week of <span id="week-of"></span></h1>
             <div id="controls">
                 <input type="date" id="date-select">
                 <button id="prev-week-btn" class=""><</button>
@@ -11,7 +12,7 @@
             </div>
             <br>
             <div id="day-headers">
-                <% const daysOfTheWeek = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']; %>
+                <% const daysOfTheWeek = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday', 'Sunday']; %>
                 <% for (let i = 0; i < daysOfTheWeek.length; i++) { %>
                     <div class="day-header <%= (i === 0) ? 'first' : ''; %>">
                         <span class="day-text"><%= daysOfTheWeek[i] %></span>
@@ -36,6 +37,7 @@
             </div>
         </div>
     </div>
+    <script src="/public/clientJS/dayjs.min.js"></script>
     <script src="/public/clientJS/calendar.js"></script>
 
 <%- include('../partials/footer.ejs') %>

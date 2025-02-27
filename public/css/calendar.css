@@ -2,6 +2,11 @@
     padding: 40px;
 }
 
+#week-title {
+    text-align: center;
+    margin: 0px;
+}
+
 #day-headers {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -111,7 +116,7 @@
 }
 
 .time-block-text {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     font-family: Arial, Helvetica, sans-serif;
     color: #fff;
     margin: 0px;
