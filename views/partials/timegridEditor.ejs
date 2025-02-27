@@ -1,0 +1,45 @@
+<% 
+    function minutesToTimeString(minutes) {
+
+        const typeM = (minutes >= 12*60) ? 'PM' : 'AM';
+
+        minutes = (minutes % (12*60));
+
+        let hours = String(Math.floor(minutes / 60)).padStart(2, '0');
+        const remainingMinutes = String(minutes % 60).padStart(2, '0');
+
+        if (hours === '00'){
+            hours = '12';
+        }
+
+        return `${hours}:${remainingMinutes} ${typeM}`;
+    } 
+%>
+
+    <center><h1 id="date-header">Select a date</h1></center>
+    <hr>
+    <br>
+    <div id="timegrid-editor">
+        <div id="controls-panel">
+            <input type="time" id="fill-start-time"> - <input type="time" id="fill-end-time">
+            <button id="fill-btn">Fill</button>
+            <br><br>
+            <button id="fill-all-btn">Fill All</button>
+            <button id="clear-all-btn">Clear All</button>
+            <br><br><br><br><br>
+            <button id="save-btn">Save</button>
+        </div>
+        <div id="timegrid">
+            <% const rows = 24; %>
+            <% const cols = 12; %>
+            <% const timeDivider = 5; %>
+            <% for (let i = 0; i < rows * cols; i++) { %>
+                <% const timeString = minutesToTimeString(i*timeDivider); %>
+                <% if(i % cols === 0) { %>
+                    <!--<label class="time-cell-label" for="time-cell-<%= i %>"><%= i %></label>-->
+                <% } %>
+                <input type="checkbox" class="time-cell" id="time-cell-<%= i %>" title="<%= timeString %>">
+            <% } %>
+        </div>
+    </div>
+</div>

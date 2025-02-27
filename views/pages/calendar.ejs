@@ -1,0 +1,40 @@
+<%- include('../partials/header.ejs', { pageTitle: 'Calendar' }); %>
+
+<link rel="stylesheet" href="/public/css/calendar.css">
+<link rel="stylesheet" href="/public/css/timegridEditor.css">
+
+<div class="mainContainer">
+    <div class="content">
+        <div id="calendar-page-container">
+            <div id="calendar-container">
+                <div class="calendar-header">
+                    <button class="nav-button" id="prev-month">&lt;</button>
+                    <h2 id="month-year"></h2>
+                    <button class="nav-button" id="next-month">&gt;</button>
+                </div>
+                <div class="week-days-container">
+                    <div class="week-day" id="week-day-0">Sun</div>
+                    <div class="week-day" id="week-day-1">Mon</div>
+                    <div class="week-day" id="week-day-2">Tue</div>
+                    <div class="week-day" id="week-day-3">Wed</div>
+                    <div class="week-day" id="week-day-4">Thu</div>
+                    <div class="week-day" id="week-day-5">Fri</div>
+                    <div class="week-day" id="week-day-6">Sat</div>
+                </div>
+                <div class="calendar-grid">
+                </div>
+            </div>
+        </div>
+
+        <div id="timegrid-page-container">
+            <button id="back-btn">Back</button>
+            <%- include('../partials/timegridEditor'); %>
+        </div>
+    </div>
+</div>
+
+<script src="/public/clientJS/dayjs.min.js"></script>
+<script src="/public/clientJS/timegridEditor.js"></script>
+<script src="/public/clientJS/calendar.js"></script>
+
+<%- include('../partials/footer.ejs') %>

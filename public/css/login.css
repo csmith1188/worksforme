@@ -2,25 +2,16 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    background-color: #a3a378; /* Matches your design */
+    height: 50vh;
 }
 
 .content {
     text-align: center;
 }
 
-.login-container {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
 h2 {
     font-size: 1.8em;
     font-weight: bold;
-    color: #4a4036;
 }
 
 .form-input {
@@ -40,16 +31,17 @@ h2 {
 
 .form-button {
     padding: 10px 20px;
-    background-color: #a3a378;
+    background-color: #a67fb3;
     border-radius: 20px;
     border: none;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
     user-select: none;
+    transition: background-color 0.3s;
 }
 
 .form-button:hover {
     cursor: pointer;
-    background-color: #858561;
+    background-color: #7b5186c9;
 }
 
 .form-button:active {
