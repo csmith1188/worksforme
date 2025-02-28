@@ -23,6 +23,7 @@ let targetColumn = null;
 
 let weekOf;
 let dayHeaders;
+let dateSelect;
 let prevWeekButton;
 let nextWeekButton;
 
@@ -42,6 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     weekOf = document.getElementById('week-of');
     dayHeaders = Array.from(document.getElementsByClassName('day-header'));
+    dateSelect = document.getElementById('date-select');
     prevWeekButton = document.getElementById('prev-week-btn');
     nextWeekButton = document.getElementById('next-week-btn');
 
@@ -53,23 +55,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     setWeek(selectedDate);
 
+    dateSelect.addEventListener('change', function() {
+        setWeek(dayjs(dateSelect.value));
+    });
+
     prevWeekButton.addEventListener('click', function() {
-
-        const newWeek = selectedDate.subtract(1, 'week');
-        
-        // no going back in time
-        if (newWeek.isBefore(dayjs().startOf('week'))) return;
-
         saveWeek(selectedDate);
-        setWeek(newWeek);
+        setWeek(selectedDate.subtract(1, 'week'));
     });
 
     nextWeekButton.addEventListener('click', function() {
-
-        const newWeek = selectedDate.add(1, 'week');
-
         saveWeek(selectedDate);
-        setWeek(newWeek);
+        setWeek(selectedDate.add(1, 'week'));
     });
 
     grid.addEventListener('contextmenu', function(e) {
@@ -310,7 +307,10 @@ function loadWeek(date, calendarMap){
 
 // sets the UI for the week and loads week data
 function setWeek(date){
-    
+
+    // no go back in time
+    if (date.startOf('week').isBefore(dayjs().startOf('week'))) return;
+
     selectedDate = dayjs(date);
 
     let startOfWeek = selectedDate.startOf('week');

@@ -21,12 +21,10 @@ async function saveUserCalendar(userUID, newDatesMap){
     let currentDatesMap = await getUserCalendarCalendar(userUID);
 
     Array.from(newDatesMap).forEach(async ([date, busyTimes]) => {
+        // If the date is already in the database, update the busy times
         if (currentDatesMap.has(date)) {
-
             busyTimes.forEach(async ([start, end], index) => {
-                
             });
-
         } else {
             
         }
