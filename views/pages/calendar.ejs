@@ -26,6 +26,7 @@
                 <div id="cells">
                     <% for (let i = 0; i < 7; i++) { %>
                         <div class="day-column" data-index="<%= i %>">
+                            <div class="time-blocks"></div>
                             <% for (let j = 0; j < 24; j++) { %>
                                 <div class="cell <%= (i % 7 === 0) ? 'first' : ''; %>" data-hour="<%= j %>">
                                     <div class="inner-cell"></div>

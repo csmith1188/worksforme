@@ -1,4 +1,5 @@
 const pxPer15Mins = 10;
+const dateFormat = 'YYYY-MM-DD';
 
 const timeBlockInnerHTML = `
     <p class="time-block-text"></p>
@@ -44,8 +45,6 @@ document.addEventListener('DOMContentLoaded', function() {
     prevWeekButton = document.getElementById('prev-week-btn');
     nextWeekButton = document.getElementById('next-week-btn');
 
-    console.log(dayHeaders);
-
     grid = document.getElementById('grid');
     gridBox = grid.getBoundingClientRect();
     gridBottom = grid.scrollHeight;
@@ -55,13 +54,22 @@ document.addEventListener('DOMContentLoaded', function() {
     setWeek(selectedDate);
 
     prevWeekButton.addEventListener('click', function() {
-        saveWeek();
-        setWeek(selectedDate.subtract(1, 'week'));
+
+        const newWeek = selectedDate.subtract(1, 'week');
+        
+        // no going back in time
+        if (newWeek.isBefore(dayjs().startOf('week'))) return;
+
+        saveWeek(selectedDate);
+        setWeek(newWeek);
     });
 
     nextWeekButton.addEventListener('click', function() {
-        saveWeek();
-        setWeek(selectedDate.add(1, 'week'));
+
+        const newWeek = selectedDate.add(1, 'week');
+
+        saveWeek(selectedDate);
+        setWeek(newWeek);
     });
 
     grid.addEventListener('contextmenu', function(e) {
@@ -75,7 +83,6 @@ document.addEventListener('DOMContentLoaded', function() {
             isRightMouseDown = true;
         }
 
-        // right click to delete timeblock
         if (e.button === 2) return;
 
         // if you clicked on a cell (you are placing a new block)
@@ -112,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     });
 
-    document.addEventListener('mouseup', function(e) {
+    grid.addEventListener('mouseup', function(e) {
         if (e.button === 0) {
             isLeftMouseDown = false;
         } else if (e.button === 2) {
@@ -129,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (newBlock) {
             // add the block to the cell
             if(!newBlock.parentElement){
-                targetColumn.appendChild(newBlock);
+                addTimeBlock(targetColumn.dataset.index, newBlock);
             }
 
             updateTimeBlock(newBlock);
@@ -149,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    document.addEventListener('mousemove', function(e) {
+    grid.addEventListener('mousemove', function(e) {
 
         if (isRightMouseDown && e.target.parentElement.classList.contains('time-block')) {
             const block = e.target.parentElement;
@@ -160,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (newBlock){
             // if the block hasn't been added to the cell, add it
             if(!newBlock.parentElement){
-                targetColumn.appendChild(newBlock);
+                addTimeBlock(targetColumn.dataset.index, newBlock);
             }
 
         }
@@ -188,7 +195,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // moving block
         } else if (movingBlock) {
 
-            const column = movingBlock.parentElement;
+            const column = movingBlock.parentElement.parentElement;
 
             const blockBox = movingBlock.getBoundingClientRect();
             const columnBox = column.getBoundingClientRect();
@@ -201,8 +208,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 let direction = Math.sign(e.clientX - (blockBox.left + blockBox.width / 2));
                 
                 const newColumn = dayColumns[dayColumns.indexOf(column) + direction];
+
                 if(newColumn){
-                    newColumn.appendChild(movingBlock);
+                    addTimeBlock(newColumn.dataset.index, movingBlock);
                 }
 
             }
@@ -227,6 +235,76 @@ document.addEventListener('DOMContentLoaded', function() {
     
 });
 
+function clearGrid(){
+    dayColumns.forEach(dayColumn => {
+        dayColumn.querySelector('.time-blocks').innerHTML = '';
+    });
+}
+
+function addTimeBlock(dayIndex, timeBlock){
+    dayColumns[dayIndex].querySelector('.time-blocks').appendChild(timeBlock);
+    updateTimeBlock(timeBlock);
+}
+
+// converts timeblocks to calendar data and saves to userCalendar
+function saveWeek(date){
+
+        const startOfWeek = dayjs(date).startOf('week');
+        let weekData = [];
+    
+        dayColumns.forEach((dayColumn, index) => {
+    
+            let dayBusyTimes = getDayBusyTimes(dayColumn);
+
+            if (dayBusyTimes.length !== 0) {
+                weekData[index] = dayBusyTimes;
+            }
+    
+        });
+
+        weekData.forEach((busyTimes, dayIndex) => {
+            userCalendar.set(startOfWeek.add(dayIndex, 'day').format(dateFormat), busyTimes);
+        });
+
+}
+
+// converts calendar to timeblocks and populates grid with them
+function loadWeek(date, calendarMap){
+
+    const startOfWeek = dayjs(date).startOf('week');
+    let weekData = [];
+
+    for (let i = 0; i < 7; i++){
+
+        const day = startOfWeek.add(i, 'day').format(dateFormat);
+        weekData[i] = calendarMap.has(day) ? calendarMap.get(day) : null;
+
+    }
+
+    weekData.forEach((busyTimes, dayIndex) => {
+        
+        if (busyTimes === null) return;
+
+        busyTimes.forEach(([startMins, endMins]) => {
+
+            let newBlock = document.createElement('div');
+            newBlock.classList.add('time-block');
+            newBlock.innerHTML = timeBlockInnerHTML;
+
+            const startPx = Math.floor(startMins / 15) * pxPer15Mins;
+            const endPx = Math.floor(endMins / 15) * pxPer15Mins;
+
+            newBlock.style.top = startPx + 'px';
+            newBlock.style.height = (endPx - startPx) + 'px';
+
+            addTimeBlock(dayIndex, newBlock);
+
+        })
+
+    });
+}
+
+// sets the UI for the week and loads week data
 function setWeek(date){
     
     selectedDate = dayjs(date);
@@ -240,33 +318,9 @@ function setWeek(date){
         dayHeaders[i].querySelector('.date-text').innerText = startOfWeek.add(i, 'day').format('D');
     }
 
-}
+    clearGrid();
+    loadWeek(date, userCalendar);
 
-function saveWeek(){
-    
-        let weekData = [];
-    
-        dayColumns.forEach((dayColumn, index) => {
-    
-            let dayBusyTimes = getDayBusyTimes(dayColumn);
-
-            weekData[index] = (dayBusyTimes.length !== 0) ? dayBusyTimes : null;
-    
-        });
-
-        let startOfWeek = selectedDate.startOf('week');
-
-        for (i in weekData) {
-
-            let dayData = weekData[i];
-
-            if (dayData !== null) {
-                userCalendar.set(startOfWeek.add(i, 'day').format('YYYY-MM-DD'), dayData);
-            }
-            
-        }
-    
-        console.log(userCalendar);
 }
 
 function getTimeBlockTime(timeBlock){
