@@ -253,12 +253,16 @@ function saveWeek(date){
         let weekData = [];
     
         dayColumns.forEach((dayColumn, index) => {
-    
+            
+            let date = startOfWeek.add(index, 'day').format(dateFormat);
             let dayBusyTimes = getDayBusyTimes(dayColumn);
 
-            if (dayBusyTimes.length !== 0) {
-                weekData[index] = dayBusyTimes;
+            if (userCalendar.has(date) && dayBusyTimes.length === 0) {
+                userCalendar.delete(date);
+                return;
             }
+
+            weekData[index] = dayBusyTimes;
     
         });
 
