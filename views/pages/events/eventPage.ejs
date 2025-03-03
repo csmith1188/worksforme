@@ -28,13 +28,13 @@
                             <%= event.description %>
                         </p>
                         <h4>
-                            <button onclick="window.location.href='/pages/events/createEvent'">Create Event MB</button>
+                            <a href="/event/createEventMB"><button class="headerButton">Create Event</button></a>
                         </h4>
                             <% eventMB.forEach(function(eventMB) { %>
                                 <div id="posts">
                                     <h3><%= eventMB.name %></h3>
                                 </div>
-                                    <% }); %>
+                            <% }); %>
                     </center>
         </div>
     </div>

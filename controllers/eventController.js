@@ -35,7 +35,7 @@ async function eventPage(req, res) {
 }
 
 async function createEventMB(req, res) {
-    res.render('pages/events/createEvent');
+    res.render('pages/events/createEventMB');
 }
 
 async function postEventPage(req, res) {
@@ -65,8 +65,9 @@ async function postCreateEvent(req, res) {
     res.redirect('/event/events');
 }
 
-async function postCreateMB(req, res) { 
-    const { uid, name } = req.body;
+async function postCreateMB(req, res) {
+    const { name } = req.body;
+    const uid = crypto.randomUUID();
     await eventService.createMB(uid, name);
     res.redirect('/event/events');
 }
