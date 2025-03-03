@@ -14,9 +14,9 @@ async function getEventByUID(uid) {
     return await db.get(sql, [uid]);
 }
 
-async function createEvent(uid, name, description, creator) {
-    const sql = 'INSERT INTO events (uid, name, description, creator) VALUES (?, ?, ?, ?)';
-    const params = [uid, name, description, creator];
+async function createEvent(name, description, creator) {
+    const sql = 'INSERT INTO events (name, description, creator) VALUES (?, ?, ?)';
+    const params = [name, description, creator];
     return await db.run(sql, params);
 }
 
