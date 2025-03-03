@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Get the elements we need from the page
     const inviteButton = document.getElementById('invite-button');
 
     if (!inviteButton) {
