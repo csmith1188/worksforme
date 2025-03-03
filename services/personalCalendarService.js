@@ -7,11 +7,18 @@ async function getUserCalendar(userUID){
     let datesMap = new Map();
 
     dates.forEach(date => {
+        const newBusyTime = {
+            uid: date.uid,
+            start: date.start_time,
+            end: date.end_time
+        };
+
         if (datesMap.has(date.date)) {
-            datesMap.get(date.date).push([date.start, date.end]);
+            datesMap.get(date.date).push(newBusyTime);
         } else {
-            datesMap.set(date.date, [[date.start, date.end]]);
+            datesMap.set(date.date, [newBusyTime]);
         }
+
     });
 
     return datesMap;
@@ -30,4 +37,9 @@ async function saveUserCalendar(userUID, newDatesMap){
         }
     });
 
+}
+
+module.exports = {
+    getUserCalendar,
+    saveUserCalendar
 }

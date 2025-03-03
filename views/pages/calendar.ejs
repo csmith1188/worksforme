@@ -39,6 +39,18 @@
             </div>
         </div>
     </div>
+    <script>
+        let userCalendar;
+        fetch('/calendar/get-calendar-data', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                // Process the data and update the calendar
+                console.log(data);
+                userCalendar = new Map(Object.entries(data));
+                initCalendar(userCalendar);
+            })
+            .catch(error => console.error('Error fetching calendar data:', error));
+    </script>
     <script src="/public/clientJS/dayjs.min.js"></script>
     <script src="/public/clientJS/calendar.js"></script>
 

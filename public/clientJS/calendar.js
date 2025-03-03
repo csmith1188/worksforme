@@ -7,8 +7,6 @@ const timeBlockInnerHTML = `
     <div class="time-block-move-point"></div>
 `;
 
-let userCalendar = new Map();
-
 let isLeftMouseDown = false;
 let isRightMouseDown = false;
 let draggingElement = null;
@@ -47,13 +45,14 @@ document.addEventListener('DOMContentLoaded', function() {
     prevWeekButton = document.getElementById('prev-week-btn');
     nextWeekButton = document.getElementById('next-week-btn');
 
+    // no go back in time
+    dateSelect.min = dayjs().format(dateFormat);
+
     grid = document.getElementById('grid');
     gridBox = grid.getBoundingClientRect();
     gridBottom = grid.scrollHeight;
     gridStyle = getComputedStyle(grid);
     dayColumns = Array.from(document.getElementsByClassName('day-column'));
-
-    setWeek(selectedDate);
 
     dateSelect.addEventListener('change', function() {
         setWeek(dayjs(dateSelect.value));
@@ -232,6 +231,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
 });
 
+function initCalendar(){
+    setWeek(selectedDate);
+}
+
 function clearGrid(){
     dayColumns.forEach(dayColumn => {
         dayColumn.querySelector('.time-blocks').innerHTML = '';
@@ -239,7 +242,18 @@ function clearGrid(){
 }
 
 function addTimeBlock(dayIndex, timeBlock){
+
     dayColumns[dayIndex].querySelector('.time-blocks').appendChild(timeBlock);
+
+    const timeBlockStyle = getComputedStyle(timeBlock);
+    const blockTop = parseInt(timeBlockStyle.top);
+    const blockBottom = blockTop + parseInt(timeBlockStyle.height);
+    const blockHeight = parseInt(timeBlockStyle.height);
+
+    // clamp
+    if (blockTop < 0) timeBlock.style.top = '0px';
+    if (blockBottom > gridBottom) timeBlock.style.top = (gridBottom - blockHeight) + 'px';
+
     updateTimeBlock(timeBlock);
 }
 
@@ -259,6 +273,7 @@ function saveWeek(date){
                 return;
             }
 
+            //weekData[index] = dayBusyTimes.map(([start, end]) => {[start, end]});
             weekData[index] = dayBusyTimes;
     
         });
@@ -286,14 +301,14 @@ function loadWeek(date, calendarMap){
         
         if (busyTimes === null) return;
 
-        busyTimes.forEach(([startMins, endMins]) => {
+        busyTimes.forEach(busyTime => {
 
             let newBlock = document.createElement('div');
             newBlock.classList.add('time-block');
             newBlock.innerHTML = timeBlockInnerHTML;
 
-            const startPx = Math.floor(startMins / 15) * pxPer15Mins;
-            const endPx = Math.floor(endMins / 15) * pxPer15Mins;
+            const startPx = Math.floor(busyTime.start / 15) * pxPer15Mins;
+            const endPx = Math.floor(busyTime.end / 15) * pxPer15Mins;
 
             newBlock.style.top = startPx + 'px';
             newBlock.style.height = (endPx - startPx) + 'px';
@@ -327,6 +342,7 @@ function setWeek(date){
 
 }
 
+// calculates the times of a timeblock
 function getTimeBlockTime(timeBlock){
     const blockStyle = getComputedStyle(timeBlock);
 
@@ -341,8 +357,8 @@ function getTimeBlockTime(timeBlock){
     let endMinutesPadded = String(Math.ceil(endMinutes % 60)).padStart(2, '0');
 
     // normie time
-    let startPeriod = startHour >= 12 ? 'PM' : 'AM';
-    let endPeriod = endHour >= 12 ? 'PM' : 'AM';
+    let startPeriod = startHour >= 12 && startHour < 24 ? 'PM' : 'AM';
+    let endPeriod = endHour >= 12 && endHour < 24 ? 'PM' : 'AM';
     let startHour12 = startHour % 12 || 12;
     let endHour12 = endHour % 12 || 12;
 
@@ -362,6 +378,7 @@ function getTimeBlockTime(timeBlock){
 
 }
 
+// converts blocks in a day column to busy time data
 function getDayBusyTimes(dayColumn){
     let busyTimes = [];
 
@@ -376,6 +393,7 @@ function getDayBusyTimes(dayColumn){
     return busyTimes;
 }
 
+// called when the user edits a timeblock
 function updateTimeBlock(timeBlock){
 
     const timeBlockTime = getTimeBlockTime(timeBlock);
