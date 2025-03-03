@@ -9,6 +9,12 @@ const userService = require('../services/userService.js');
 const { getUserByUsernameOrEmail, registerUser } = require('../services/userService.js');
 const notifservce = require('../services/notifServce.js');
 const eventService = require('../services/eventService.js');
+const memberHandle = require('../services/memberHandle.js');
+
+// Use for the members table
+const member = 2;
+const admin = 1;
+const owner = 0;
 
 //Load login rules
 const loginRulesPath = path.join(__dirname, '../rules/loginRules.json');
@@ -185,6 +191,7 @@ async function add(req, res) {
             }
 
             await notifservce.addUserToEvent(eventUID.uid, updatedAllowed);
+            await memberHandle.insertMembers(eventUID.uid, notifData[0].receiving_user_uid, member);
             // console.log('User added to event with UID:', notifData[0].receiving_user_uid, 'and Event UID:', eventUID.uid);
 
             await notifservce.deleteNotification(notifUID);

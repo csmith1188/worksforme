@@ -9,7 +9,13 @@ const db = require('../util/dbAsyncWrapper');
 const userService = require('../services/userService.js');
 const eventService = require('../services/eventService.js');
 const notifServce = require('../services/notifServce.js');
+const memberHandle = require('../services/memberHandle.js');
 const { date } = require('joi');
+
+// Use for the members table
+const member = 2;
+const admin = 1;
+const owner = 0;
 
 async function events(req, res) {
     const userUID = req.session.user.uid;
@@ -80,10 +86,18 @@ async function postEventPage(req, res) {
 }
 
 async function postCreateEvent(req, res) {
-    const { uid, name, description } = req.body;
+    const { name, description } = req.body;
     const creator = req.session.user.uid;
 
-    await eventService.createEvent(uid, name, description, creator);
+    // Check if any feilds are empty
+    console.log(name, description, creator);
+
+    let eventUID = await eventService.createEvent(name, description, creator);
+    console.log(eventUID);
+
+    // Insert the creator as a member in the members table
+    await memberHandle.insertMembers(eventUID, creator, owner);
+
     res.redirect('/event/events');
 }
 
@@ -101,7 +115,6 @@ async function invite(req, res) {
 
         let date = new Date();
 
-        await notifServce.addUserToEvent(user.uid, eventUID);
         const eventName = await notifServce.getEventNameByUID(eventUID);
         await notifServce.inviteNotifications('Invite', sendingUser, user.uid, eventName.name, 'You have been invited to an event.', date.toISOString());
 
