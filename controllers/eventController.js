@@ -68,6 +68,8 @@ async function postCreateEvent(req, res) {
 async function postCreateMB(req, res) {
     const { name } = req.body;
     const uid = crypto.randomUUID();
+    console.log(uid);
+    
     await eventService.createMB(uid, name);
     res.redirect('/event/events');
 }
