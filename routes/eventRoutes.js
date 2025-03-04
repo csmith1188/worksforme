@@ -12,8 +12,6 @@ router.get('/createEventMB', auth, eventController.createEventMB);
 
 router.get('/eventPage/:aEvent', auth, eventController.eventPage);
 
-router.get('/eventPage/:aEvent/:aEventMB', auth, eventController.eventPage);
-
 router.post('/eventPage/:aEvent', auth, eventController.postEventPage);
 
 router.post('/createEvent', auth, eventController.postCreateEvent);

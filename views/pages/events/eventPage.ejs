@@ -27,12 +27,12 @@
                             <%= event.description %>
                         </p>
                         <h4>
-                            <a href="/event/createEventMB"><button class="headerButton">Create A Message Board</button></a>
                         </h4>
-                            <% eventMB.forEach(function(eventMB) { %>
-                                <div id="posts">
-                                    <h3><%= eventMB.name %></h3>
-                                </div>
+                        <a href="/event/createEventMB"><button class="headerButton">Create A Message Board</button></a>
+                        <% eventMB.forEach(function(eventMB) { %>
+                            <div class="posts">
+                                <h3><%= eventMB.name %></h3>
+                            </div>
                             <% }); %>
                     </center>
         </div>

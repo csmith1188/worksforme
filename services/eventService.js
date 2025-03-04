@@ -66,7 +66,6 @@ async function updateEventDescription(uid, newDescription) {
 }
 
 async function deleteEvent(uid) {
-
     const sql = 'DELETE FROM events WHERE uid = ?';
     return await db.run(sql, [uid]);
 }
