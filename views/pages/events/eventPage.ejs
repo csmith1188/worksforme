@@ -14,7 +14,8 @@
                         <input id="newEventDesc" name="newEventDesc" placeholder="New Event Description"></input>
                         <input type="hidden" name="eventUID" value="<%= event.uid %>">
                         <button type="submit" class="btn">Update Event</button>
-                        <button type="submit" name="deleteEvent" value="true" class="btn btn-delete">Delete Event</button>
+                        <button type="submit" name="deleteEvent" value="true" class="btn btn-delete">Delete
+                            Event</button>
                     </form>
                 </center>
                 <% } %>
@@ -26,13 +27,17 @@
                         <p>
                             <%= event.description %>
                         </p>
-                        <h4>
-                        </h4>
-                        <a href="/event/createEventMB"><button class="headerButton">Create A Message Board</button></a>
-                        <% eventMB.forEach(function(eventMB) { %>
-                            <div class="posts">
-                                <h3><%= eventMB.name %></h3>
-                            </div>
+                    </center>
+                    <center>
+                        <% if (isCreator) { %>
+                            <a href="/event/createEventMB"><button class="headerButton">Create A Message Board</button></a>
+                            <% } %>
+                            <% eventMB.forEach(function(eventMB) { %>
+                                <div class="posts">
+                                    <h3>
+                                        <%= eventMB.name %>
+                                    </h3>
+                                </div>
                             <% }); %>
                     </center>
         </div>

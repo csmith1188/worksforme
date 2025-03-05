@@ -10,31 +10,14 @@ async function getAllEvents() {
     return await db.all(sql);
 }
 
-//gets all the message boards
-async function getEventsMB() {
-    const sql = 'SELECT * FROM eventsMB';
-    return await db.all(sql);
-}
-
 async function getEventByUID(uid) {
     const sql = 'SELECT * FROM events WHERE uid = ?';
-    return await db.get(sql, [uid]);
-}
-
-async function getEventMBByUID(uid) {
-    const sql = 'SELECT * FROM eventsMB WHERE uid = ?';
     return await db.get(sql, [uid]);
 }
 
 async function createEvent(uid, name, description, creator) {
     const sql = 'INSERT INTO events (uid, name, description, creator) VALUES (?, ?, ?, ?)';
     const params = [uid, name, description, creator];
-    return await db.run(sql, params);
-}
-
-async function createMB(uid, name) {
-    const sql = 'INSERT INTO eventsMB (uid, name) VALUES (?, ?)';
-    const params = [uid, name];
     return await db.run(sql, params);
 }
 
@@ -72,14 +55,11 @@ async function deleteEvent(uid) {
 
 module.exports = {
     getAllEvents,
-    getEventsMB,
     getEventByUID,
-    getEventMBByUID,
     updateEventName,
     updateEventDescription,
     deleteEvent,
     createEvent,
-    createMB,
     isEventCreator,
     getEventsByUserUID,
     GetEventCreatorByEventUID

@@ -7,6 +7,7 @@ const sanitizeInput = require('../util/sanitizeInput');
 const db = require('../util/dbAsyncWrapper');
 
 const eventService = require('../services/eventService.js');
+const messageBoardService = require('../services/messageBoardService.js');
 const notifServce = require('../services/notifServce.js');
 const { log } = require('console');
 const e = require('express');
@@ -26,7 +27,7 @@ async function eventPage(req, res) {
     const aEvent = req.params.aEvent;
     const event = await eventService.getEventByUID(aEvent);
     //stuff to get event message board
-    const eventMB = await eventService.getEventsMB();
+    const eventMB = await messageBoardService.getEventsMB();
     //stuff to check if user is creator
     const userUID = req.session.user.uid;
     const isCreator = await eventService.isEventCreator(aEvent, userUID);
@@ -68,9 +69,7 @@ async function postCreateEvent(req, res) {
 async function postCreateMB(req, res) {
     const { name } = req.body;
     const uid = crypto.randomUUID();
-    console.log(uid);
-    
-    await eventService.createMB(uid, name);
+    await messageBoardService.createMB(uid, name);
     res.redirect('/event/events');
 }
 
