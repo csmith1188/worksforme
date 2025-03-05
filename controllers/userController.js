@@ -4,17 +4,12 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const sanitizeInput = require('../util/sanitizeInput');
+const { MEMBER, OWNER, ADMIN } = require('../middleware/consts.js');
 
 const userService = require('../services/userService.js');
 const { getUserByUsernameOrEmail, registerUser } = require('../services/userService.js');
-const notifservce = require('../services/notifServce.js');
-const eventService = require('../services/eventService.js');
+const notifservice = require('../services/notifService.js');
 const memberHandle = require('../services/memberHandle.js');
-
-// Use for the members table
-const member = 2;
-const admin = 1;
-const owner = 0;
 
 //Load login rules
 const loginRulesPath = path.join(__dirname, '../rules/loginRules.json');
@@ -123,7 +118,7 @@ async function postRegisterNewUser(req, res) {
     }
 }
 
-//Check if user exists
+// Check if user exists
 async function userExists(req, res) {
     let { username } = req.body;
     username = sanitizeInput(username);
@@ -162,45 +157,31 @@ async function postInboxPage(req, res) {
 async function add(req, res) {
     const notifUID = req.body.notif_uid;
     const action = req.body.action;
-    let updatedAllowed = null;
 
     try {
         if (action === 'accept') {
-            const notifData = await notifservce.getNotificationsByUID(notifUID);
-            // console.log('Notification Data:', notifData);
+            const notifData = await notifservice.getNotificationsByUID(notifUID);
 
             if (!notifData) {
                 return res.json({ success: false, message: 'Notification not found' });
             }
 
-            // console.log(notifData[0].event);
-            const eventUID = await notifservce.getEventUIDByEventName(notifData[0].event);
-            // console.log('Event UID:', eventUID);
+            const eventUID = await memberHandle.getEventsByMember(notifData[0].receiving_user_uid);
+            console.log('Event UID:', eventUID);
 
             if (!eventUID) {
                 return res.json({ success: false, message: 'Event not found' });
             }
 
-            let event = await eventService.getEventByUID(eventUID.uid);
-            //console.log('Event:', event);
+            await memberHandle.insertMembers(eventUID.event_uid, notifData[0].receiving_user_uid, MEMBER);
 
-            if (event.allowed !== null) {
-                updatedAllowed = event.allowed + ',' + notifData[0].receiving_user_uid;
-            } else {
-                updatedAllowed = notifData[0].receiving_user_uid;
-            }
-
-            await notifservce.addUserToEvent(eventUID.uid, updatedAllowed);
-            await memberHandle.insertMembers(eventUID.uid, notifData[0].receiving_user_uid, member);
-            // console.log('User added to event with UID:', notifData[0].receiving_user_uid, 'and Event UID:', eventUID.uid);
-
-            await notifservce.deleteNotification(notifUID);
+            await notifservice.deleteNotification(notifUID);
 
             return res.json({ success: true });
         }
 
         if (action === 'reject') {
-            await notifservce.deleteNotification(notifUID);
+            await notifservice.deleteNotification(notifUID);
             return res.json({ success: true });
         }
 
