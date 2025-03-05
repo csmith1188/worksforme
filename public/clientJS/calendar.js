@@ -33,6 +33,15 @@ let dayColumns;
 
 let selectedDate = dayjs();
 
+let editList = {
+    createdBlocks: new Set(),
+    editedBlocks: new Set(),
+    deletedBlockUIDs: new Set()
+};
+
+// associates timeblock elements with their data
+let timeBlockMap = new Map();
+
 function snapNum(num, snapTo) {
     return Math.round(num / snapTo) * snapTo;
 }
@@ -86,9 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             targetColumn = e.target.parentElement.parentElement;
 
-            newBlock = document.createElement('div');
-            newBlock.classList.add('time-block');
-            newBlock.innerHTML = timeBlockInnerHTML;
+            newBlock = createTimeBlock(null);
 
             resizingBlock = newBlock;
 
@@ -125,14 +132,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // right click to delete timeblock
         if(e.button === 2 && e.target.parentElement.classList.contains('time-block')) {
             const block = e.target.parentElement;
-            block.remove();
+            deleteTimeBlock(block);
             return;
         }
 
         if (newBlock) {
             // add the block to the cell
             if(!newBlock.parentElement){
-                addTimeBlock(targetColumn.dataset.index, newBlock);
+                addTimeBlockElement(targetColumn.dataset.index, newBlock);
             }
 
             updateTimeBlock(newBlock);
@@ -156,14 +163,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (isRightMouseDown && e.target.parentElement.classList.contains('time-block')) {
             const block = e.target.parentElement;
-            block.remove();
+            deleteTimeBlock(block);
             return;
         }
 
         if (newBlock){
             // if the block hasn't been added to the cell, add it
             if(!newBlock.parentElement){
-                addTimeBlock(targetColumn.dataset.index, newBlock);
+                addTimeBlockElement(targetColumn.dataset.index, newBlock);
             }
 
         }
@@ -206,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const newColumn = dayColumns[dayColumns.indexOf(column) + direction];
 
                 if(newColumn){
-                    addTimeBlock(newColumn.dataset.index, movingBlock);
+                    addTimeBlockElement(newColumn.dataset.index, movingBlock);
                 }
 
             }
@@ -241,7 +248,7 @@ function clearGrid(){
     });
 }
 
-function addTimeBlock(dayIndex, timeBlock){
+function addTimeBlockElement(dayIndex, timeBlock){
 
     dayColumns[dayIndex].querySelector('.time-blocks').appendChild(timeBlock);
 
@@ -297,23 +304,21 @@ function loadWeek(date, calendarMap){
 
     }
 
-    weekData.forEach((busyTimes, dayIndex) => {
+    weekData.forEach((timeBlocks, dayIndex) => {
         
-        if (busyTimes === null) return;
+        if (timeBlocks === null) return;
 
-        busyTimes.forEach(busyTime => {
+        timeBlocks.forEach(timeBlockData => {
 
-            let newBlock = document.createElement('div');
-            newBlock.classList.add('time-block');
-            newBlock.innerHTML = timeBlockInnerHTML;
+            newBlock = createTimeBlock(timeBlockData.uid);
 
-            const startPx = Math.floor(busyTime.start / 15) * pxPer15Mins;
-            const endPx = Math.floor(busyTime.end / 15) * pxPer15Mins;
+            const startPx = Math.floor(timeBlockData.start / 15) * pxPer15Mins;
+            const endPx = Math.floor(timeBlockData.end / 15) * pxPer15Mins;
 
             newBlock.style.top = startPx + 'px';
             newBlock.style.height = (endPx - startPx) + 'px';
 
-            addTimeBlock(dayIndex, newBlock);
+            addTimeBlockElement(dayIndex, newBlock);
 
         })
 
@@ -387,16 +392,55 @@ function getDayBusyTimes(dayColumn){
     timeBlocks.forEach(timeBlock => {
         let blockTime = getTimeBlockTime(timeBlock);
 
-        busyTimes.push([blockTime.startMinutes, blockTime.endMinutes]);
+        busyTimes.push({
+            start: blockTime.startMinutes,
+            end: blockTime.endMinutes
+        });
     });
 
     return busyTimes;
+}
+
+function updateTimeBlockText(timeBlock) {
+    const timeBlockTime = getTimeBlockTime(timeBlock);
+    timeBlock.querySelector('.time-block-text').innerText = `${timeBlockTime.startTimeString} - ${timeBlockTime.endTimeString}`;
+}
+
+function createTimeBlock(uid = null){
+    let newBlock = document.createElement('div');
+    newBlock.classList.add('time-block');
+    newBlock.innerHTML = timeBlockInnerHTML;
+
+    let newBlockData = {
+        uid: uid,
+        start: null,
+        end: null
+    };
+
+    timeBlockMap.set(newBlock, newBlockData);
+
+    editList.createdBlocks.add(newBlockData);
+
+    return newBlock;
 }
 
 // called when the user edits a timeblock
 function updateTimeBlock(timeBlock){
 
     const timeBlockTime = getTimeBlockTime(timeBlock);
+    updateTimeBlockText(timeBlock);
 
-    timeBlock.querySelector('.time-block-text').innerText = `${timeBlockTime.startTimeString} - ${timeBlockTime.endTimeString}`;
+    const timeBlockData = timeBlockMap.get(timeBlock);
+}
+
+function deleteTimeBlock(timeBlock){
+
+    const timeBlockData = timeBlockMap.get(timeBlock);
+
+    if (timeBlockData.uid !== null){
+        editList.deletedBlockUIDs.add(timeBlockData.uid);
+    }
+
+    timeBlockMap.delete(timeBlock);
+    timeBlock.remove();
 }
