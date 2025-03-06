@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             targetColumn = e.target.parentElement.parentElement;
 
-            newBlock = createTimeBlock(null);
+            newBlock = createTimeBlock(null, true);
 
             resizingBlock = newBlock;
 
@@ -132,17 +132,17 @@ document.addEventListener('DOMContentLoaded', function() {
         // right click to delete timeblock
         if(e.button === 2 && e.target.parentElement.classList.contains('time-block')) {
             const block = e.target.parentElement;
-            deleteTimeBlock(block);
+            deleteTimeBlock(block, true);
             return;
         }
 
         if (newBlock) {
             // add the block to the cell
             if(!newBlock.parentElement){
-                addTimeBlockElement(targetColumn.dataset.index, newBlock);
+                addTimeBlockToDayColumn(targetColumn.dataset.index, newBlock);
             }
 
-            updateTimeBlock(newBlock);
+            updateTimeBlock(newBlock, false)
 
             // finished creating block
             newBlock = null;
@@ -163,14 +163,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (isRightMouseDown && e.target.parentElement.classList.contains('time-block')) {
             const block = e.target.parentElement;
-            deleteTimeBlock(block);
+            deleteTimeBlock(block, true);
             return;
         }
 
         if (newBlock){
             // if the block hasn't been added to the cell, add it
             if(!newBlock.parentElement){
-                addTimeBlockElement(targetColumn.dataset.index, newBlock);
+                addTimeBlockToDayColumn(targetColumn.dataset.index, newBlock);
             }
 
         }
@@ -193,7 +193,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             resizingBlock.style.height = snapNum(newHeight, pxPer15Mins) + 'px';
 
-            updateTimeBlock(resizingBlock);
+            // if the block is still being created, don't add log the update
+            updateTimeBlock(resizingBlock, !Boolean(newBlock));
 
         // moving block
         } else if (movingBlock) {
@@ -213,7 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const newColumn = dayColumns[dayColumns.indexOf(column) + direction];
 
                 if(newColumn){
-                    addTimeBlockElement(newColumn.dataset.index, movingBlock);
+                    addTimeBlockToDayColumn(newColumn.dataset.index, movingBlock);
                 }
 
             }
@@ -230,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             movingBlock.style.top = newY + 'px';
 
-            updateTimeBlock(movingBlock);
+            updateTimeBlock(movingBlock, true);
 
         }
 
@@ -246,22 +247,6 @@ function clearGrid(){
     dayColumns.forEach(dayColumn => {
         dayColumn.querySelector('.time-blocks').innerHTML = '';
     });
-}
-
-function addTimeBlockElement(dayIndex, timeBlock){
-
-    dayColumns[dayIndex].querySelector('.time-blocks').appendChild(timeBlock);
-
-    const timeBlockStyle = getComputedStyle(timeBlock);
-    const blockTop = parseInt(timeBlockStyle.top);
-    const blockBottom = blockTop + parseInt(timeBlockStyle.height);
-    const blockHeight = parseInt(timeBlockStyle.height);
-
-    // clamp
-    if (blockTop < 0) timeBlock.style.top = '0px';
-    if (blockBottom > gridBottom) timeBlock.style.top = (gridBottom - blockHeight) + 'px';
-
-    updateTimeBlock(timeBlock);
 }
 
 // converts timeblocks to calendar data and saves to userCalendar
@@ -310,7 +295,7 @@ function loadWeek(date, calendarMap){
 
         timeBlocks.forEach(timeBlockData => {
 
-            newBlock = createTimeBlock(timeBlockData.uid);
+            let newBlock = createTimeBlock(timeBlockData.uid, false);
 
             const startPx = Math.floor(timeBlockData.start / 15) * pxPer15Mins;
             const endPx = Math.floor(timeBlockData.end / 15) * pxPer15Mins;
@@ -318,7 +303,7 @@ function loadWeek(date, calendarMap){
             newBlock.style.top = startPx + 'px';
             newBlock.style.height = (endPx - startPx) + 'px';
 
-            addTimeBlockElement(dayIndex, newBlock);
+            addTimeBlockToDayColumn(dayIndex, newBlock);
 
         })
 
@@ -401,45 +386,87 @@ function getDayBusyTimes(dayColumn){
     return busyTimes;
 }
 
+//adds timeblock to day column
+
+function addTimeBlockToDayColumn(dayIndex, timeBlock){
+
+    dayColumns[dayIndex].querySelector('.time-blocks').appendChild(timeBlock);
+
+    const timeBlockStyle = getComputedStyle(timeBlock);
+    const blockTop = parseInt(timeBlockStyle.top);
+    const blockBottom = blockTop + parseInt(timeBlockStyle.height);
+    const blockHeight = parseInt(timeBlockStyle.height);
+
+    // clamp
+    if (blockTop < 0) timeBlock.style.top = '0px';
+    if (blockBottom > gridBottom) timeBlock.style.top = (gridBottom - blockHeight) + 'px';
+
+    // update the timeblock date
+    const newDate = selectedDate.startOf('week').add(dayIndex, 'day').format(dateFormat);
+    let timeBlockData = timeBlockMap.get(timeBlock);
+    timeBlockData.date = newDate;
+
+    updateTimeBlock(timeBlock, false);
+}
+
 function updateTimeBlockText(timeBlock) {
     const timeBlockTime = getTimeBlockTime(timeBlock);
     timeBlock.querySelector('.time-block-text').innerText = `${timeBlockTime.startTimeString} - ${timeBlockTime.endTimeString}`;
 }
 
-function createTimeBlock(uid = null){
+function createTimeBlock(uid = null, log = false){
+
     let newBlock = document.createElement('div');
     newBlock.classList.add('time-block');
     newBlock.innerHTML = timeBlockInnerHTML;
 
     let newBlockData = {
         uid: uid,
+        date: null,
         start: null,
         end: null
     };
 
     timeBlockMap.set(newBlock, newBlockData);
 
-    editList.createdBlocks.add(newBlockData);
+    if (log) editList.createdBlocks.add(newBlockData);
 
     return newBlock;
 }
 
 // called when the user edits a timeblock
-function updateTimeBlock(timeBlock){
+function updateTimeBlock(timeBlock, log = false){
 
     const timeBlockTime = getTimeBlockTime(timeBlock);
     updateTimeBlockText(timeBlock);
 
-    const timeBlockData = timeBlockMap.get(timeBlock);
+    let timeBlockData = timeBlockMap.get(timeBlock);
+    timeBlockData.start = timeBlockTime.startMinutes;
+    timeBlockData.end = timeBlockTime.endMinutes;
+
+    if (!log) return;
+
+    // only log if the block is from the database
+    if (timeBlockData.uid !== null){
+        editList.editedBlocks.add(timeBlockData);
+    }
+    
 }
 
-function deleteTimeBlock(timeBlock){
+function deleteTimeBlock(timeBlock, log = false){
 
     const timeBlockData = timeBlockMap.get(timeBlock);
 
+    if (!log) return
+
+    // only add the timeblock to deleted list if it has a uid, meaning it came from the database
     if (timeBlockData.uid !== null){
         editList.deletedBlockUIDs.add(timeBlockData.uid);
     }
+
+    // delete all instances
+    editList.createdBlocks.delete(timeBlockData);
+    editList.editedBlocks.delete(timeBlockData);
 
     timeBlockMap.delete(timeBlock);
     timeBlock.remove();
