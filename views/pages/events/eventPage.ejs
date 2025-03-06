@@ -33,11 +33,13 @@
                             <a href="/event/createEventMB"><button class="headerButton">Create A Message Board</button></a>
                             <% } %>
                             <% eventMB.forEach(function(eventMB) { %>
-                                <div class="posts">
-                                    <h3>
-                                        <%= eventMB.name %>
-                                    </h3>
-                                </div>
+                                <details class="posts">
+                                    <summary><h3><%= eventMB.name %></h3></summary>
+                                    <div class="post-content">
+                                        <!-- Add any additional content for the message board here -->
+                                        
+                                    </div>
+                                </details>
                             <% }); %>
                     </center>
         </div>
