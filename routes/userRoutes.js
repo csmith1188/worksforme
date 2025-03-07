@@ -21,4 +21,9 @@ router.get('/calendar', auth, userController.calendarPage);
 router.get('/formbar', userController.formbar, redirectWhenDone);
 router.get('/logout', userController.logout, auth, redirectWhenDone);
 
+router.get('/inbox', auth, userController.inboxPage);
+router.post('/inbox', auth, userController.postInboxPage);
+
+router.post('/add', auth, userController.add);
+
 module.exports = router;

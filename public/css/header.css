@@ -1,5 +1,5 @@
 :root {
-    --header-color: #3f5e3a;
+    --header-color:  #8d58b1c4;
 }
 
 .header {
@@ -10,12 +10,12 @@
     text-align: center;
     display: flex;
     align-items: center;
-    justify-content:end;
+    justify-content: end;
 }
 
 .headerButton {
     background-color: #ffffff;
-    margin: 10px;
+    margin: 5px; /* Reduced margin */
 }
 
 .headerButton:hover {
@@ -23,7 +23,7 @@
 }
 
 #logo {
-    width: 200px;
+    width: 250px;
     display: block;
     position: absolute;
     left: 0px;
@@ -40,4 +40,62 @@
 
 #coinCount {
     margin-right: 25px;
+}
+
+.headerIcon {
+    width: 20px;
+    height: 20px;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #8d58b1c4;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 5px;
+    overflow: hidden;
+    animation: slideUp 0.3s ease-in;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.3s ease;
+}
+
+.dropdown-content a:hover {
+    background-color: #5c2f7ac4;
+}
+
+.show {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-10px); }
 }

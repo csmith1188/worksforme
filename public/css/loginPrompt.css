@@ -2,12 +2,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 50vh;
 }
 
 .content {
     text-align: center;
-    background: rgba(255, 255, 255, 0.9);
+    color: rgb(255, 255, 255);
     padding: 30px;
     border-radius: 15px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -15,7 +15,7 @@
 
 #choosePrompt {
     font-size: 1.8em;
-    color: #4a4a3f;
+    color: #ffffff;
     margin-bottom: 20px;
 }
 
@@ -28,6 +28,6 @@
 
 .loginButton:hover {
     transform: scale(1.05);
-    background-color: #6e6e50;
-    color: white;
+    background-color: #ba8dcc77;
+    color: rgb(255, 255, 255);
 }

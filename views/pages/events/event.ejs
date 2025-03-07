@@ -1,0 +1,43 @@
+<%- include('../../partials/header.ejs', {pageTitle: 'About' }); %>
+
+    <link rel="stylesheet" href="/public/css/style.css">
+    <link rel="stylesheet" href="/public/css/event.css">
+
+    <div class="mainContainer">
+        <div class="content">
+
+            <center>
+                <h1>Events</h1>
+                <% if (events.length===0) { %>
+                    <p>You are not involved in any events.</p>
+                    <% } %>
+                        <% if (events.length> 0) { %>
+                            <p>Here are the current event you are involved in:</p>
+
+                            <div class="mainContainer">
+                                <div class="content">
+                                    <% events.forEach(function(event) { %>
+
+
+                                        <div class="event">
+                                            <h2>
+                                                <a href="/event/eventPage/<%= event.uid %>" class="eventLink">
+                                                    <%= event.name %>
+                                                </a>
+                                            </h2>
+                                            <p class="text">
+                                                <%= event.description %>
+                                            </p>
+                                        </div>
+
+
+                                        <% }); %>
+                                </div>
+                            </div>
+                            <% } %>
+            </center>
+
+        </div>
+    </div>
+
+    <%- include('../../partials/footer.ejs') %>
