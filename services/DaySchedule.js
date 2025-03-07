@@ -1,6 +1,7 @@
 const { timeStringToMinutes, minutesToTimeString } = require('../util/timeHelper');
 
 class DaySchedule {
+
     constructor(busyTimes) {
         this.busyTimes = busyTimes;
         this.minutesBuffer = 30;
@@ -20,8 +21,6 @@ class DaySchedule {
 
         return conflict;
     }
-
-
 
     getClosestTime(preferredMinutes, eventLength) {
         let closestTime = null;
