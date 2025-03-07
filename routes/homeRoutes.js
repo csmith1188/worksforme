@@ -21,4 +21,8 @@ router.get('/test', auth, (req, res) => {
     res.render('pages/test');
 });
 
+router.get('/party', auth, (req, res) => {
+    res.render('pages/party');
+});
+
 module.exports = router;
