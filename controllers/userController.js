@@ -10,6 +10,7 @@ const userService = require('../services/userService.js');
 const { getUserByUsernameOrEmail, registerUser } = require('../services/userService.js');
 const notifservice = require('../services/notifService.js');
 const memberHandle = require('../services/memberHandle.js');
+const eventService = require('../services/eventService.js');
 
 //Load login rules
 const loginRulesPath = path.join(__dirname, '../rules/loginRules.json');
@@ -166,14 +167,13 @@ async function add(req, res) {
                 return res.json({ success: false, message: 'Notification not found' });
             }
 
-            const eventUID = await memberHandle.getEventsByMember(notifData[0].receiving_user_uid);
-            console.log('Event UID:', eventUID);
+            const eventUID = notifData[0].event_uid;
 
             if (!eventUID) {
                 return res.json({ success: false, message: 'Event not found' });
             }
 
-            await memberHandle.insertMembers(eventUID.event_uid, notifData[0].receiving_user_uid, MEMBER);
+            await memberHandle.insertMembers(eventUID, notifData[0].receiving_user_uid, MEMBER);
 
             await notifservice.deleteNotification(notifUID);
 

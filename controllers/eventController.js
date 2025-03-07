@@ -87,12 +87,16 @@ async function invite(req, res) {
             return;
         }
 
+        // Consts and checks for inviting later
         const members = await memberHandle.getMembersByEvent(eventUID);
+        // If they are members
         const isMember = members.some(member => member.members === user.uid);
         const notif = await notifservice.getNotificationsByUser(user.uid);
         const eventName = await notifservice.getEventNameByUID(eventUID);
+        // If they are invited
         const isNotif = notif.some(notification => notification.event === eventName.name);
 
+        // If they are invited or members then dont continue
         if (isMember) {
             res.status(400).send('User is already a member of this event');
             return;
@@ -104,7 +108,7 @@ async function invite(req, res) {
 
         let date = new Date();
 
-        await notifservice.inviteNotifications('Invite', sendingUser, user.uid, eventName.name, 'You have been invited to an event.', date.toISOString());
+        await notifservice.inviteNotifications('Invite', sendingUser, user.uid, eventName.name, 'You have been invited to an event.', date.toISOString(), eventUID);
 
         res.status(200).send('User invited successfully');
     } catch (error) {

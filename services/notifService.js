@@ -12,9 +12,9 @@ async function getusernameByUid(uid) {
     return await db.get(sql, [uid]);
 }
 
-async function inviteNotifications(notif_type, sending_user, receiving_user_uid, event, notif_content, timestamp) {
-    const sql = 'INSERT INTO notifications (notif_type, sending_user, receiving_user_uid, event, notif_content, timestamp) VALUES (?, ?, ?, ?, ?, ?)';
-    const params = [notif_type, sending_user, receiving_user_uid, event, notif_content, timestamp];
+async function inviteNotifications(notif_type, sending_user, receiving_user_uid, event, notif_content, timestamp, eventUID) {
+    const sql = 'INSERT INTO notifications (notif_type, sending_user, receiving_user_uid, event, notif_content, timestamp, event_uid) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    const params = [notif_type, sending_user, receiving_user_uid, event, notif_content, timestamp, eventUID];
     return await db.run(sql, params);
 }
 

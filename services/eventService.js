@@ -20,6 +20,11 @@ async function createEvent(name, description) {
     return await db.run(sql, params);
 }
 
+async function getEventUIDByName(name) {
+    const sql = 'SELECT uid FROM events WHERE name = ?';
+    return await db.get(sql, [name]);
+}
+
 // Modifying events
 async function updateEventName(uid, newName) {
     const sql = 'UPDATE events SET name = ? WHERE uid = ?;';
@@ -42,5 +47,6 @@ module.exports = {
     updateEventName,
     updateEventDescription,
     deleteEvent,
-    createEvent
+    createEvent,
+    getEventUIDByName
 };
