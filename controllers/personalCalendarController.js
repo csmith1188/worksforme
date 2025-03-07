@@ -7,6 +7,18 @@ async function getCalendarData(req, res) {
     res.send(calendarObject);
 }
 
+async function saveCalendarData(req, res) {
+    const userUID = req.session.user.uid;
+    const editList = req.body;
+    try {
+        await personalCalendarService.saveUserCalendar(userUID, editList.createdBlocks, editList.editedBlocks, editList.deletedBlockUIDs);
+        res.sendStatus(200);
+    } catch (error) {
+        res.sendStatus(500);
+    }
+}
+
 module.exports = {
-    getCalendarData
+    getCalendarData,
+    saveCalendarData
 };

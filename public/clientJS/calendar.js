@@ -7,6 +7,8 @@ const timeBlockInnerHTML = `
     <div class="time-block-move-point"></div>
 `;
 
+let userCalendar;
+
 let isLeftMouseDown = false;
 let isRightMouseDown = false;
 let draggingElement = null;
@@ -24,6 +26,7 @@ let dayHeaders;
 let dateSelect;
 let prevWeekButton;
 let nextWeekButton;
+let saveButton;
 
 let grid;
 let gridBox;
@@ -42,6 +45,8 @@ let editList = {
 // associates timeblock elements with their data
 let timeBlockMap = new Map();
 
+let unsavedChanges = false;
+
 function snapNum(num, snapTo) {
     return Math.round(num / snapTo) * snapTo;
 }
@@ -53,6 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
     dateSelect = document.getElementById('date-select');
     prevWeekButton = document.getElementById('prev-week-btn');
     nextWeekButton = document.getElementById('next-week-btn');
+    saveButton = document.getElementById('save-btn');
 
     // no go back in time
     dateSelect.min = dayjs().format(dateFormat);
@@ -62,6 +68,8 @@ document.addEventListener('DOMContentLoaded', function() {
     gridBottom = grid.scrollHeight;
     gridStyle = getComputedStyle(grid);
     dayColumns = Array.from(document.getElementsByClassName('day-column'));
+
+    loadCalendarFromDB();
 
     dateSelect.addEventListener('change', function() {
         setWeek(dayjs(dateSelect.value));
@@ -77,8 +85,20 @@ document.addEventListener('DOMContentLoaded', function() {
         setWeek(selectedDate.add(1, 'week'));
     });
 
+    saveButton.addEventListener('click', function() {
+        saveChangesToDB();
+    });
+
     grid.addEventListener('contextmenu', function(e) {
         e.preventDefault();
+    });
+
+    window.addEventListener('beforeunload', function(event) {
+        if (unsavedChanges) {
+            const message = "You have unsaved changes. Are you sure you want to leave?";
+            event.returnValue = message; // Some browsers require this
+            return message; // Other browsers might require this
+        }
     });
 
     grid.addEventListener('mousedown', function(e) {
@@ -180,18 +200,21 @@ document.addEventListener('DOMContentLoaded', function() {
             const blockBox = resizingBlock.getBoundingClientRect();
             const blockTop = parseInt(resizingBlock.style.top);
             const blockBottom = parseInt(resizingBlock.style.top) + parseInt(resizingBlock.style.height);
+            const currentBlockHeight = parseInt(resizingBlock.style.height);
 
             let yDiff = e.clientY - blockBox.top;
-            let newHeight = yDiff;
+            let newHeight = snapNum(yDiff, pxPer15Mins);
 
             // clamp
-
             if (newHeight < pxPer15Mins) newHeight = pxPer15Mins;
+
+            // if there's no difference, don't do anything
+            if (newHeight === currentBlockHeight) return;
 
             const maxHeight = gridBottom - blockTop;
             if (newHeight > maxHeight) newHeight = maxHeight;
 
-            resizingBlock.style.height = snapNum(newHeight, pxPer15Mins) + 'px';
+            resizingBlock.style.height = newHeight + 'px';
 
             // if the block is still being created, don't add log the update
             updateTimeBlock(resizingBlock, !Boolean(newBlock));
@@ -203,9 +226,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const blockBox = movingBlock.getBoundingClientRect();
             const columnBox = column.getBoundingClientRect();
+            const currentBlockTop = parseInt(movingBlock.style.top);
 
             let yDiff = e.clientY - columnBox.top;
 
+            // handle moving block to another column
             // if the mouse is not on the block
             if (e.target.parentElement !== movingBlock && e.clientY > blockBox.top && e.clientY < blockBox.bottom) {
                 // -1 if mouse is left of the block center, 1 if mouse is right of the block center
@@ -215,6 +240,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if(newColumn){
                     addTimeBlockToDayColumn(newColumn.dataset.index, movingBlock);
+                    updateTimeBlock(movingBlock, true);
                 }
 
             }
@@ -228,6 +254,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // clamp
             if(newY < 0) newY = 0;
             if(newY + blockBox.height > columnBox.height) newY = gridBottom - blockBox.height;
+
+            // if there's no difference, don't do anything
+            if (newY === currentBlockTop) return;
 
             movingBlock.style.top = newY + 'px';
 
@@ -249,30 +278,80 @@ function clearGrid(){
     });
 }
 
-// converts timeblocks to calendar data and saves to userCalendar
+function loadCalendarFromDB(){
+    fetch('/calendar/get-calendar-data', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            // Process the data and update the calendar
+            userCalendar = new Map(Object.entries(data));
+            clearGrid();
+            initCalendar(userCalendar);
+        })
+        .catch(error => alert('Failed to load calendar'));
+}
+
+// saves changes to database
+function saveChangesToDB(){
+
+    if (!unsavedChanges) return;
+
+    fetch('/calendar/save-calendar-data', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            createdBlocks: Array.from(editList.createdBlocks),
+            editedBlocks: Array.from(editList.editedBlocks),
+            deletedBlockUIDs: Array.from(editList.deletedBlockUIDs)
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            // clear the edit list and reset unsaved changes flag
+            editList.createdBlocks.clear();
+            editList.editedBlocks.clear();
+            editList.deletedBlockUIDs.clear();
+            unsavedChanges = false;
+            // must reload the calendar from the database to get the new uids
+            loadCalendarFromDB();
+
+            alert('Changes saved');
+        } else {
+            alert('Internal Server Error');
+        }
+    })
+    .catch(error => {
+        alert('Error saving changes');
+    });
+
+}
+
+// converts timeblocks to calendar data and saves to userCalendar. 
+// THIS DOES NOT SAVE TO DATABASE. THIS IS JUST FOR SAVING THE STATE OF THE BLOCKS LOCALLY.
 function saveWeek(date){
 
-        const startOfWeek = dayjs(date).startOf('week');
-        let weekData = [];
-    
-        dayColumns.forEach((dayColumn, index) => {
-            
-            let date = startOfWeek.add(index, 'day').format(dateFormat);
-            let dayBusyTimes = getDayBusyTimes(dayColumn);
+    const startOfWeek = dayjs(date).startOf('week');
+    let weekData = [];
 
-            if (userCalendar.has(date) && dayBusyTimes.length === 0) {
-                userCalendar.delete(date);
-                return;
-            }
+    dayColumns.forEach((dayColumn, index) => {
+        
+        let date = startOfWeek.add(index, 'day').format(dateFormat);
+        let dayBusyTimes = getDayBusyTimes(dayColumn);
 
-            //weekData[index] = dayBusyTimes.map(([start, end]) => {[start, end]});
-            weekData[index] = dayBusyTimes;
-    
-        });
+        if (userCalendar.has(date) && dayBusyTimes.length === 0) {
+            userCalendar.delete(date);
+            return;
+        }
 
-        weekData.forEach((busyTimes, dayIndex) => {
-            userCalendar.set(startOfWeek.add(dayIndex, 'day').format(dateFormat), busyTimes);
-        });
+        //weekData[index] = dayBusyTimes.map(([start, end]) => {[start, end]});
+        weekData[index] = dayBusyTimes;
+
+    });
+
+    weekData.forEach((busyTimes, dayIndex) => {
+        userCalendar.set(startOfWeek.add(dayIndex, 'day').format(dateFormat), busyTimes);
+    });
 
 }
 
@@ -429,7 +508,10 @@ function createTimeBlock(uid = null, log = false){
 
     timeBlockMap.set(newBlock, newBlockData);
 
-    if (log) editList.createdBlocks.add(newBlockData);
+    if (log) {
+        editList.createdBlocks.add(newBlockData);
+        unsavedChanges = true;
+    }
 
     return newBlock;
 }
@@ -450,6 +532,8 @@ function updateTimeBlock(timeBlock, log = false){
     if (timeBlockData.uid !== null){
         editList.editedBlocks.add(timeBlockData);
     }
+
+    unsavedChanges = true;
     
 }
 
@@ -467,6 +551,8 @@ function deleteTimeBlock(timeBlock, log = false){
     // delete all instances
     editList.createdBlocks.delete(timeBlockData);
     editList.editedBlocks.delete(timeBlockData);
+
+    unsavedChanges = true;
 
     timeBlockMap.delete(timeBlock);
     timeBlock.remove();

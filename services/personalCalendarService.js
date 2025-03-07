@@ -24,18 +24,20 @@ async function getUserCalendar(userUID){
     return datesMap;
 };
 
-async function saveUserCalendar(userUID, newDatesMap){
-    let currentDatesMap = await getUserCalendarCalendar(userUID);
+async function saveUserCalendar(userUID, createdBlocks, editedBlocks, deletedBlockUIDs){
+    
+    for (const block of createdBlocks) {
+        await db.run('INSERT INTO calendar_dates (user_uid, date, start_time, end_time) VALUES (?, ?, ?, ?);', [userUID, block.date, block.start, block.end]);
+    }
 
-    Array.from(newDatesMap).forEach(async ([date, busyTimes]) => {
-        // If the date is already in the database, update the busy times
-        if (currentDatesMap.has(date)) {
-            busyTimes.forEach(async ([start, end], index) => {
-            });
-        } else {
-            
-        }
-    });
+    for (const block of editedBlocks) {
+        await db.run('UPDATE calendar_dates SET date = ?, start_time = ?, end_time = ? WHERE uid = ?;', [block.date, block.start, block.end, block.uid]);
+    }
+
+    for (const uid of deletedBlockUIDs) {
+        await db.run('DELETE FROM calendar_dates WHERE uid = ?;', [uid]);
+    }
+
 
 }
 

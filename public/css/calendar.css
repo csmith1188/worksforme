@@ -57,6 +57,10 @@
     
 }
 
+#save-btn {
+    float: right;
+}
+
 #grid {
     overflow: auto;
     width: 102%;
