@@ -53,7 +53,8 @@ async function formbar(req, res, next) {
         req.session.user = newUser;
         return next();
     } catch (error) {
-        res.render('error', { error: new Error('Error logging in') });
+        console.log(error);
+        res.render('pages/error', { error: new Error('Error logging in') });
     }
 }
 
