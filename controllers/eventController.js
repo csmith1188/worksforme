@@ -68,11 +68,7 @@ async function postCreateEvent(req, res) {
     const { name, description } = req.body;
     const creator = req.session.user.uid;
 
-    // Check if any feilds are empty
-    console.log(name, description, creator);
-
     let eventUID = await eventService.createEvent(name, description);
-    console.log(eventUID);
 
     // Insert the creator as a member in the members table
     await memberHandle.insertMembers(eventUID, creator, OWNER);
