@@ -28,6 +28,8 @@ async function eventPage(req, res) {
     const event = await eventService.getEventByUID(aEvent);
     //stuff to get event message board
     const eventMB = await messageBoardService.getEventsMB();
+    //stuff to get event message board comments
+    const eventMC = await messageBoardService.getEventsMC();
     //stuff to check if user is creator
     const userUID = req.session.user.uid;
     const isCreator = await eventService.isEventCreator(aEvent, userUID);

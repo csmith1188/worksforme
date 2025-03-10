@@ -21,10 +21,29 @@ async function createMB(uid, name) {
     return await db.run(sql, params);
 }
 
+async function getEventsMC() {
+    const sql = 'SELECT * FROM eventsMC';
+    return await db.all(sql);
+    
+}
+
+async function getEventMCByUID(uid) {
+    const sql = 'SELECT * FROM eventsMC WHERE uid = ?';
+    return await db.get(sql, [uid]);
+}
+
+async function createMC(uid, name) {
+    const sql = 'INSERT INTO eventsMC (uid, name) VALUES (?, ?)';
+    const params = [uid, name];
+    return await db.run(sql, params);
+}
 
 
 module.exports = {
     getEventsMB,
     getEventMBByUID,
-    createMB
+    createMB,
+    getEventsMC,
+    getEventMCByUID,
+    createMC
 };
