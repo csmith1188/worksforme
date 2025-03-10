@@ -9,6 +9,33 @@ async function insertMembers(eventUID, members, permission) {
     return await db.run(sql, params);
 }
 
+async function getMembers() {
+    const sql = 'SELECT * FROM members';
+    return await db.get(sql);
+}
+
+async function getMemberPermission(eventUID, member) {
+    const sql = 'SELECT permission FROM members WHERE event_uid = ? AND members = ?';
+    const params = [eventUID, member];
+    return await db.get(sql, params);
+}
+
+async function getEventsByMember(member) {
+    const sql = 'SELECT event_uid FROM members WHERE members = ?';
+    const params = [member];
+    return await db.all(sql, params);
+}
+
+async function getMembersByEvent(eventUID) {
+    const sql = 'SELECT members FROM members WHERE event_uid = ?';
+    const params = [eventUID];
+    return await db.all(sql, params);
+}
+
 module.exports = {
-    insertMembers
+    insertMembers,
+    getMembers,
+    getMemberPermission,
+    getEventsByMember,
+    getMembersByEvent
 };

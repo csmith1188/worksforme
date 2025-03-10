@@ -14,40 +14,15 @@ async function getEventByUID(uid) {
     return await db.get(sql, [uid]);
 }
 
-async function createEvent(name, description, creator) {
-    const sql = 'INSERT INTO events (name, description, creator) VALUES (?, ?, ?)';
-    const params = [name, description, creator];
+async function createEvent(name, description) {
+    const sql = 'INSERT INTO events (name, description) VALUES (?, ?)';
+    const params = [name, description];
     return await db.run(sql, params);
 }
 
-async function getEventsByUserUID(userUID) {
-    const sql = `
-        SELECT * FROM events 
-        WHERE creator = ? 
-        OR allowed LIKE ? 
-        OR allowed LIKE ? 
-        OR allowed LIKE ? 
-        OR allowed = ?
-    `;
-    const params = [
-        userUID, 
-        `${userUID},%`, 
-        `%,${userUID},%`, 
-        `%,${userUID}`, 
-        userUID
-    ];
-    return await db.all(sql, params);
-}
-
-async function isEventCreator(eventUID, userUID) {
-    const sql = 'SELECT COUNT(*) as count FROM events WHERE uid = ? AND creator = ?';
-    const result = await db.get(sql, [eventUID, userUID]);
-    return result.count > 0;
-}
-
-async function GetEventCreatorByEventUID(eventUID) {
-    const sql = 'SELECT creator FROM events WHERE uid = ?';
-    return await db.get(sql, [eventUID]);
+async function getEventUIDByName(name) {
+    const sql = 'SELECT uid FROM events WHERE name = ?';
+    return await db.get(sql, [name]);
 }
 
 // Modifying events
@@ -73,7 +48,5 @@ module.exports = {
     updateEventDescription,
     deleteEvent,
     createEvent,
-    isEventCreator,
-    getEventsByUserUID,
-    GetEventCreatorByEventUID
+    getEventUIDByName
 };

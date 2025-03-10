@@ -12,14 +12,9 @@ async function getusernameByUid(uid) {
     return await db.get(sql, [uid]);
 }
 
-async function addUserToEvent(uid, eventUID) {
-    const sql = 'UPDATE events SET allowed = ? WHERE uid = ?';
-    return await db.run(sql, [eventUID, uid]);
-}
-
-async function inviteNotifications(notif_type, sending_user, receiving_user_uid, event, notif_content, timestamp) {
-    const sql = 'INSERT INTO notifications (notif_type, sending_user, receiving_user_uid, event, notif_content, timestamp) VALUES (?, ?, ?, ?, ?, ?)';
-    const params = [notif_type, sending_user, receiving_user_uid, event, notif_content, timestamp];
+async function inviteNotifications(notif_type, sending_user, receiving_user_uid, event, notif_content, timestamp, eventUID) {
+    const sql = 'INSERT INTO notifications (notif_type, sending_user, receiving_user_uid, event, notif_content, timestamp, event_uid) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    const params = [notif_type, sending_user, receiving_user_uid, event, notif_content, timestamp, eventUID];
     return await db.run(sql, params);
 }
 
@@ -38,6 +33,11 @@ async function getEventUIDByEventName(name) {
     return await db.get(sql, [name]);
 }
 
+async function getNotificationsByUser(uid) {
+    const sql = 'SELECT * FROM notifications WHERE receiving_user_uid = ?';
+    return await db.all(sql, [uid]);
+}
+
 async function deleteNotification(uid) {
     const sql = 'DELETE FROM notifications WHERE uid = ?';
     return await db.run(sql, [uid]);
@@ -46,10 +46,10 @@ async function deleteNotification(uid) {
 module.exports = {
     getUidByNameOrEmail,
     getusernameByUid,
-    addUserToEvent,
     inviteNotifications,
     getEventNameByUID,
     getNotificationsByUID,
     getEventUIDByEventName,
-    deleteNotification
+    deleteNotification,
+    getNotificationsByUser
 };
