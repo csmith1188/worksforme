@@ -71,7 +71,6 @@ async function postEventPage(req, res) {
 
 async function postCreateEvent(req, res) {
     const { name, description } = req.body;
-    const { name, description } = req.body;
     const creator = req.session.user.uid;
 
     let eventUID = await eventService.createEvent(name, description);
