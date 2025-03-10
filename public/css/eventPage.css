@@ -109,6 +109,26 @@
 .editIcon {
     width: 50px;
     height: 50px;
+    background: url('/public/images/gear-icon.png') no-repeat center center;
+    background-size: contain;
+    border: none;
+    cursor: pointer;
+    box-shadow: none;
+    border-radius: 50%;
+    position: absolute;
+    background-color: #dadada;
+    margin-left: 60px;
+}
+
+.eventoptions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.editIcon {
+    width: 50px;
+    height: 50px;
     background: url('/public/images/group-icon.png') no-repeat center center;
     background-size: contain;
     border: none;

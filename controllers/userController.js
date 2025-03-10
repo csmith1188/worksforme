@@ -11,6 +11,12 @@ const { getUserByUsernameOrEmail, registerUser } = require('../services/userServ
 const notifservice = require('../services/notifService.js');
 const memberHandle = require('../services/memberHandle.js');
 const eventService = require('../services/eventService.js');
+const memberHandle = require('../services/memberHandle.js');
+
+// Use for the members table
+const member = 2;
+const admin = 1;
+const owner = 0;
 
 //Load login rules
 const loginRulesPath = path.join(__dirname, '../rules/loginRules.json');
@@ -49,7 +55,8 @@ async function formbar(req, res, next) {
         req.session.user = newUser;
         return next();
     } catch (error) {
-        res.render('error', { error: new Error('Error logging in') });
+        console.log(error);
+        res.render('pages/error', { error: new Error('Error logging in') });
     }
 }
 

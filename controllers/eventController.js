@@ -13,6 +13,11 @@ const memberHandle = require('../services/memberHandle.js');
 const { MEMBER, ADMIN, OWNER } = require('../middleware/consts.js');
 const { date } = require('joi');
 
+// Use for the members table
+const member = 2;
+const admin = 1;
+const owner = 0;
+
 async function events(req, res) {
     const userUID = req.session.user.uid;
     const rows = await memberHandle.getEventsByMember(userUID);
@@ -65,6 +70,7 @@ async function postEventPage(req, res) {
 }
 
 async function postCreateEvent(req, res) {
+    const { name, description } = req.body;
     const { name, description } = req.body;
     const creator = req.session.user.uid;
 

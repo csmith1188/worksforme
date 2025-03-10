@@ -2,6 +2,8 @@
 
     <link rel="stylesheet" href="/public/css/style.css">
     <link rel="stylesheet" href="/public/css/eventPage.css">
+    <link rel="stylesheet" href="/public/css/style.css">
+    <link rel="stylesheet" href="/public/css/eventPage.css">
 
     <div class="mainContainer">
         <div class="content" style="position: relative;">
@@ -33,10 +35,25 @@
                     </center>
         </div>
     </div>
+                    <center>
+                        <h1>
+                            <%= event.name %>
+                        </h1>
+                        <p>
+                            <%= event.description %>
+                        </p>
+                    </center>
+        </div>
+    </div>
 
     <script>
         const eventdata = JSON.parse('<%- JSON.stringify(event) %>');
     </script>
     <script src="/public/clientJS/eventPage.js"></script>
+    <script>
+        const eventdata = JSON.parse('<%- JSON.stringify(event) %>');
+    </script>
+    <script src="/public/clientJS/eventPage.js"></script>
 
+    <%- include('../../partials/footer.ejs') %>
     <%- include('../../partials/footer.ejs') %>
