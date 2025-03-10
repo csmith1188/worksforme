@@ -1,34 +1,43 @@
 <%- include('../../partials/header.ejs', {pageTitle: 'About' }); %>
 
-<link rel="stylesheet" href="/public/css/style.css">
-<link rel="stylesheet" href="/public/css/eventPage.css">
+    <link rel="stylesheet" href="/public/css/style.css">
+    <link rel="stylesheet" href="/public/css/eventPage.css">
 
-<div class="mainContainer">
-    <div class="content" style="position: relative;">
-        <% if (isCreator) { %>
-            <button class="inviteIcon" id="invite-button"></button>
-            <center>
-                <form method="POST" action="/event/eventPage/<%= event.uid %>" class="eventForm">
-                    <h3>Update Event</h3>
-                    <input type="text" id="newEventName" name="newEventName" placeholder="New Event Name">
-                    <input id="newEventDesc" name="newEventDesc" placeholder="New Event Description"></input>
-                    <input type="hidden" name="eventUID" value="<%= event.uid %>">
-                    <button type="submit" class="btn">Update Event</button>
-                    <button type="submit" name="deleteEvent" value="true" class="btn btn-delete">Delete Event</button>
-                </form>
-            </center>
-        <% } %>
+    <div class="mainContainer">
+        <div class="content" style="position: relative;">
+            <% if (isOwner) { %>
+                <div class="eventOptions">
+                    <button class="inviteIcon" id="invite-button"></button>
+                    <button class="editIcon" id="edit-button"></button>
+                </div>
+                <center>
+                    <form method="POST" action="/event/eventPage/<%= event.uid %>" class="eventForm">
+                        <h3>Update Event</h3>
+                        <input type="text" id="newEventName" name="newEventName" placeholder="New Event Name">
+                        <input id="newEventDesc" name="newEventDesc" placeholder="New Event Description"></input>
+                        <input type="hidden" name="eventUID" value="<%= event.uid %>">
+                        <button type="submit" class="btn">Update Event</button>
+                        <button type="submit" name="deleteEvent" value="true" class="btn btn-delete">Delete
+                            Event</button>
+                    </form>
+                </center>
+                <% } %>
 
-        <center>
-            <h1><%= event.name %></h1>
-            <p><%= event.description %></p>
-        </center>
+                    <center>
+                        <h1>
+                            <%= event.name %>
+                        </h1>
+                        <p>
+                            <%= event.description %>
+                        </p>
+                    </center>
+        </div>
     </div>
-</div>
+    
+    <script>
+        const eventdata = JSON.parse('<%- JSON.stringify(event) %>');
+    </script>
+    <script src="/public/clientJS/eventPage.js"></script>
 
-<script>
-    const eventdata = JSON.parse('<%- JSON.stringify(event) %>');
-</script>
-<script src="/public/clientJS/eventPage.js"></script>
-
-<%- include('../../partials/footer.ejs') %>
+    <%- include('../../partials/footer.ejs') %>
+    <%- include('../../partials/footer.ejs') %>

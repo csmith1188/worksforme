@@ -1,40 +1,47 @@
-<%- include('../partials/header.ejs', { pageTitle: 'Calendar' }); %>
+<%- include('../partials/header.ejs', {pageTitle: 'Calendar'}); %>
 
 <link rel="stylesheet" href="/public/css/calendar.css">
-<link rel="stylesheet" href="/public/css/timegridEditor.css">
 
-<div class="mainContainer">
-    <div class="content">
-        <div id="calendar-page-container">
-            <div id="calendar-container">
-                <div class="calendar-header">
-                    <button class="nav-button" id="prev-month">&lt;</button>
-                    <h2 id="month-year"></h2>
-                    <button class="nav-button" id="next-month">&gt;</button>
-                </div>
-                <div class="week-days-container">
-                    <div class="week-day" id="week-day-0">Sun</div>
-                    <div class="week-day" id="week-day-1">Mon</div>
-                    <div class="week-day" id="week-day-2">Tue</div>
-                    <div class="week-day" id="week-day-3">Wed</div>
-                    <div class="week-day" id="week-day-4">Thu</div>
-                    <div class="week-day" id="week-day-5">Fri</div>
-                    <div class="week-day" id="week-day-6">Sat</div>
-                </div>
-                <div class="calendar-grid">
+    <div class="mainContainer">
+        <div class="content">
+            <h1 id="week-title">Week of <span id="week-of"></span></h1>
+            <div id="controls">
+                <input type="date" id="date-select">
+
+                <button id="prev-week-btn" class=""><</button>
+                <button id="next-week-btn">></button>
+
+                <button id="save-btn">Save</button>
+            </div>
+            <br>
+            <div id="day-headers">
+                <% const daysOfTheWeek = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']; %>
+                <% for (let i = 0; i < daysOfTheWeek.length; i++) { %>
+                    <div class="day-header <%= (i === 0) ? 'first' : ''; %>">
+                        <span class="day-text"><%= daysOfTheWeek[i] %></span>
+                        <br>
+                        <span class="date-text" id="date-text-<%= i %>"><%= i+1 %></span>
+                    </div>
+                <% } %>
+            </div>
+
+            <div id="grid">
+                <div id="cells">
+                    <% for (let i = 0; i < 7; i++) { %>
+                        <div class="day-column" data-index="<%= i %>">
+                            <div class="time-blocks"></div>
+                            <% for (let j = 0; j < 24; j++) { %>
+                                <div class="cell <%= (i % 7 === 0) ? 'first' : ''; %>" data-hour="<%= j %>">
+                                    <div class="inner-cell"></div>
+                                </div>
+                            <% } %>
+                        </div>
+                    <% } %>
                 </div>
             </div>
         </div>
-
-        <div id="timegrid-page-container">
-            <button id="back-btn">Back</button>
-            <%- include('../partials/timegridEditor'); %>
-        </div>
     </div>
-</div>
-
-<script src="/public/clientJS/dayjs.min.js"></script>
-<script src="/public/clientJS/timegridEditor.js"></script>
-<script src="/public/clientJS/calendar.js"></script>
+    <script src="/public/clientJS/dayjs.min.js"></script>
+    <script src="/public/clientJS/calendar.js"></script>
 
 <%- include('../partials/footer.ejs') %>

@@ -13,6 +13,7 @@ const sanitizeInput = require('./util/sanitizeInput');
 const homeRoutes = require('./routes/homeRoutes');
 const userRoutes = require('./routes/userRoutes');
 const eventRoutes = require('./routes/eventRoutes');
+const personalCalendarRoutes = require('./routes/personalCalendarRoutes');
 
 app.use(session({
     secret: process.env.SECRET,
@@ -34,5 +35,6 @@ app.use(express.urlencoded({extended: true}));
 app.use('/', homeRoutes);
 app.use('/user', userRoutes);
 app.use('/event', eventRoutes);
+app.use('/calendar', personalCalendarRoutes);
 
 app.listen(process.env.PORT);

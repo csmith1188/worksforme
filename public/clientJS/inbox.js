@@ -116,18 +116,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                         popup.innerHTML = `
                             <div class="popup-content">
                                 <span class="close">&times;</span>
-                                <h2 class="text">Notification Details</h2>
+                                <h2>Notification Details</h2>
                                 <div class="notif-utils">
-                                <span class="text">
+                                    <div class="red-line"></div>
                                     <p><strong>Type:</strong> ${notification.notif_type}</p>
                                     <p><strong>Event:</strong> ${notification.event}</p>
                                     <p><strong>From:</strong> ${notification.sending_user}</p>
                                     <p><strong>Message:</strong> ${notification.notif_content}</p>
-                                    </span>
                                 </div>
                                 <br>
                                 <div class="notif_buttons">
-                                ${buttonHTML}
+                                    <center>
+                                        ${buttonHTML}
+                                    </center>
                                 </div>
                             </div>
                         `;

@@ -1,13 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Get the elements we need from the page
     const inviteButton = document.getElementById('invite-button');
 
     if (!inviteButton) {
-        //console.error('Invite button not found!');
         return;
     }
 
     inviteButton.addEventListener('click', () => {
-        //console.log('Invite button clicked!');
 
         // Create the popup
         const popup = document.createElement('div');
@@ -35,14 +34,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add event listener to close the popup when the close button is clicked
         const closeBtn = popup.querySelector('.close');
         closeBtn.addEventListener('click', () => {
-            //console.log('Close button clicked!');
             document.body.removeChild(popup);
         });
 
         // Add event listener to close the popup when clicking outside of it
         window.addEventListener('click', (e) => {
             if (e.target === popup) {
-                //console.log('Clicked outside popup!');
                 document.body.removeChild(popup);
             }
         });
@@ -65,13 +62,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 alert('User invited successfully!');
             } else {
-                alert('Failed to invite user, please try again.');
+                const errorText = await response.text();
+                alert(`Error: ${errorText}`);
             }
 
             document.body.removeChild(popup);
         });
-
-        // Debugging: Log the popup element
-        //console.log('Popup created:', popup);
     });
 });
