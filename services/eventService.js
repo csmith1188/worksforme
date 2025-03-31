@@ -1,7 +1,9 @@
 const path = require('path');
 const sql = require('sqlite3').verbose();
 const db = require('../util/dbAsyncWrapper');
+const calenderService = require('./personalCalendarService');
 const dateRanker = require('./rankDates');
+const DaySchedule = require('./DaySchedule');
 
 // Getting events or creating
 async function getAllEvents() {
@@ -14,40 +16,20 @@ async function getEventByUID(uid) {
     return await db.get(sql, [uid]);
 }
 
-async function createEvent(name, description, creator) {
-    const sql = 'INSERT INTO events (name, description, creator) VALUES (?, ?, ?)';
-    const params = [name, description, creator];
+async function createEvent(name, description) {
+    const sql = 'INSERT INTO events (name, description) VALUES (?, ?)';
+    const params = [name, description];
     return await db.run(sql, params);
 }
 
-async function getEventsByUserUID(userUID) {
-    const sql = `
-        SELECT * FROM events 
-        WHERE creator = ? 
-        OR allowed LIKE ? 
-        OR allowed LIKE ? 
-        OR allowed LIKE ? 
-        OR allowed = ?
-    `;
-    const params = [
-        userUID, 
-        `${userUID},%`, 
-        `%,${userUID},%`, 
-        `%,${userUID}`, 
-        userUID
-    ];
-    return await db.all(sql, params);
+async function getEventUIDByName(name) {
+    const sql = 'SELECT uid FROM events WHERE name = ?';
+    return await db.get(sql, [name]);
 }
 
-async function isEventCreator(eventUID, userUID) {
-    const sql = 'SELECT COUNT(*) as count FROM events WHERE uid = ? AND creator = ?';
-    const result = await db.get(sql, [eventUID, userUID]);
-    return result.count > 0;
-}
-
-async function GetEventCreatorByEventUID(eventUID) {
-    const sql = 'SELECT creator FROM events WHERE uid = ?';
-    return await db.get(sql, [eventUID]);
+async function getEventMembers(eventUID) {
+    const sql = 'SELECT * FROM members WHERE event_uid = ?';
+    return await db.all(sql, [eventUID]);
 }
 
 // Modifying events
@@ -66,6 +48,16 @@ async function deleteEvent(uid) {
     return await db.run(sql, [uid]);
 }
 
+async function getOptimalDates(eventUID) {
+    // WIP
+    const members = await getEventMembers(eventUID);
+    let calendars = [];
+    for (let member of members) {
+        let calendar = await calenderService.getUserCalendar(member.user_uid);
+        calendars.push(calendar);
+    }
+}
+
 module.exports = {
     getAllEvents,
     getEventByUID,
@@ -73,7 +65,5 @@ module.exports = {
     updateEventDescription,
     deleteEvent,
     createEvent,
-    isEventCreator,
-    getEventsByUserUID,
-    GetEventCreatorByEventUID
+    getEventUIDByName
 };
