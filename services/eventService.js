@@ -4,6 +4,7 @@ const db = require('../util/dbAsyncWrapper');
 const calenderService = require('./personalCalendarService');
 const dateRanker = require('./rankDates');
 const DaySchedule = require('./DaySchedule');
+const dayjs = require('dayjs');
 
 // Getting events or creating
 async function getAllEvents() {
@@ -48,14 +49,31 @@ async function deleteEvent(uid) {
     return await db.run(sql, [uid]);
 }
 
-async function getOptimalDates(eventUID) {
-    // WIP
+async function setEventDateTime(eventUID, date, minutes){
+    const dateTime = dayjs(date).add(minutes, 'minutes').toISOString();
+    const sql = 'UPDATE events SET date_time = ? WHERE uid = ?';
+    await db.run(sql, [dateTime, eventUID]);
+}
+
+async function calculateOptimalDates(eventUID, minDate, maxDate, startMins, endMins) {
     const members = await getEventMembers(eventUID);
     let calendars = [];
+
     for (let member of members) {
-        let calendar = await calenderService.getUserCalendar(member.user_uid);
+        let memberUID = member.members; // chicken, what?
+        let dbCalendar = await calenderService.getUserCalendar(memberUID);
+        let calendar = {};
+        Array.from(dbCalendar).forEach(([date, busyTimeObjects]) => {
+            // convert busy time objects into arrays that the algorithm uses
+            calendar[date] = new DaySchedule(busyTimeObjects.map(busyTime => [busyTime.start, busyTime.end]));
+        });
+
         calendars.push(calendar);
     }
+
+    
+
+    return dateRanker(calendars, startMins, endMins, minDate, maxDate);
 }
 
 module.exports = {
@@ -65,5 +83,7 @@ module.exports = {
     updateEventDescription,
     deleteEvent,
     createEvent,
-    getEventUIDByName
+    getEventUIDByName,
+    setEventDateTime,
+    calculateOptimalDates
 };

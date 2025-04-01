@@ -21,7 +21,7 @@
                     <button class="inviteIcon" id="invite-button"></button>
                     <button class="editIcon" id="edit-button"></button>
                 </div>
-                <% } %>
+            <% } %>
 
                     <center>
                         <h1>
@@ -30,6 +30,29 @@
                         <p>
                             <%= event.description %>
                         </p>
+
+                        <br>
+                        <br>
+
+                        <% if (isOwner) { %>
+                            
+                            <div class="date-selection-container">
+                                <label for="min-date">Min Date: </label>
+                                <input type="date" id="min-date">
+                                <label for="max-date">Max Date: </label>
+                                <input type="date" id="max-date">
+                                <br><br>
+                                <label for="start-time">Start Time: </label>
+                                <input type="time" id="start-time">
+                                <label for="end-time">End Time: </label>
+                                <input type="time" id="end-time">
+                                <br><br>
+                                <button id="calculate-date-btn">Calculate Optimal Date</button>
+
+                            </div>
+                            
+                        <% } %>
+
                     </center>
         </div>
     </div>

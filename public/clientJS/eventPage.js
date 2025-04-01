@@ -29,6 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const popupTitle = document.getElementById('popup-title');
     const closeBtn = document.getElementById('popup-close-btn');
 
+    const calculateDateBtn = document.getElementById('calculate-date-btn');
+
     if (!inviteButton) {
         return;
     }
@@ -42,6 +44,53 @@ document.addEventListener('DOMContentLoaded', () => {
     function hidePopup(){
         popupContainer.style.display = 'none';
     }
+
+    calculateDateBtn.addEventListener('click', async () => {
+
+        const minDate = document.getElementById('min-date').value;
+        const maxDate = document.getElementById('max-date').value;
+        const startTime = document.getElementById('start-time').value;
+        const endTime = document.getElementById('end-time').value;
+
+        if (!minDate || !maxDate || !startTime || !endTime) {
+            alert('Please fill in all fields');
+            return;
+        }
+
+        // convert the 24 hour time strings to minute ints
+        const startMins = startTime.split(':').reduce((acc, time) => (60 * acc) + +time, 0);
+        const endMins = endTime.split(':').reduce((acc, time) => (60 * acc) + +time, 0);
+
+        const response = await fetch(`/event/calculateDate/${eventdata.uid}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                minDate,
+                maxDate,
+                startMins,
+                endMins
+            })
+        })
+        .then(response => {
+          // Check if the response is OK (status code 200-299)
+          if (!response.ok) {
+            alert('Internal Server Error');
+            return;
+          }
+          // Parse the JSON data from the response
+          return response.json();
+        })
+        .then(data => {
+          // Handle the parsed data
+          console.log('Data received:', data);
+        })
+        .catch(error => {
+          // Handle errors (network issues, JSON parsing errors, etc.)
+          alert('There was a problem. Please try again later');
+        });
+    });
 
     settingsButton.addEventListener('click', () => {
         showPopup(editEventPopup);
