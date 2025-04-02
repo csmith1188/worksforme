@@ -6,32 +6,10 @@ const formatDate = require('../util/formatDate');
 // test data
 
 const calendar1 = {
-    '2021-06-01': new DaySchedule([[480, 540], [720, 780], [900, 960]]),
-    '2021-06-02': new DaySchedule([[540, 900]]),
-    '2021-06-05': new DaySchedule([[450, 540], [630, 750], [960, 1080]]),
-    '2021-06-07': new DaySchedule([[510, 600], [720, 840], [990, 1080]]),
-    '2021-06-09': new DaySchedule([[555, 630], [810, 870], [1020, 1140]]),
-    '2021-06-23': new DaySchedule([[540, 660], [780, 870], [960, 1080]]),
-    '2021-06-25': new DaySchedule([[480, 570], [660, 750], [840, 930]]),
+    '2021-06-01': new DaySchedule([[1000, 1070], [900, 960]]),
 };
 const calendar2 = {
-    '2021-06-01': new DaySchedule([[510, 570], [690, 750], [870, 930]]),
-    '2021-06-03': new DaySchedule([[540, 600], [720, 780], [900, 960]]),
-    '2021-06-06': new DaySchedule([[450, 510], [630, 690], [960, 1020]]),
-    '2021-06-08': new DaySchedule([[510, 570], [720, 780], [990, 1050]]),
-    '2021-06-10': new DaySchedule([[555, 615], [810, 870], [1020, 1080]]),
-    '2021-06-24': new DaySchedule([[540, 600], [780, 840], [960, 1020]]),
-    '2021-06-26': new DaySchedule([[480, 540], [660, 720], [840, 900]]),
-};
-
-const calendar3 = {
-    '2021-06-02': new DaySchedule([[480, 540], [720, 780], [900, 960]]),
-    '2021-06-04': new DaySchedule([[540, 600], [720, 780], [900, 960]]),
-    '2021-06-07': new DaySchedule([[450, 510], [630, 690], [960, 1020]]),
-    '2021-06-09': new DaySchedule([[510, 570], [720, 780], [990, 1050]]),
-    '2021-06-11': new DaySchedule([[555, 615], [810, 870], [1020, 1080]]),
-    '2021-06-25': new DaySchedule([[540, 600], [780, 840], [960, 1020]]),
-    '2021-06-27': new DaySchedule([[480, 540], [660, 720], [840, 900]]),
+    '2021-06-01': new DaySchedule([[1080, 1200]]),
 };
 
 
@@ -106,5 +84,8 @@ function doIt(calendarArray, startMins, endMins, minDate, maxDate){
     return optimalDatesMap;
 
 }
+
+console.log(doIt([calendar1, calendar2], 960, 1230, '2021-06-01', '2021-06-01'));
+
 
 module.exports = doIt;
