@@ -67,6 +67,10 @@
     color: rgb(206, 206, 206);
 }
 
+#calculated-date-container {
+    display: none;
+}
+
 .notif-utils {
     margin-left: 5%;
     margin-top: 5%;
