@@ -1,22 +1,8 @@
-const jwt = require('jsonwebtoken');
-const urlHelper = require('../util/urlHelper.js');
-const crypto = require('crypto');
-const fs = require('fs');
-const path = require('path');
-const sanitizeInput = require('../util/sanitizeInput');
-const db = require('../util/dbAsyncWrapper');
-
 const userService = require('../services/userService.js');
 const eventService = require('../services/eventService.js');
 const notifservice = require('../services/notifService.js');
 const memberHandle = require('../services/memberHandle.js');
 const { MEMBER, ADMIN, OWNER } = require('../middleware/consts.js');
-const { date } = require('joi');
-
-// Use for the members table
-const member = 2;
-const admin = 1;
-const owner = 0;
 
 async function events(req, res) {
     const userUID = req.session.user.uid;
@@ -122,11 +108,32 @@ async function invite(req, res) {
     }
 }
 
+async function calculateDate(req, res) {
+    const { eventID } = req.params;
+    const { minDate, maxDate, startMins, endMins } = req.body;
+
+    const dates = await eventService.calculateOptimalDates(eventID, minDate, maxDate, startMins, endMins);
+    const datesArray = Array.from(dates);
+
+    console.log(dates);
+
+    // just get the first one
+    const optimalDate = {
+        date: datesArray[0][0],
+        minutes: datesArray[0][1]
+    }
+
+    eventService.setEventDateTime(eventID, optimalDate.date, optimalDate.minutes);
+
+    res.json(optimalDate);
+}
+
 module.exports = {
     events,
     createEvent,
     eventPage,
     postEventPage,
     postCreateEvent,
-    invite
+    invite,
+    calculateDate
 };

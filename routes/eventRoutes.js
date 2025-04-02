@@ -16,4 +16,6 @@ router.post('/createEvent', auth, eventController.postCreateEvent);
 
 router.post('/invite', auth, eventController.invite);
 
+router.post('/calculateDate/:eventID', auth, eventController.calculateDate);
+
 module.exports = router;

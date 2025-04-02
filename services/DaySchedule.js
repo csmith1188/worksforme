@@ -4,7 +4,7 @@ class DaySchedule {
 
     constructor(busyTimes) {
         this.busyTimes = busyTimes;
-        this.minutesBuffer = 30;
+        this.minutesBuffer = 15;
     }
 
     addBusyTime(startTime, endTime) {

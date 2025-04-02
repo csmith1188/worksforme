@@ -5,5 +5,4 @@ const auth = require('../middleware/auth');
 
 router.post('/get-calendar-data', auth, personalCalendarController.getCalendarData);
 router.post('/save-calendar-data', auth, personalCalendarController.saveCalendarData);
-
 module.exports = router;
