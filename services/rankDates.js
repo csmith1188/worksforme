@@ -6,10 +6,10 @@ const formatDate = require('../util/formatDate');
 // test data
 
 const calendar1 = {
-    '2021-06-01': new DaySchedule([[1000, 1070], [900, 960]]),
+    '2021-06-01': new DaySchedule([[1400, 1420], [960, 970]]),
 };
 const calendar2 = {
-    '2021-06-01': new DaySchedule([[1080, 1200]]),
+    '2021-06-01': new DaySchedule([[1080, 1100]]),
 };
 
 
@@ -73,7 +73,7 @@ function doIt(calendarArray, startMins, endMins, minDate, maxDate){
 
     for(date of leastBusyDates){
         // If the date is not in the combined calendar, it is has no busy times, so the preferred time can be used, else get the closest time
-        let optimalTime = combinedCalendar.hasOwnProperty(date) ? combinedCalendar[date].getClosestTime(startMins, eventLength) : startMins;
+        let optimalTime = combinedCalendar.hasOwnProperty(date) ? combinedCalendar[date].getClosestTime(startMins, endMins) : startMins;
 
         if(optimalTime !== null){
             optimalDatesMap.set(date, optimalTime);
@@ -84,8 +84,6 @@ function doIt(calendarArray, startMins, endMins, minDate, maxDate){
     return optimalDatesMap;
 
 }
-
-console.log(doIt([calendar1, calendar2], 960, 1230, '2021-06-01', '2021-06-01'));
 
 
 module.exports = doIt;
