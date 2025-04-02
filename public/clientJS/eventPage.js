@@ -8,15 +8,15 @@ const addMemberPopup = {
 };
 
 const editEventPopup = {
-    html: `<form method="POST" action="/event/eventPage/<%= event.uid %>" class="eventForm">
-                        <h3>Update Event</h3>
-                        <input type="text" id="newEventName" name="newEventName" placeholder="New Event Name">
-                        <input id="newEventDesc" name="newEventDesc" placeholder="New Event Description"></input>
-                        <input type="hidden" name="eventUID" value="<%= event.uid %>">
-                        <button type="submit" class="btn">Update Event</button>
-                        <button type="submit" name="deleteEvent" value="true" class="btn btn-delete">Delete
-                            Event</button>
-                    </form>`,
+    html: (eventUID) => `
+        <form method="POST" action="/event/eventPage/${eventUID}" class="eventForm">
+            <h3>Update Event</h3>
+            <input type="text" id="newEventName" name="newEventName" placeholder="New Event Name">
+            <input id="newEventDesc" name="newEventDesc" placeholder="New Event Description"></input>
+            <input type="hidden" name="eventUID" value="${eventUID}">
+            <button type="submit" class="btn">Update Event</button>
+            <button type="submit" name="deleteEvent" value="true" class="btn btn-delete">Delete Event</button>
+        </form>`,
     title: 'Event Settings'
 };
 
@@ -35,18 +35,17 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    function showPopup(popup){
+    function showPopup(popup) {
         popupTitle.innerText = popup.title;
         popupContent.innerHTML = popup.html;
         popupContainer.style.display = 'flex';
     }
 
-    function hidePopup(){
+    function hidePopup() {
         popupContainer.style.display = 'none';
     }
 
     calculateDateBtn.addEventListener('click', async () => {
-
         const minDate = document.getElementById('min-date').value;
         const maxDate = document.getElementById('max-date').value;
         const startTime = document.getElementById('start-time').value;
@@ -74,26 +73,30 @@ document.addEventListener('DOMContentLoaded', () => {
             })
         })
         .then(response => {
-          // Check if the response is OK (status code 200-299)
-          if (!response.ok) {
-            alert('Internal Server Error');
-            return;
-          }
-          // Parse the JSON data from the response
-          return response.json();
+            // Check if the response is OK (status code 200-299)
+            if (!response.ok) {
+                alert('Internal Server Error');
+                return;
+            }
+            // Parse the JSON data from the response
+            return response.json();
         })
         .then(data => {
-          // Handle the parsed data
-          console.log('Data received:', data);
+            // Handle the parsed data
+            console.log('Data received:', data);
         })
         .catch(error => {
-          // Handle errors (network issues, JSON parsing errors, etc.)
-          alert('There was a problem. Please try again later');
+            // Handle errors (network issues, JSON parsing errors, etc.)
+            alert('There was a problem. Please try again later');
         });
     });
 
     settingsButton.addEventListener('click', () => {
-        showPopup(editEventPopup);
+        const eventUID = eventdata.uid; // Assuming eventdata.uid is available globally
+        showPopup({
+            html: editEventPopup.html(eventUID),
+            title: editEventPopup.title
+        });
 
         // Add event listener to close the popup when the close button is clicked
         closeBtn.addEventListener('click', () => {
@@ -106,22 +109,44 @@ document.addEventListener('DOMContentLoaded', () => {
                 hidePopup();
             }
         });
+
+        // Add event listener to handle submission
+        const form = popupContent.querySelector('.eventForm');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent default form submission
+
+            const formData = new FormData(form);
+            const formObject = Object.fromEntries(formData.entries());
+
+            const response = await fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formObject)
+            });
+
+            if (response.ok) {
+                hidePopup();
+                location.reload();
+            } else {
+                const errorText = await response.text();
+                alert(`Error: ${errorText}`);
+            }
+        });
     });
 
     inviteButton.addEventListener('click', () => {
-
         showPopup(addMemberPopup);
 
         // Add event listener to close the popup when the close button is clicked
         closeBtn.addEventListener('click', () => {
-            //console.log('Close button clicked!');
             document.body.removeChild(popup);
         });
 
         // Add event listener to close the popup when clicking outside of it
         window.addEventListener('click', (e) => {
             if (e.target === popup) {
-                //console.log('Clicked outside popup!');
                 document.body.removeChild(popup);
             }
         });
