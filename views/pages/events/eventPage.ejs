@@ -32,9 +32,14 @@
                         </p>
 
                         <br>
-                        <br>
+
+                        <div id="calculated-date-container">
+                            <h2 id="calculated-date-text"></h2>
+                        </div>
 
                         <% if (isOwner) { %>
+
+                            <br><br>
                             
                             <div class="date-selection-container">
                                 <label for="min-date">Min Date: </label>
@@ -60,6 +65,8 @@
     <script>
         const eventdata = JSON.parse('<%- JSON.stringify(event) %>');
     </script>
+    <script src="/public/clientJS/dayjs.min.js"></script>
+    <script src="/public/clientJS/util.js"></script>
     <script src="/public/clientJS/eventPage.js"></script>
 
     <%- include('../../partials/footer.ejs') %>

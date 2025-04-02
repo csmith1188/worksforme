@@ -1,3 +1,6 @@
+const dateFormat = 'MM/DD/YYYY';
+const timeFormat = 'h:mm A';
+
 const addMemberPopup = {
     html: `<input type="text" id="username" placeholder="Enter username or email">
             <input type="hidden" id="eventUID" value="${eventdata.uid}">
@@ -31,9 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const calculateDateBtn = document.getElementById('calculate-date-btn');
 
-    if (!inviteButton) {
-        return;
-    }
+    const calculatedDateContainer = document.getElementById('calculated-date-container');
+    const calculatedDateText = document.getElementById('calculated-date-text');
 
     function showPopup(popup) {
         popupTitle.innerText = popup.title;
@@ -45,7 +47,19 @@ document.addEventListener('DOMContentLoaded', () => {
         popupContainer.style.display = 'none';
     }
 
-    calculateDateBtn.addEventListener('click', async () => {
+    function showCalculatedDate(dateStr){
+        let date = dayjs(dateStr);
+        let dateString = date.format(dateFormat);
+        let timeString = date.format(timeFormat);
+        calculatedDateText.innerText = `${dateString} ${timeString}`;
+        calculatedDateContainer.style.display = 'block';
+    }
+
+    if(eventdata.date_time){
+        showCalculatedDate(eventdata.date_time);
+    }
+
+    calculateDateBtn?.addEventListener('click', async () => {
         const minDate = document.getElementById('min-date').value;
         const maxDate = document.getElementById('max-date').value;
         const startTime = document.getElementById('start-time').value;
@@ -57,8 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // convert the 24 hour time strings to minute ints
-        const startMins = startTime.split(':').reduce((acc, time) => (60 * acc) + +time, 0);
-        const endMins = endTime.split(':').reduce((acc, time) => (60 * acc) + +time, 0);
+        const startMins = timeStringToMinutes(startTime);
+        const endMins = timeStringToMinutes(endTime);
 
         const response = await fetch(`/event/calculateDate/${eventdata.uid}`, {
             method: 'POST',
@@ -82,21 +96,14 @@ document.addEventListener('DOMContentLoaded', () => {
             return response.json();
         })
         .then(data => {
-            // Handle the parsed data
-            console.log('Data received:', data);
+          // Handle the parsed data
+          console.log('Data received:', data);
+          showCalculatedDate(`${data.date} ${minutesToTimeString(data.minutes)}`);
         })
-        .catch(error => {
-            // Handle errors (network issues, JSON parsing errors, etc.)
-            alert('There was a problem. Please try again later');
-        });
     });
 
-    settingsButton.addEventListener('click', () => {
-        const eventUID = eventdata.uid; // Assuming eventdata.uid is available globally
-        showPopup({
-            html: editEventPopup.html(eventUID),
-            title: editEventPopup.title
-        });
+    settingsButton?.addEventListener('click', () => {
+        showPopup(editEventPopup);
 
         // Add event listener to close the popup when the close button is clicked
         closeBtn.addEventListener('click', () => {
@@ -136,7 +143,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    inviteButton.addEventListener('click', () => {
+    inviteButton?.addEventListener('click', () => {
+      
         showPopup(addMemberPopup);
 
         // Add event listener to close the popup when the close button is clicked

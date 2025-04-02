@@ -11,7 +11,7 @@ class DaySchedule {
         this.busyTimes.push([startTime, endTime]);
     }
 
-    isBusy(targetTimeInt){
+    isBusy(targetTimeInt) {
 
         let conflict = this.busyTimes.some(busyTime => {
             let busyStart = busyTime[0];
@@ -22,7 +22,9 @@ class DaySchedule {
         return conflict;
     }
 
-    getClosestTime(preferredMinutes, eventLength) {
+    getClosestTime(startMins, endMins) {
+
+        let eventLength = endMins - startMins;
         let closestTime = null;
         let closestDifference = Infinity;
 
@@ -38,7 +40,7 @@ class DaySchedule {
             let middlePoint = (endOfCurrentBusy + startOfNextBusy) / 2;
 
             if (!this.isBusy(middlePoint)) {
-                const difference = Math.abs(preferredMinutes - middlePoint);
+                const difference = Math.abs(startMins - middlePoint);
 
                 if (difference < closestDifference) {
                     closestTime = Math.round(middlePoint);
@@ -49,7 +51,6 @@ class DaySchedule {
 
         return closestTime;
     }
-
 }
 
 module.exports = DaySchedule;
