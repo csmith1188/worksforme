@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 location.reload();
             } else {
                 const errorText = await response.text();
-                alert(`Error: ${errorText}`);
+                console.error('Error:', errorText);
             }
         });
     });
@@ -178,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('User invited successfully!');
             } else {
                 const errorText = await response.text();
-                alert(`Error: ${errorText}`);
+                console.error('Error:', errorText);
             }
 
             document.body.removeChild(popup);
