@@ -6,10 +6,10 @@ const formatDate = require('../util/formatDate');
 // test data
 
 const calendar1 = {
-    '2021-06-01': new DaySchedule([[1400, 1420], [960, 970]]),
+    '2021-06-01': new DaySchedule([[300,600], [700, 970]]),
 };
 const calendar2 = {
-    '2021-06-01': new DaySchedule([[1080, 1100]]),
+    '2021-06-01': new DaySchedule([[900, 1100]]),
 };
 
 
@@ -28,6 +28,9 @@ function combineCalendars(calendarArray){
             } else {
                 combinedCalendar[date] = schedule;
             }
+
+            combinedCalendar[date].busyTimes.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+
 
         }
     }
@@ -66,7 +69,6 @@ function getLeastBusyDates(calendar, startDate, endDate){
 //returns map of optimal dates to times
 function doIt(calendarArray, startMins, endMins, minDate, maxDate){
 
-    const eventLength = endMins - startMins;
     const combinedCalendar = combineCalendars(calendarArray);
     const leastBusyDates = getLeastBusyDates(combinedCalendar, minDate, maxDate);
     let optimalDatesMap = new Map();
@@ -80,6 +82,15 @@ function doIt(calendarArray, startMins, endMins, minDate, maxDate){
         }
 
     }
+
+    // Sort the optimalDatesMap by time closest to startMins
+    optimalDatesMap = new Map([...optimalDatesMap.entries()].sort((a, b) => {
+        const timeA = Math.abs(a[1] - startMins);
+        const timeB = Math.abs(b[1] - startMins);
+        return timeA - timeB;
+    }));
+
+    console.log(optimalDatesMap);
 
     return optimalDatesMap;
 
