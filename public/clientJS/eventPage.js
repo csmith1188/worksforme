@@ -11,12 +11,12 @@ const addMemberPopup = {
 };
 
 const editEventPopup = {
-    html: (eventUID) => `
-        <form method="POST" action="/event/eventPage/${eventUID}" class="eventForm">
+    html: `
+        <form method="POST" action="/event/eventPage/${eventdata.uid}" class="eventForm">
             <h3>Update Event</h3>
             <input type="text" id="newEventName" name="newEventName" placeholder="New Event Name">
             <input id="newEventDesc" name="newEventDesc" placeholder="New Event Description"></input>
-            <input type="hidden" name="eventUID" value="${eventUID}">
+            <input type="hidden" name="eventUID" value="${eventdata.uid}">
             <button type="submit" class="btn">Update Event</button>
             <button type="submit" name="deleteEvent" value="true" class="btn btn-delete">Delete Event</button>
         </form>`,
@@ -149,13 +149,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Add event listener to close the popup when the close button is clicked
         closeBtn.addEventListener('click', () => {
-            document.body.removeChild(popup);
+            hidePopup();
         });
 
         // Add event listener to close the popup when clicking outside of it
         window.addEventListener('click', (e) => {
-            if (e.target === popup) {
-                document.body.removeChild(popup);
+            if (e.target === popupContainer) {
+                hidePopup();
             }
         });
 
@@ -177,11 +177,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 alert('User invited successfully!');
             } else {
-                const errorText = await response.text();
-                console.error('Error:', errorText);
+                switch (response.status) {
+                    case 404:
+                        alert('User not found.');
+                        break;
+                    case 400:
+                        alert('User is ether already a member or has been invited.');
+                        break;
+                    default:
+                        console.error('Error:', response.statusText);
+                }
             }
-
-            document.body.removeChild(popup);
+            hidePopup();
         });
     });
 });

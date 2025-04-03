@@ -80,10 +80,11 @@ async function invite(req, res) {
 
         // Consts and checks for inviting later
         const members = await memberHandle.getMembersByEvent(eventUID);
-        // If they are members
-        const isMember = members.some(member => member.members === user.uid);
         const notif = await notifservice.getNotificationsByUser(user.uid);
         const eventName = await notifservice.getEventNameByUID(eventUID);
+
+        // If they are members
+        const isMember = members.some(member => member.members === user.uid);
         // If they are invited
         const isNotif = notif.some(notification => notification.event === eventName.name);
 
