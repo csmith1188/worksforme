@@ -128,11 +128,13 @@ async function calculateDate(req, res) {
 
     // just get the first one
     const optimalDate = {
-        date: datesArray[0][0],
-        minutes: datesArray[0][1]
+        //date: datesArray[0][0],
+        date: "1/30/2024",
+        minutes: 30
+        //minutes: datesArray[0][1]
     }
 
-    eventService.setEventDateTime(eventID, optimalDate.date, optimalDate.minutes);
+    //eventService.setEventDateTime(eventID, optimalDate.date, optimalDate.minutes);
 
     res.json(optimalDate);
 }
