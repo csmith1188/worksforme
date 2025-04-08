@@ -5,23 +5,23 @@
 
     <div class="mainContainer">
         <div class="content" style="position: relative;">
+
+            <div id="popup-container">
+                <div id="popup">
+                    <span id="popup-close-btn">&times;</span>
+                    <center>
+                        <h2 id="popup-title"></h2>
+                        <div id="popup-content"></div>
+                    </center>
+                </div>
+            </div>
+
             <% if (isOwner) { %>
                 <div class="eventOptions">
                     <button class="inviteIcon" id="invite-button"></button>
                     <button class="editIcon" id="edit-button"></button>
                 </div>
-                <center>
-                    <form method="POST" action="/event/eventPage/<%= event.uid %>" class="eventForm">
-                        <h3>Update Event</h3>
-                        <input type="text" id="newEventName" name="newEventName" placeholder="New Event Name">
-                        <input id="newEventDesc" name="newEventDesc" placeholder="New Event Description"></input>
-                        <input type="hidden" name="eventUID" value="<%= event.uid %>">
-                        <button type="submit" class="btn">Update Event</button>
-                        <button type="submit" name="deleteEvent" value="true" class="btn btn-delete">Delete
-                            Event</button>
-                    </form>
-                </center>
-                <% } %>
+            <% } %>
 
                     <center>
                         <h1>
@@ -30,6 +30,34 @@
                         <p>
                             <%= event.description %>
                         </p>
+
+                        <br>
+
+                        <div id="calculated-date-container">
+                            <h2 id="calculated-date-text"></h2>
+                        </div>
+
+                        <% if (isOwner) { %>
+
+                            <br><br>
+                            
+                            <div class="date-selection-container">
+                                <label for="min-date">Min Date: </label>
+                                <input type="date" id="min-date">
+                                <label for="max-date">Max Date: </label>
+                                <input type="date" id="max-date">
+                                <br><br>
+                                <label for="start-time">Start Time: </label>
+                                <input type="time" id="start-time">
+                                <label for="end-time">End Time: </label>
+                                <input type="time" id="end-time">
+                                <br><br>
+                                <button id="calculate-date-btn">Calculate Optimal Date</button>
+
+                            </div>
+                            
+                        <% } %>
+
                     </center>
         </div>
     </div>
@@ -37,7 +65,8 @@
     <script>
         const eventdata = JSON.parse('<%- JSON.stringify(event) %>');
     </script>
+    <script src="/public/clientJS/dayjs.min.js"></script>
+    <script src="/public/clientJS/util.js"></script>
     <script src="/public/clientJS/eventPage.js"></script>
 
-    <%- include('../../partials/footer.ejs') %>
     <%- include('../../partials/footer.ejs') %>

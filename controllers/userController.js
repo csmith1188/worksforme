@@ -11,11 +11,6 @@ const { getUserByUsernameOrEmail, registerUser } = require('../services/userServ
 const notifservice = require('../services/notifService.js');
 const memberHandle = require('../services/memberHandle.js');
 
-// Use for the members table
-const member = 2;
-const admin = 1;
-const owner = 0;
-
 //Load login rules
 const loginRulesPath = path.join(__dirname, '../rules/loginRules.json');
 const loginRules = JSON.parse(fs.readFileSync(loginRulesPath, 'utf8'));
