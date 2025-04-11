@@ -1,6 +1,7 @@
 const eventService = require('../services/eventService.js');
 const notifservice = require('../services/notifService.js');
 const memberHandle = require('../services/memberHandle.js');
+const messageService = require('../services/messageService.js');
 const { MEMBER, ADMIN, OWNER } = require('../middleware/consts.js');
 
 async function events(req, res) {
@@ -70,6 +71,9 @@ async function postCreateEvent(req, res) {
     const creator = req.session.user.uid;
 
     let eventUID = await eventService.createEvent(name, description);
+
+    // Creating a board for the event
+    await messageService.addBoard(eventUID, name);
 
     // Insert the creator as a member in the members table
     await memberHandle.insertMembers(eventUID, creator, OWNER);
