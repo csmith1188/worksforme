@@ -98,7 +98,13 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(data => {
           // Handle the parsed data
           console.log('Data received:', data);
-          showCalculatedDate(`${data.date} ${minutesToTimeString(data.minutes)}`);
+
+          if (data.minutes === null){
+            showCalculatedDate(`No available date found`);
+          } else {
+            showCalculatedDate(`${data.date} ${minutesToTimeString(data.minutes)}`);
+          }
+          
         })
     });
 

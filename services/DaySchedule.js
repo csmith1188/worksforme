@@ -55,7 +55,7 @@ class DaySchedule {
             }
         }
         
-            return null; // No valid slot found
+        return null; // No valid slot found
     }
           
     
