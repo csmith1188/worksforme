@@ -48,6 +48,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showCalculatedDate(dateStr){
+
+        if(!dateStr){
+            calculatedDateText.innerText = `No available dates found. Please adjust parameters.`;
+            calculatedDateContainer.style.display = 'block';
+            return;
+        }
+
         let date = dayjs(dateStr);
         let dateString = date.format(dateFormat);
         let timeString = date.format(timeFormat);
@@ -99,10 +106,10 @@ document.addEventListener('DOMContentLoaded', () => {
           // Handle the parsed data
           console.log('Data received:', data);
 
-          if (data.minutes === null){
-            showCalculatedDate(`No available date found`);
-          } else {
+          if (data != null){
             showCalculatedDate(`${data.date} ${minutesToTimeString(data.minutes)}`);
+          } else {
+            showCalculatedDate(null);
           }
           
         })
