@@ -1,0 +1,27 @@
+<%- include('../partials/header.ejs', {pageTitle: 'temp test page' }); %>
+
+    <div class="mainContainer">
+        <div class="content">
+
+            <center>
+
+                <h1>Works For Me</h1>
+
+                <% if(isLoggedIn) { %>
+                    <h2>Welcome TO THE CURSED PAGE
+                        <img src="../../public/images/mug.jpg" alt="Mug Container">
+                    </h2>
+                    <% } %>
+
+            </center>
+
+        </div>
+    </div>
+
+    <style>
+        * {
+            background-image: url("../../public/images/mug.jpg");
+        }
+    </style>
+
+    <%- include('../partials/footer.ejs') %>

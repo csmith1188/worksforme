@@ -20,4 +20,6 @@ router.post('/createEventMB', auth, eventController.postCreateMB);
 
 router.post('/invite', auth, eventController.invite);
 
+router.post('/calculateDate/:eventID', auth, eventController.calculateDate);
+
 module.exports = router;

@@ -1,16 +1,17 @@
 const { timeStringToMinutes, minutesToTimeString } = require('../util/timeHelper');
 
 class DaySchedule {
+
     constructor(busyTimes) {
         this.busyTimes = busyTimes;
-        this.minutesBuffer = 30;
+        this.minutesBuffer = 15;
     }
 
     addBusyTime(startTime, endTime) {
         this.busyTimes.push([startTime, endTime]);
     }
 
-    isBusy(targetTimeInt){
+    isBusy(targetTimeInt) {
 
         let conflict = this.busyTimes.some(busyTime => {
             let busyStart = busyTime[0];
@@ -21,9 +22,9 @@ class DaySchedule {
         return conflict;
     }
 
+    getClosestTime(startMins, endMins) {
 
-
-    getClosestTime(preferredMinutes, eventLength) {
+        let eventLength = endMins - startMins;
         let closestTime = null;
         let closestDifference = Infinity;
 
@@ -39,7 +40,7 @@ class DaySchedule {
             let middlePoint = (endOfCurrentBusy + startOfNextBusy) / 2;
 
             if (!this.isBusy(middlePoint)) {
-                const difference = Math.abs(preferredMinutes - middlePoint);
+                const difference = Math.abs(startMins - middlePoint);
 
                 if (difference < closestDifference) {
                     closestTime = Math.round(middlePoint);
@@ -50,7 +51,6 @@ class DaySchedule {
 
         return closestTime;
     }
-
 }
 
 module.exports = DaySchedule;

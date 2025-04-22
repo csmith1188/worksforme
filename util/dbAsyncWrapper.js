@@ -1,5 +1,8 @@
 const sql = require('sqlite3').verbose();
 const dbInstance = new sql.Database(process.env.DB_PATH);
+dbInstance.serialize(() => {
+    dbInstance.run("PRAGMA foreign_keys = ON;");
+});
 
 function run(sql, params) {
     return new Promise(async (resolve, reject) => {

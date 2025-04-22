@@ -4,10 +4,12 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const sanitizeInput = require('../util/sanitizeInput');
+const { MEMBER, OWNER, ADMIN } = require('../middleware/consts.js');
 
 const userService = require('../services/userService.js');
 const { getUserByUsernameOrEmail, registerUser } = require('../services/userService.js');
-const notifservce = require('../services/notifServce.js');
+const notifservice = require('../services/notifService.js');
+const memberHandle = require('../services/memberHandle.js');
 
 //Load login rules
 const loginRulesPath = path.join(__dirname, '../rules/loginRules.json');
@@ -46,7 +48,8 @@ async function formbar(req, res, next) {
         req.session.user = newUser;
         return next();
     } catch (error) {
-        res.render('error', { error: new Error('Error logging in') });
+        console.log(error);
+        res.render('pages/error', { error: new Error('Error logging in') });
     }
 }
 
@@ -116,7 +119,7 @@ async function postRegisterNewUser(req, res) {
     }
 }
 
-//Check if user exists
+// Check if user exists
 async function userExists(req, res) {
     let { username } = req.body;
     username = sanitizeInput(username);
@@ -158,31 +161,27 @@ async function add(req, res) {
 
     try {
         if (action === 'accept') {
-            const notifData = await notifservce.getNotificationsByUID(notifUID);
-            // console.log('Notification Data:', notifData);
+            const notifData = await notifservice.getNotificationsByUID(notifUID);
 
             if (!notifData) {
                 return res.json({ success: false, message: 'Notification not found' });
             }
 
-            // console.log(notifData[0].event);
-            const eventUID = await notifservce.getEventUIDByEventName(notifData[0].event);
-            // console.log('Event UID:', eventUID);
+            const eventUID = notifData[0].event_uid;
 
             if (!eventUID) {
                 return res.json({ success: false, message: 'Event not found' });
             }
 
-            await notifservce.addUserToEvent(eventUID.uid, notifData[0].receiving_user_uid);
-            // console.log('User added to event with UID:', notifData[0].receiving_user_uid, 'and Event UID:', eventUID.uid);
+            await memberHandle.insertMembers(eventUID, notifData[0].receiving_user_uid, MEMBER);
 
-            await notifservce.deleteNotification(notifUID);
+            await notifservice.deleteNotification(notifUID);
 
             return res.json({ success: true });
         }
 
         if (action === 'reject') {
-            await notifservce.deleteNotification(notifUID);
+            await notifservice.deleteNotification(notifUID);
             return res.json({ success: true });
         }
 
