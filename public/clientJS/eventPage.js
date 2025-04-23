@@ -123,7 +123,9 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault(); // Prevent default form submission
 
             const formData = new FormData(form);
+            console.log('Form data:', formData);
             const formObject = Object.fromEntries(formData.entries());
+            console.log(formObject);
 
             const response = await fetch(form.action, {
                 method: 'POST',
@@ -136,6 +138,35 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 hidePopup();
                 location.reload();
+            } else {
+                const errorText = await response.text();
+                console.error('Error:', errorText);
+            }
+        });
+
+        // Add event listener for the delete button
+        const deleteButton = form.querySelector('button[name="deleteEvent"]');
+        deleteButton.addEventListener('click', async (e) => {
+            e.preventDefault(); // Prevent default form submission
+
+            const confirmation = confirm('Are you sure you want to delete this event?');
+            if (!confirmation) return;
+
+            const formData = new FormData(form);
+            formData.set('deleteEvent', 'true'); // Ensure deleteEvent is set
+
+            const response = await fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(Object.fromEntries(formData.entries()))
+            });
+
+            if (response.ok) {
+                hidePopup();
+                alert('Event deleted successfully.');
+                window.location.href = '/event/events'; // Redirect to events page
             } else {
                 const errorText = await response.text();
                 console.error('Error:', errorText);
