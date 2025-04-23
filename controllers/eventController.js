@@ -30,15 +30,14 @@ async function eventPage(req, res) {
     //stuff to get events
     const aEvent = req.params.aEvent;
     const event = await eventService.getEventByUID(aEvent);
-    //const eventMB = await messageService.getBoardByEvent(aEvent);
 
     const permission = await memberHandle.getMemberPermission(aEvent, req.session.user.uid);
     const isOwner = permission.permission === OWNER;
 
-    res.render('pages/events/eventPage', { event });
+    res.render('pages/events/eventPage', { event, isOwner });
 }
-/*    res.render('pages/events/eventPage', { event, isOwner });
-}*/
+    
+
 
 async function postEventPage(req, res) {
     const aEvent = req.params.aEvent;
