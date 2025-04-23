@@ -127,20 +127,24 @@ async function calculateDate(req, res) {
     const { eventID } = req.params;
     const { minDate, maxDate, startMins, endMins } = req.body;
 
-    const dates = await eventService.calculateOptimalDates(eventID, minDate, maxDate, startMins, endMins);
-    const datesArray = Array.from(dates);
+    const datesArray = await eventService.calculateOptimalDates(eventID, minDate, maxDate, startMins, endMins);
+    
+    if (datesArray.length > 0) {
 
-    console.log(dates);
+        let optimalDate = {
+            date: datesArray[0][0],
+            minutes: datesArray[0][1]
+        }
 
-    // just get the first one
-    const optimalDate = {
-        date: datesArray[0][0],
-        minutes: datesArray[0][1]
+        eventService.setEventDateTime(eventID, optimalDate.date, optimalDate.minutes);
+
+        res.json(optimalDate);
+
+    } else {
+
+        res.json(null);
+
     }
-
-    eventService.setEventDateTime(eventID, optimalDate.date, optimalDate.minutes);
-
-    res.json(optimalDate);
 }
 
 module.exports = {
