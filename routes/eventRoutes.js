@@ -12,6 +12,8 @@ router.get('/eventPage/:aEvent', auth, eventController.eventPage);
 
 router.post('/eventPage/:aEvent', auth, eventController.postEventPage);
 
+router.post('/event/:aEvent/addMessageBoard', auth, eventController.addMessageBoard);
+
 router.post('/createEvent', auth, eventController.postCreateEvent);
 
 router.post('/invite', auth, eventController.invite);

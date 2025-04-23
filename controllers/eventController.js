@@ -2,6 +2,7 @@ const eventService = require('../services/eventService.js');
 const notifservice = require('../services/notifService.js');
 const memberHandle = require('../services/memberHandle.js');
 const messageService = require('../services/messageService.js');
+const messageBoardService = require('../services/messageBoardService.js');
 const { MEMBER, ADMIN, OWNER } = require('../middleware/consts.js');
 
 async function events(req, res) {
@@ -34,7 +35,9 @@ async function eventPage(req, res) {
     const permission = await memberHandle.getMemberPermission(aEvent, req.session.user.uid);
     const isOwner = permission.permission === OWNER;
 
-    res.render('pages/events/eventPage', { event, isOwner });
+    const messageBoards = await messageBoardService.getEventMBbyeventUID(aEvent);
+
+    res.render('pages/events/eventPage', { event, isOwner, messageBoards });
 }
     
 
@@ -77,6 +80,21 @@ async function postCreateEvent(req, res) {
     await memberHandle.insertMembers(eventUID, creator, OWNER);
 
     res.redirect('/event/events');
+}
+
+async function addMessageBoard(req, res) {
+    const { name } = req.body;
+    const eventUID = req.params.aEvent; // Get the event UID from the route parameter
+    const uid = crypto.randomUUID(); // Generate a unique ID for the message board
+
+    try {
+        // Create the message board and associate it with the event
+        await messageBoardService.createMB(uid, name, eventUID);
+        res.redirect(`/event/eventPage/${eventUID}`);
+    } catch (error) {
+        console.error('Error adding message board:', error);
+        res.status(500).send('Internal Server Error');
+    }
 }
 
 async function postCreateMB(req, res) {
@@ -154,6 +172,8 @@ module.exports = {
     eventPage,
     postEventPage,
     postCreateEvent,
+    addMessageBoard,
+    postCreateMB,
     invite,
     calculateDate
 };
