@@ -1,17 +1,8 @@
-const jwt = require('jsonwebtoken');
-const urlHelper = require('../util/urlHelper.js');
-const crypto = require('crypto');
-const fs = require('fs');
-const path = require('path');
-const sanitizeInput = require('../util/sanitizeInput');
-const db = require('../util/dbAsyncWrapper');
-
 const userService = require('../services/userService.js');
 const eventService = require('../services/eventService.js');
 const notifservice = require('../services/notifService.js');
 const memberHandle = require('../services/memberHandle.js');
 const { MEMBER, ADMIN, OWNER } = require('../middleware/consts.js');
-const { date } = require('joi');
 
 async function events(req, res) {
     const userUID = req.session.user.uid;
