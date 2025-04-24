@@ -6,34 +6,34 @@ const { AsyncResource } = require('async_hooks');
 
 //gets all the message boards
 async function getEventsMB() {
-    const sql = 'SELECT * FROM eventsMB';
+    const sql = 'SELECT * FROM message_boards';
     return await db.all(sql);
 }
 
 async function getEventMBbyeventUID(eventUID) {
-    const sql = 'SELECT * FROM eventsMB WHERE event_uid = ?';
+    const sql = 'SELECT * FROM message_boards WHERE event_uid = ?';
     return await db.all(sql, [eventUID]);
 }
 
 async function createMB(uid, name, eventUID) {
-    const sql = 'INSERT INTO eventsMB (uid, name, event_uid) VALUES (?, ?, ?)';
+    const sql = 'INSERT INTO message_boards (uid, name, event_uid) VALUES (?, ?, ?)';
     const params = [uid, name, eventUID];
     return await db.run(sql, params);
 }
 
 async function getEventsMC() {
-    const sql = 'SELECT * FROM eventsMC';
+    const sql = 'SELECT * FROM message_boards';
     return await db.all(sql);
     
 }
 
 async function getEventMCByUID(uid) {
-    const sql = 'SELECT * FROM eventsMC WHERE uid = ?';
+    const sql = 'SELECT * FROM message_boards WHERE uid = ?';
     return await db.get(sql, [uid]);
 }
 
 async function createMC(uid, name) {
-    const sql = 'INSERT INTO eventsMC (uid, name) VALUES (?, ?)';
+    const sql = 'INSERT INTO message_boards (uid, name) VALUES (?, ?)';
     const params = [uid, name];
     return await db.run(sql, params);
 }
