@@ -66,6 +66,7 @@
     width: 102%;
     height: 60vh;
     position: relative;
+    touch-action: none;  /*prevents touch-based scroll */
 }
 
 .day-column {
