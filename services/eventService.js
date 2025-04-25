@@ -71,9 +71,9 @@ async function calculateOptimalDates(eventUID, minDate, maxDate, startMins, endM
         calendars.push(calendar);
     }
 
-    console.log(calendars);
+    const datesArray = dateRanker(calendars, startMins, endMins, minDate, maxDate);
 
-    return dateRanker(calendars, startMins, endMins, minDate, maxDate);
+    return datesArray;
 }
 
 module.exports = {

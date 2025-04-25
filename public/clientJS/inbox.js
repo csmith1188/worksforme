@@ -64,15 +64,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                                 const data = await response.json();
                                 if (data.success) {
-                                    alert('Notification accepted');
                                     inboxItem.remove();
                                     window.location.reload();
                                 } else {
-                                    alert('Error accepting notification');
+                                    alert('Error accepting notification. Please contact support.');
                                 }
                             } catch (error) {
                                 console.error('Error:', error);
-                                alert('Error accepting notification');
+                                alert('Error accepting notification. Please contact support.');
                             }
                         });
                     }
@@ -100,11 +99,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     inboxItem.remove();
                                     window.location.reload();
                                 } else {
-                                    alert('Error rejecting notification');
+                                    alert('Error rejecting notification. Please contact support.');
                                 }
                             } catch (error) {
                                 console.error('Error:', error);
-                                alert('Error rejecting notification');
+                                alert('Error rejecting notification. Please contact support.');
                             }
                         });
                     }
@@ -169,11 +168,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                                         window.location.reload();
                                         inboxItem.remove();
                                     } else {
-                                        alert('Error accepting notification');
+                                        alert('Error accepting notification. Please contact support.');
                                     }
                                 } catch (error) {
                                     console.error('Error:', error);
-                                    alert('Error accepting notification');
+                                    alert('Error accepting notification. Please contact support.');
                                 }
                             });
                         }
@@ -201,11 +200,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                                         inboxItem.remove();
                                         window.location.reload();
                                     } else {
-                                        alert('Error rejecting notification');
+                                        alert('Error rejecting notification. Please contact support.');
                                     }
                                 } catch (error) {
                                     console.error('Error:', error);
-                                    alert('Error rejecting notification');
+                                    alert('Error rejecting notification. Please contact support.');
                                 }
                             });
                         }
@@ -217,10 +216,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         } else {
             // Alert the user if there was an error fetching notifications
-            alert('Error fetching notifications');
+            alert('Error fetching notifications. Please contact support IMMEDIATELY.');
         }
-    } catch (error) {
+    } catch (error) {``
         // Alert the user if there was an error in the fetch request
-        alert('Error fetching notifications');
+        alert('Error fetching notifications. Please contact support IMMEDIATELY.');
     }
 });

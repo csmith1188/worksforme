@@ -1,7 +1,7 @@
-const userService = require('../services/userService.js');
 const eventService = require('../services/eventService.js');
 const notifservice = require('../services/notifService.js');
 const memberHandle = require('../services/memberHandle.js');
+const messageService = require('../services/messageService.js');
 const { MEMBER, ADMIN, OWNER } = require('../middleware/consts.js');
 
 async function events(req, res) {
@@ -11,7 +11,12 @@ async function events(req, res) {
     let events = [];
     for (let i = 0; i < rows.length; i++) {
         let event = await eventService.getEventByUID(rows[i].event_uid);
-        events.push(event);
+        if (event) {
+            events.push({
+                uid: rows[i].event_uid, // Ensure the uid is included
+                ...event
+            });
+        }
     }
 
     res.render('pages/events/event', { events: events });
@@ -40,19 +45,25 @@ async function postEventPage(req, res) {
     const aEvent = req.params.aEvent;
     const { newEventName, newEventDesc, deleteEvent } = req.body;
 
-    if (newEventName) {
-        await eventService.updateEventName(aEvent, newEventName);
-    }
+    try {
+        if (deleteEvent === 'true') {
+            await eventService.deleteEvent(aEvent);
+            return res.status(200).send('Event deleted successfully');
+        }
 
-    if (newEventDesc) {
-        await eventService.updateEventDescription(aEvent, newEventDesc);
-    }
+        if (newEventName) {
+            await eventService.updateEventName(aEvent, newEventName);
+        }
 
-    if (deleteEvent) {
-        await eventService.deleteEvent(aEvent);
-    }
+        if (newEventDesc) {
+            await eventService.updateEventDescription(aEvent, newEventDesc);
+        }
 
-    res.redirect(`/event/eventPage/${aEvent}`);
+        res.redirect(`/event/eventPage/${aEvent}`);
+    } catch (error) {
+        console.error('Error in postEventPage:', error);
+        res.status(500).send('Internal Server Error');
+    }
 }
 
 async function postCreateEvent(req, res) {
@@ -60,6 +71,9 @@ async function postCreateEvent(req, res) {
     const creator = req.session.user.uid;
 
     let eventUID = await eventService.createEvent(name, description);
+
+    // Creating a board for the event
+    await messageService.addBoard(eventUID, name);
 
     // Insert the creator as a member in the members table
     await memberHandle.insertMembers(eventUID, creator, OWNER);
@@ -80,10 +94,11 @@ async function invite(req, res) {
 
         // Consts and checks for inviting later
         const members = await memberHandle.getMembersByEvent(eventUID);
-        // If they are members
-        const isMember = members.some(member => member.members === user.uid);
         const notif = await notifservice.getNotificationsByUser(user.uid);
         const eventName = await notifservice.getEventNameByUID(eventUID);
+
+        // If they are members
+        const isMember = members.some(member => member.members === user.uid);
         // If they are invited
         const isNotif = notif.some(notification => notification.event === eventName.name);
 
@@ -112,22 +127,24 @@ async function calculateDate(req, res) {
     const { eventID } = req.params;
     const { minDate, maxDate, startMins, endMins } = req.body;
 
-    const dates = await eventService.calculateOptimalDates(eventID, minDate, maxDate, startMins, endMins);
-    const datesArray = Array.from(dates);
+    const datesArray = await eventService.calculateOptimalDates(eventID, minDate, maxDate, startMins, endMins);
+    
+    if (datesArray.length > 0) {
 
-    console.log(dates);
+        let optimalDate = {
+            date: datesArray[0][0],
+            minutes: datesArray[0][1]
+        }
 
-    // just get the first one
-    const optimalDate = {
-        //date: datesArray[0][0],
-        date: "1/30/2024",
-        minutes: 30
-        //minutes: datesArray[0][1]
+        eventService.setEventDateTime(eventID, optimalDate.date, optimalDate.minutes);
+
+        res.json(optimalDate);
+
+    } else {
+
+        res.json(null);
+
     }
-
-    //eventService.setEventDateTime(eventID, optimalDate.date, optimalDate.minutes);
-
-    res.json(optimalDate);
 }
 
 module.exports = {

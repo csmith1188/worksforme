@@ -11,12 +11,12 @@ const addMemberPopup = {
 };
 
 const editEventPopup = {
-    html: (eventUID) => `
-        <form method="POST" action="/event/eventPage/${eventUID}" class="eventForm">
+    html: `
+        <form method="POST" action="/event/eventPage/${eventdata.uid}" class="eventForm">
             <h3>Update Event</h3>
             <input type="text" id="newEventName" name="newEventName" placeholder="New Event Name">
             <input id="newEventDesc" name="newEventDesc" placeholder="New Event Description"></input>
-            <input type="hidden" name="eventUID" value="${eventUID}">
+            <input type="hidden" name="eventUID" value="${eventdata.uid}">
             <button type="submit" class="btn">Update Event</button>
             <button type="submit" name="deleteEvent" value="true" class="btn btn-delete">Delete Event</button>
         </form>`,
@@ -48,6 +48,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showCalculatedDate(dateStr){
+
+        if(!dateStr){
+            calculatedDateText.innerText = `No available dates found. Please adjust parameters.`;
+            calculatedDateContainer.style.display = 'block';
+            return;
+        }
+
         let date = dayjs(dateStr);
         let dateString = date.format(dateFormat);
         let timeString = date.format(timeFormat);
@@ -98,7 +105,13 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(data => {
           // Handle the parsed data
           console.log('Data received:', data);
-          showCalculatedDate(`${data.date} ${minutesToTimeString(data.minutes)}`);
+
+          if (data != null){
+            showCalculatedDate(`${data.date} ${minutesToTimeString(data.minutes)}`);
+          } else {
+            showCalculatedDate(null);
+          }
+          
         })
     });
 
@@ -123,7 +136,9 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault(); // Prevent default form submission
 
             const formData = new FormData(form);
+            console.log('Form data:', formData);
             const formObject = Object.fromEntries(formData.entries());
+            console.log(formObject);
 
             const response = await fetch(form.action, {
                 method: 'POST',
@@ -138,7 +153,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 location.reload();
             } else {
                 const errorText = await response.text();
-                alert(`Error: ${errorText}`);
+                console.error('Error:', errorText);
+            }
+        });
+
+        // Add event listener for the delete button
+        const deleteButton = form.querySelector('button[name="deleteEvent"]');
+        deleteButton.addEventListener('click', async (e) => {
+            e.preventDefault(); // Prevent default form submission
+
+            const confirmation = confirm('Are you sure you want to delete this event?');
+            if (!confirmation) return;
+
+            const formData = new FormData(form);
+            formData.set('deleteEvent', 'true'); // Ensure deleteEvent is set
+
+            const response = await fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(Object.fromEntries(formData.entries()))
+            });
+
+            if (response.ok) {
+                hidePopup();
+                alert('Event deleted successfully.');
+                window.location.href = '/event/events'; // Redirect to events page
+            } else {
+                const errorText = await response.text();
+                console.error('Error:', errorText);
             }
         });
     });
@@ -149,13 +193,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Add event listener to close the popup when the close button is clicked
         closeBtn.addEventListener('click', () => {
-            document.body.removeChild(popup);
+            hidePopup();
         });
 
         // Add event listener to close the popup when clicking outside of it
         window.addEventListener('click', (e) => {
-            if (e.target === popup) {
-                document.body.removeChild(popup);
+            if (e.target === popupContainer) {
+                hidePopup();
             }
         });
 
@@ -177,11 +221,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 alert('User invited successfully!');
             } else {
-                const errorText = await response.text();
-                alert(`Error: ${errorText}`);
+                switch (response.status) {
+                    case 404:
+                        alert('User not found.');
+                        break;
+                    case 400:
+                        alert('User is ether already a member or has been invited.');
+                        break;
+                    default:
+                        console.error('Error:', response.statusText);
+                }
             }
-
-            document.body.removeChild(popup);
+            hidePopup();
         });
     });
 });
