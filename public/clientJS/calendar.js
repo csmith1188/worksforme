@@ -7,6 +7,10 @@ const timeBlockInnerHTML = `
     <div class="time-block-move-point"></div>
 `;
 
+// the amount that must be scrolled before we consider it a scroll event
+const scrollThreshold = 10; // pixels
+const doubleTapDelay = 200; // milliseconds
+
 let userCalendar;
 
 let isLeftMouseDown = false;
@@ -48,7 +52,8 @@ let timeBlockMap = new Map();
 let unsavedChanges = false;
 
 let lastTap = 0;
-let doubleTapDelay = 300;
+
+let scrolled = false;
 
 function snapNum(num, snapTo) {
     return Math.round(num / snapTo) * snapTo;
@@ -121,6 +126,9 @@ function onPointerDown(e){
     const clientX = isTouch ? e.touches[0].clientX : e.clientX;
     const clientY = isTouch ? e.touches[0].clientY : e.clientY;
 
+    // save the current scroll position so we can use it to check if the user scrolled
+    //lastScrollTop = grid.scrollTop;
+
     if (e.button === 0) {
         isLeftMouseDown = true; 
     } else if (e.button === 2) {
@@ -136,7 +144,8 @@ function onPointerDown(e){
 
         newBlock = createTimeBlock(null, true);
 
-        resizingBlock = newBlock;
+        // only able to resize while creating on desktop, since you need to be able to scroll on mobile
+        if (!isTouch) resizingBlock = newBlock;
 
         let yDiff = clientY - targetColumn.getBoundingClientRect().top;
         // round to the nearest 15 minutes
@@ -162,6 +171,7 @@ function onPointerDown(e){
 }
 
 function onPointerUp(e){
+    console.log('ye')
 
     const isTouch = e.type === 'touchend';
 
@@ -193,7 +203,8 @@ function onPointerUp(e){
         return;
     }
 
-    if (newBlock) {
+    // if the user is scrolling, don't do anything
+    if (newBlock && !scrolled) {
         // add the block to the cell
         if(!newBlock.parentElement){
             addTimeBlockToDayColumn(targetColumn.dataset.index, newBlock);
@@ -216,6 +227,8 @@ function onPointerUp(e){
         movingBlockMouseOffset = null;
     }
 
+    scrolled = false;
+
 }
 
 function onPointerMove(e){
@@ -223,6 +236,12 @@ function onPointerMove(e){
     const isTouch = e.type === 'touchmove';
     const clientX = isTouch ? e.touches[0].clientX : e.clientX;
     const clientY = isTouch ? e.touches[0].clientY : e.clientY;
+
+    if (isTouch){
+        let yDiff = clientY - gridBox.top;
+        // set the scroll flag if the user is scrolling
+        if (yDiff > scrollThreshold) scrolled = true; 
+    }
 
     if (isRightMouseDown && e.target.parentElement.classList.contains('time-block')) {
         const block = e.target.parentElement;
@@ -232,13 +251,17 @@ function onPointerMove(e){
 
     if (newBlock){
         // if the block hasn't been added to the cell, add it
-        if(!newBlock.parentElement){
+        // don't do this on mobile, since you need to be able to scroll
+        if(!newBlock.parentElement && !isTouch){
             addTimeBlockToDayColumn(targetColumn.dataset.index, newBlock);
         }
 
     }
     
     if (resizingBlock) {
+
+        // prevent default to avoid scrolling while resizing
+        if (isTouch) e.preventDefault();
 
         const blockBox = resizingBlock.getBoundingClientRect();
         const blockTop = parseInt(resizingBlock.style.top);
@@ -264,6 +287,9 @@ function onPointerMove(e){
 
     // moving block
     } else if (movingBlock) {
+
+        // prevent default to avoid scrolling while moving
+        if (isTouch) e.preventDefault();
 
         const column = movingBlock.parentElement.parentElement;
 

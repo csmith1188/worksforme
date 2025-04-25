@@ -10,7 +10,6 @@
 #day-headers {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-
 }
 
 .day-header {
@@ -43,6 +42,7 @@
 }
 
 #controls {
+    
 }
 
 #date-select {
@@ -51,6 +51,7 @@
 
 #prev-week-btn {
     margin-left: 10px;
+    
 }
 
 #next-week-btn {
@@ -66,7 +67,6 @@
     width: 102%;
     height: 60vh;
     position: relative;
-    touch-action: none;  /*prevents touch-based scroll */
 }
 
 .day-column {
@@ -82,6 +82,7 @@
 
 .cell {
     height: 40px;
+    min-width: 10px;
     user-select: none;
     box-sizing: border-box;
 }
