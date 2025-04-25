@@ -74,15 +74,10 @@ function doIt(calendarArray, startMins, endMins, minDate, maxDate){
 
     const sortedDates = Array.from(optimalDatesMap.entries())
     .sort((a, b) => Math.abs(a[1] - startMins) - Math.abs(b[1] - startMins));
-    
-    console.log(sortedDates);
 
     return sortedDates;
 
 }
-
-//console.log(combineCalendars([calendar1, calendar2])['2021-06-01'].getClosestTime(970, 1020));
-//console.log(doIt([calendar1, calendar2], 985, 1020, '2021-06-01', '2021-06-06'));
 
 
 module.exports = doIt;
