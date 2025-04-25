@@ -2,6 +2,7 @@ const eventService = require('../services/eventService.js');
 const notifservice = require('../services/notifService.js');
 const memberHandle = require('../services/memberHandle.js');
 const messageService = require('../services/messageService.js');
+const pollService = require('../services/pollService.js');
 const { MEMBER, ADMIN, OWNER } = require('../middleware/consts.js');
 
 async function events(req, res) {
@@ -38,7 +39,9 @@ async function eventPage(req, res) {
         return;
     }
 
-    res.render('pages/events/eventPage', { event, isOwner });
+    const polls = await pollService.getPollsByEvent(aEvent); // Ensure options and votes are included
+
+    res.render('pages/events/eventPage', { event, isOwner, polls });
 }
 
 async function postEventPage(req, res) {
@@ -147,6 +150,46 @@ async function calculateDate(req, res) {
     }
 }
 
+async function createPoll(req, res) {
+    const { eventID, question, options } = req.body;
+
+    try {
+        if (!eventID || !question || !Array.isArray(options) || options.length === 0) {
+            return res.status(400).send('Invalid poll data.');
+        }
+
+        console.log('Received createPoll request with eventID:', eventID, 'question:', question, 'options:', options); // Debug log
+
+        const pollID = await pollService.createPoll(eventID, question);
+        console.log('PollID returned from createPoll:', pollID); // Debug log
+
+        if (!pollID) {
+            throw new Error('Failed to create poll: pollID is undefined.');
+        }
+
+        for (const option of options) {
+            await pollService.addPollOption(pollID, option);
+        }
+
+        res.status(200).send('Poll created successfully');
+    } catch (error) {
+        console.error('Error creating poll:', error); // Log the error
+        res.status(500).send('Internal Server Error');
+    }
+}
+
+async function vote(req, res) {
+    const { pollID, optionID, userID } = req.body;
+
+    try {
+        await pollService.addVote(pollID, optionID, userID);
+        res.status(200).send('Vote recorded successfully');
+    } catch (error) {
+        console.error('Error voting:', error);
+        res.status(500).send('Internal Server Error');
+    }
+}
+
 module.exports = {
     events,
     createEvent,
@@ -154,5 +197,7 @@ module.exports = {
     postEventPage,
     postCreateEvent,
     invite,
-    calculateDate
+    calculateDate,
+    createPoll,
+    vote
 };
