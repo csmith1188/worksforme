@@ -8,7 +8,7 @@ const { MEMBER, ADMIN, OWNER } = require('../middleware/consts.js');
 async function events(req, res) {
     const userUID = req.session.user.uid;
     const rows = await memberHandle.getEventsByMember(userUID);
-    
+
     let events = [];
     for (let i = 0; i < rows.length; i++) {
         let event = await eventService.getEventByUID(rows[i].event_uid);
@@ -76,10 +76,10 @@ async function postCreateEvent(req, res) {
     let eventUID = await eventService.createEvent(name, description);
 
     // Creating a board for the event
-    await messageService.addBoard(eventUID, name);
+    await messageService.addBoard(eventUID.lastID, name);
 
     // Insert the creator as a member in the members table
-    await memberHandle.insertMembers(eventUID, creator, OWNER);
+    await memberHandle.insertMembers(eventUID.lastID, creator, OWNER);
 
     res.redirect('/event/events');
 }
@@ -131,7 +131,7 @@ async function calculateDate(req, res) {
     const { minDate, maxDate, startMins, endMins } = req.body;
 
     const datesArray = await eventService.calculateOptimalDates(eventID, minDate, maxDate, startMins, endMins);
-    
+
     if (datesArray.length > 0) {
 
         let optimalDate = {
@@ -158,10 +158,7 @@ async function createPoll(req, res) {
             return res.status(400).send('Invalid poll data.');
         }
 
-        console.log('Received createPoll request with eventID:', eventID, 'question:', question, 'options:', options); // Debug log
-
         const pollID = await pollService.createPoll(eventID, question);
-        console.log('PollID returned from createPoll:', pollID); // Debug log
 
         if (!pollID) {
             throw new Error('Failed to create poll: pollID is undefined.');

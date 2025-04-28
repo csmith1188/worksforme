@@ -24,9 +24,7 @@ async function getPollsByEvent(eventID) {
 
 async function createPoll(eventID, question) {
     try {
-        console.log('Creating poll with eventID:', eventID, 'and question:', question); // Debug log
         const result = await db.run('INSERT INTO polls (event_id, question) VALUES (?, ?)', [eventID, question]);
-        console.log('Poll created with result:', result); // Debug log
         return result.lastID; // Ensure the last inserted ID is returned
     } catch (error) {
         console.error('Error creating poll:', error);
@@ -36,7 +34,6 @@ async function createPoll(eventID, question) {
 
 async function addPollOption(pollID, optionText) {
     try {
-        console.log('Adding poll option with pollID:', pollID, 'and optionText:', optionText); // Debug log
         await db.run('INSERT INTO poll_options (poll_id, option_text) VALUES (?, ?)', [pollID, optionText]);
     } catch (error) {
         console.error('Error adding poll option:', error);
