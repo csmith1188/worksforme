@@ -7,6 +7,10 @@ const timeBlockInnerHTML = `
     <div class="time-block-move-point"></div>
 `;
 
+// the amount that must be scrolled before we consider it a scroll event
+const scrollThreshold = 10; // pixels
+const doubleTapDelay = 200; // milliseconds
+
 let userCalendar;
 
 let isLeftMouseDown = false;
@@ -46,6 +50,10 @@ let editList = {
 let timeBlockMap = new Map();
 
 let unsavedChanges = false;
+
+let lastTap = 0;
+
+let scrolled = false;
 
 function snapNum(num, snapTo) {
     return Math.round(num / snapTo) * snapTo;
@@ -101,172 +109,232 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    grid.addEventListener('mousedown', function(e) {
-        if (e.button === 0) {
-            isLeftMouseDown = true; 
-        } else if (e.button === 2) {
-            isRightMouseDown = true;
-        }
+    grid.addEventListener('mousedown', onPointerDown);
+    grid.addEventListener('touchstart', onPointerDown);
 
-        if (e.button === 2) return;
+    grid.addEventListener('mouseup', onPointerUp);
+    grid.addEventListener('touchend', onPointerUp);
 
-        // if you clicked on a cell (you are placing a new block)
-        if (e.target.classList.contains('inner-cell')) {
-
-            targetColumn = e.target.parentElement.parentElement;
-
-            newBlock = createTimeBlock(null, true);
-
-            resizingBlock = newBlock;
-
-            let yDiff = e.clientY - targetColumn.getBoundingClientRect().top;
-            // round to the nearest 15 minutes
-            let blockY = snapNum(yDiff, pxPer15Mins);
-
-            newBlock.style.top = blockY + 'px';
-
-        // if you clicked on a resize point (you want to resize the block)
-        } else if (e.target.classList.contains('time-block-resize-point')) {
-
-            const block = e.target.parentElement;
-            resizingBlock = block;
-
-        // move point
-        // you get the idea
-        } else if(e.target.classList.contains('time-block-move-point')) {
-
-            const block = e.target.parentElement;
-            movingBlock = block;
-
-        }
-
-    });
-
-    grid.addEventListener('mouseup', function(e) {
-        if (e.button === 0) {
-            isLeftMouseDown = false;
-        } else if (e.button === 2) {
-            isRightMouseDown = false;
-        }
-
-        // right click to delete timeblock
-        if(e.button === 2 && e.target.parentElement.classList.contains('time-block')) {
-            const block = e.target.parentElement;
-            deleteTimeBlock(block, true);
-            return;
-        }
-
-        if (newBlock) {
-            // add the block to the cell
-            if(!newBlock.parentElement){
-                addTimeBlockToDayColumn(targetColumn.dataset.index, newBlock);
-            }
-
-            updateTimeBlock(newBlock, false)
-
-            // finished creating block
-            newBlock = null;
-            resizingBlock = null;
-            targetColumn = null;
-
-        } else if (resizingBlock) {
-            // finished resizing
-            resizingBlock = null;
-        } else if (movingBlock){
-            // finished moving
-            movingBlock = null;
-            movingBlockMouseOffset = null;
-        }
-    });
-
-    grid.addEventListener('mousemove', function(e) {
-
-        if (isRightMouseDown && e.target.parentElement.classList.contains('time-block')) {
-            const block = e.target.parentElement;
-            deleteTimeBlock(block, true);
-            return;
-        }
-
-        if (newBlock){
-            // if the block hasn't been added to the cell, add it
-            if(!newBlock.parentElement){
-                addTimeBlockToDayColumn(targetColumn.dataset.index, newBlock);
-            }
-
-        }
-        
-        if (resizingBlock) {
-
-            const blockBox = resizingBlock.getBoundingClientRect();
-            const blockTop = parseInt(resizingBlock.style.top);
-            const blockBottom = parseInt(resizingBlock.style.top) + parseInt(resizingBlock.style.height);
-            const currentBlockHeight = parseInt(resizingBlock.style.height);
-
-            let yDiff = e.clientY - blockBox.top;
-            let newHeight = snapNum(yDiff, pxPer15Mins);
-
-            // clamp
-            if (newHeight < pxPer15Mins) newHeight = pxPer15Mins;
-
-            // if there's no difference, don't do anything
-            if (newHeight === currentBlockHeight) return;
-
-            const maxHeight = gridBottom - blockTop;
-            if (newHeight > maxHeight) newHeight = maxHeight;
-
-            resizingBlock.style.height = newHeight + 'px';
-
-            // if the block is still being created, don't add log the update
-            updateTimeBlock(resizingBlock, !Boolean(newBlock));
-
-        // moving block
-        } else if (movingBlock) {
-
-            const column = movingBlock.parentElement.parentElement;
-
-            const blockBox = movingBlock.getBoundingClientRect();
-            const columnBox = column.getBoundingClientRect();
-            const currentBlockTop = parseInt(movingBlock.style.top);
-
-            let yDiff = e.clientY - columnBox.top;
-
-            // handle moving block to another column
-            // if the mouse is not on the block
-            if (e.target.parentElement !== movingBlock && e.clientY > blockBox.top && e.clientY < blockBox.bottom) {
-                // -1 if mouse is left of the block center, 1 if mouse is right of the block center
-                let direction = Math.sign(e.clientX - (blockBox.left + blockBox.width / 2));
-                
-                const newColumn = dayColumns[dayColumns.indexOf(column) + direction];
-
-                if(newColumn){
-                    addTimeBlockToDayColumn(newColumn.dataset.index, movingBlock);
-                    updateTimeBlock(movingBlock, true);
-                }
-
-            }
-
-            if(movingBlockMouseOffset === null){
-                movingBlockMouseOffset = e.clientY - blockBox.top;
-            }
-
-            let newY = snapNum(yDiff - movingBlockMouseOffset, pxPer15Mins);
-
-            // clamp
-            if(newY < 0) newY = 0;
-            if(newY + blockBox.height > columnBox.height) newY = gridBottom - blockBox.height;
-
-            // if there's no difference, don't do anything
-            if (newY === currentBlockTop) return;
-
-            movingBlock.style.top = newY + 'px';
-
-            updateTimeBlock(movingBlock, true);
-
-        }
-
-    });
+    grid.addEventListener('mousemove', onPointerMove);
+    grid.addEventListener('touchmove', onPointerMove);
     
 });
+
+function onPointerDown(e){
+
+    const isTouch = e.type === 'touchstart';
+    const clientX = isTouch ? e.touches[0].clientX : e.clientX;
+    const clientY = isTouch ? e.touches[0].clientY : e.clientY;
+
+    // save the current scroll position so we can use it to check if the user scrolled
+    //lastScrollTop = grid.scrollTop;
+
+    if (e.button === 0) {
+        isLeftMouseDown = true; 
+    } else if (e.button === 2) {
+        isRightMouseDown = true;
+    }
+
+    if (e.button === 2) return;
+
+    // if you clicked on a cell (you are placing a new block)
+    if (e.target.classList.contains('inner-cell')) {
+
+        targetColumn = e.target.parentElement.parentElement;
+
+        newBlock = createTimeBlock(null, true);
+
+        // only able to resize while creating on desktop, since you need to be able to scroll on mobile
+        if (!isTouch) resizingBlock = newBlock;
+
+        let yDiff = clientY - targetColumn.getBoundingClientRect().top;
+        // round to the nearest 15 minutes
+        let blockY = snapNum(yDiff, pxPer15Mins);
+
+        newBlock.style.top = blockY + 'px';
+
+    // if you clicked on a resize point (you want to resize the block)
+    } else if (e.target.classList.contains('time-block-resize-point')) {
+
+        const block = e.target.parentElement;
+        resizingBlock = block;
+
+    // move point
+    // you get the idea
+    } else if(e.target.classList.contains('time-block-move-point')) {
+
+        const block = e.target.parentElement;
+        movingBlock = block;
+
+    }
+
+}
+
+function onPointerUp(e){
+    console.log('ye')
+
+    const isTouch = e.type === 'touchend';
+
+    if (e.button === 0) {
+        isLeftMouseDown = false;
+    } else if (e.button === 2) {
+        isRightMouseDown = false;
+    }
+
+    let wasDoubleTap = false;
+
+    // check for double tap
+    if(isTouch){
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTap;
+
+        if (tapLength < doubleTapDelay && tapLength > 0) {
+            wasDoubleTap = true;
+            e.preventDefault(); //prevent zoom on double tap
+        }
+
+        lastTap = currentTime;
+    }
+
+    // right click or double tap to delete timeblock
+    if ((e.button === 2 || wasDoubleTap) && e.target.parentElement.classList.contains('time-block')) {
+        const block = e.target.parentElement;
+        deleteTimeBlock(block, true);
+        return;
+    }
+
+    // if the user is scrolling, don't do anything
+    if (newBlock && !scrolled) {
+        // add the block to the cell
+        if(!newBlock.parentElement){
+            addTimeBlockToDayColumn(targetColumn.dataset.index, newBlock);
+        }
+
+        updateTimeBlock(newBlock, false)
+
+        // finished creating block
+        newBlock = null;
+        resizingBlock = null;
+        targetColumn = null;
+
+    } else if (resizingBlock) {
+
+        // finished resizing
+        resizingBlock = null;
+    } else if (movingBlock){
+        // finished moving
+        movingBlock = null;
+        movingBlockMouseOffset = null;
+    }
+
+    scrolled = false;
+
+}
+
+function onPointerMove(e){
+
+    const isTouch = e.type === 'touchmove';
+    const clientX = isTouch ? e.touches[0].clientX : e.clientX;
+    const clientY = isTouch ? e.touches[0].clientY : e.clientY;
+
+    if (isTouch){
+        let yDiff = clientY - gridBox.top;
+        // set the scroll flag if the user is scrolling
+        if (yDiff > scrollThreshold) scrolled = true; 
+    }
+
+    if (isRightMouseDown && e.target.parentElement.classList.contains('time-block')) {
+        const block = e.target.parentElement;
+        deleteTimeBlock(block, true);
+        return;
+    }
+
+    if (newBlock){
+        // if the block hasn't been added to the cell, add it
+        // don't do this on mobile, since you need to be able to scroll
+        if(!newBlock.parentElement && !isTouch){
+            addTimeBlockToDayColumn(targetColumn.dataset.index, newBlock);
+        }
+
+    }
+    
+    if (resizingBlock) {
+
+        // prevent default to avoid scrolling while resizing
+        if (isTouch) e.preventDefault();
+
+        const blockBox = resizingBlock.getBoundingClientRect();
+        const blockTop = parseInt(resizingBlock.style.top);
+        const blockBottom = parseInt(resizingBlock.style.top) + parseInt(resizingBlock.style.height);
+        const currentBlockHeight = parseInt(resizingBlock.style.height);
+
+        let yDiff = clientY - blockBox.top;
+        let newHeight = snapNum(yDiff, pxPer15Mins);
+
+        // clamp
+        if (newHeight < pxPer15Mins) newHeight = pxPer15Mins;
+
+        // if there's no difference, don't do anything
+        if (newHeight === currentBlockHeight) return;
+
+        const maxHeight = gridBottom - blockTop;
+        if (newHeight > maxHeight) newHeight = maxHeight;
+
+        resizingBlock.style.height = newHeight + 'px';
+
+        // if the block is still being created, don't add log the update
+        updateTimeBlock(resizingBlock, !Boolean(newBlock));
+
+    // moving block
+    } else if (movingBlock) {
+
+        // prevent default to avoid scrolling while moving
+        if (isTouch) e.preventDefault();
+
+        const column = movingBlock.parentElement.parentElement;
+
+        const blockBox = movingBlock.getBoundingClientRect();
+        const columnBox = column.getBoundingClientRect();
+        const currentBlockTop = parseInt(movingBlock.style.top);
+        const hoveringElement = document.elementFromPoint(clientX, clientY);
+
+        let yDiff = clientY - columnBox.top;
+
+        // handle moving block to another column
+        // if the mouse is not on the block
+        if (hoveringElement.parentElement !== movingBlock && clientY > blockBox.top && clientY < blockBox.bottom) {
+            // -1 if mouse is left of the block center, 1 if mouse is right of the block center
+            let direction = Math.sign(clientX - (blockBox.left + blockBox.width / 2));
+            
+            const newColumn = dayColumns[dayColumns.indexOf(column) + direction];
+
+            if(newColumn){
+                addTimeBlockToDayColumn(newColumn.dataset.index, movingBlock);
+                updateTimeBlock(movingBlock, true);
+            }
+
+        }
+
+        if(movingBlockMouseOffset === null){
+            movingBlockMouseOffset = clientY - blockBox.top;
+        }
+
+        let newY = snapNum(yDiff - movingBlockMouseOffset, pxPer15Mins);
+
+        // clamp
+        if(newY < 0) newY = 0;
+        if(newY + blockBox.height > columnBox.height) newY = gridBottom - blockBox.height;
+
+        // if there's no difference, don't do anything
+        if (newY === currentBlockTop) return;
+
+        movingBlock.style.top = newY + 'px';
+
+        updateTimeBlock(movingBlock, true);
+
+    }
+
+}
 
 function initCalendar(){
     setWeek(selectedDate);
@@ -344,7 +412,6 @@ function saveWeek(date){
             return;
         }
 
-        //weekData[index] = dayBusyTimes.map(([start, end]) => {[start, end]});
         weekData[index] = dayBusyTimes;
 
     });
