@@ -50,8 +50,7 @@ async function formbar(req, res, next) {
             return next();
         }
 
-        const uid = await userService.registerUser(tokenData.id, tokenData.username);
-        const newUser = await userService.getUserByUID(uid);
+        const newUser = await userService.registerUser(tokenData.id, tokenData.username);
         req.session.user = newUser;
         return next();
     } catch (error) {

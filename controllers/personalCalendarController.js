@@ -18,6 +18,16 @@ async function saveCalendarData(req, res) {
     }
 }
 
+async function importGoogleCalendar(req, res) {
+
+    if (!req.session.user.googleID) {
+        return res.status(403).send("User not logged in with Google.");
+    }
+
+    
+    res.send(calendarObject);
+}
+
 module.exports = {
     getCalendarData,
     saveCalendarData

@@ -358,6 +358,23 @@ function loadCalendarFromDB(){
         .catch(error => alert('Failed to load calendar'));
 }
 
+function importGoogleCalendar(){
+    fetch('/calendar/import-google-calendar', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+
+            let googleCalendar = new Map(Object.entries(data));
+
+            // merge the existing calendar with the google calendar
+            userCalendar = [...userCalendar, ...googleCalendar];
+            
+            clearGrid();
+            initCalendar(userCalendar);
+            
+        })
+        .catch(error => alert('Failed to load calendar'));
+}
+
 // saves changes to database
 function saveChangesToDB(){
 

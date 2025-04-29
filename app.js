@@ -12,7 +12,7 @@ const eventRoutes = require('./routes/eventRoutes');
 const personalCalendarRoutes = require('./routes/personalCalendarRoutes');
 
 app.use(session({
-    secret: process.env.SECRET,
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: { secure: false }
