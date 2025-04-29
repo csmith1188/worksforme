@@ -22,17 +22,17 @@ async function createMB(title) {
 }
 
 async function getEventsMC() {
-    const sql = 'SELECT * FROM message_boards';
+    const sql = 'SELECT * FROM message_comments';
     return await db.all(sql);
 }
 
 async function getEventMCByUID(uid) {
-    const sql = 'SELECT * FROM message_boards WHERE uid = ?';
+    const sql = 'SELECT * FROM message_comments WHERE uid = ?';
     return await db.get(sql, [uid]);
 }
 
 async function createMC(uid, name) {
-    const sql = 'INSERT INTO message_boards (uid, name) VALUES (?, ?)';
+    const sql = 'INSERT INTO message_comments (uid, name) VALUES (?, ?)';
     const params = [uid, name];
     return await db.run(sql, params);
 }
