@@ -176,18 +176,21 @@ async function createPoll(req, res) {
 }
 
 async function vote(req, res) {
-    const { pollID, optionID, userID } = req.body;
+    const { pollID, optionID } = req.body;
+    const userID = req.session.user.uid; // Ensure the user ID is taken from the session
 
     try {
         const existingVote = await pollService.getUserVote(pollID, userID);
 
         if (existingVote) {
+            // Update the user's vote if they have already voted
             await pollService.updateVote(existingVote.vote_id, optionID);
         } else {
+            // Add a new vote for the user if they haven't voted yet
             await pollService.addVote(pollID, optionID, userID);
         }
 
-        const updatedPoll = await pollService.getPollByID(pollID); // Fetch updated poll data
+        const updatedPoll = await pollService.getPollByID(pollID);
         res.status(200).json(updatedPoll);
     } catch (error) {
         console.error('Error voting:', error);
