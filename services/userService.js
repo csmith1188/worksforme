@@ -7,7 +7,7 @@ const dateRanker = require('./rankDates');
 // TODO make params not hardcoded
 async function registerUser(fbID, username, email, password, salt, googleID){
     let lastID = await db.run('INSERT INTO users (fb_id, google_id, username, email, password, salt) VALUES(?,?,?,?,?,?);', [fbID, googleID, username, email, password, salt]);
-    return lastID;
+    return await db.get('SELECT * FROM users WHERE uid = ?;', [lastID.lastID]);
 }
 
 async function getUserByUsername(username){
