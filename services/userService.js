@@ -4,8 +4,9 @@ const db = require('../util/dbAsyncWrapper');
 const dateRanker = require('./rankDates');
 
 // User functions
-async function registerUser(fbID, username, email, password, salt){
-    let lastID = await db.run('INSERT INTO users (fb_id, username, email, password, salt) VALUES(?,?,?,?,?);', [fbID, username, email, password, salt]);
+// TODO make params not hardcoded
+async function registerUser(fbID, username, email, password, salt, googleID){
+    let lastID = await db.run('INSERT INTO users (fb_id, google_id, username, email, password, salt) VALUES(?,?,?,?,?,?);', [fbID, googleID, username, email, password, salt]);
     return lastID;
 }
 
