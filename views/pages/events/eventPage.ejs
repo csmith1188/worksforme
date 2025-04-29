@@ -55,8 +55,25 @@
                                 <button id="calculate-date-btn">Calculate Optimal Date</button>
 
                             </div>
+
+                            <br><br>
+
+                            <button id="create-poll-btn">Create Poll</button>
                             
                         <% } %>
+
+                        <div id="polls-container">
+                            <% polls.forEach(poll => { %>
+                                <div class="poll" data-poll-id="<%= poll.poll_id %>">
+                                    <h3><%= poll.question %></h3>
+                                    <% poll.options.forEach(option => { %>
+                                        <button class="poll-option-btn" data-option-id="<%= option.option_id %>">
+                                            <%= option.option_text %> (<%= option.votes %>)
+                                        </button>
+                                    <% }) %>
+                                </div>
+                            <% }) %>
+                        </div>
 
                     </center>
         </div>
@@ -64,9 +81,11 @@
     
     <script>
         const eventdata = JSON.parse('<%- JSON.stringify(event) %>');
+        const eventID = '<%= event.uid %>';
     </script>
     <script src="/public/clientJS/dayjs.min.js"></script>
     <script src="/public/clientJS/util.js"></script>
     <script src="/public/clientJS/eventPage.js"></script>
+    <script src="/public/clientJS/polling.js"></script>
 
     <%- include('../../partials/footer.ejs') %>
