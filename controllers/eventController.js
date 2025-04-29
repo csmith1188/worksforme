@@ -179,8 +179,16 @@ async function vote(req, res) {
     const { pollID, optionID, userID } = req.body;
 
     try {
-        await pollService.addVote(pollID, optionID, userID);
-        res.status(200).send('Vote recorded successfully');
+        const existingVote = await pollService.getUserVote(pollID, userID);
+
+        if (existingVote) {
+            await pollService.updateVote(existingVote.vote_id, optionID);
+        } else {
+            await pollService.addVote(pollID, optionID, userID);
+        }
+
+        const updatedPoll = await pollService.getPollByID(pollID); // Fetch updated poll data
+        res.status(200).json(updatedPoll);
     } catch (error) {
         console.error('Error voting:', error);
         res.status(500).send('Internal Server Error');

@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../util/dbAsyncWrapper');
-const auth = require('../middleware/auth');
-const eventController = require('../controllers/eventController');
+const eventController = require('../controllers/eventController.js');
+const auth = require('../middleware/auth.js');
 
 router.get('/events', auth, eventController.events);
 
@@ -19,5 +18,7 @@ router.post('/invite', auth, eventController.invite);
 router.post('/calculateDate/:eventID', auth, eventController.calculateDate);
 
 router.post('/createPoll', eventController.createPoll);
+
+router.post('/vote', eventController.vote);
 
 module.exports = router;

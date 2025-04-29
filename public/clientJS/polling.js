@@ -26,7 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (response.ok) {
-            alert('Poll created successfully!');
             location.reload();
         } else {
             const errorText = await response.text();
@@ -49,7 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (response.ok) {
-                alert('Vote recorded successfully!');
                 location.reload();
             } else {
                 const errorText = await response.text();

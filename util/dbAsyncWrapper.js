@@ -1,5 +1,8 @@
 const sqlite3 = require('sqlite3').verbose();
 
+const dbPath = process.env.DB_PATH || './database.db';
+const db = new sqlite3.Database(dbPath);
+
 function wrapDb(db) {
     return {
         run(sql, params = []) {
@@ -38,7 +41,6 @@ function wrapDb(db) {
     };
 }
 
-const db = new sqlite3.Database(process.env.DB_PATH);
 db.serialize(() => {
     db.run("PRAGMA foreign_keys = ON;");
 });
