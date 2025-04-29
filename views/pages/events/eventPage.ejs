@@ -60,13 +60,8 @@
 
                         <div class="message-board">
                             <h2>Message Board</h2>
-                            <form action="/event/<%= event.uid %>/addMessageBoard" method="POST">
-                                <label for="board-name">Board Name:</label><br>
-                                <input type="text" id="board-name" name="name" placeholder="Enter board name" required><br><br>
-                                <button type="submit" class="headerButton">Add Message Board</button>
-
-                                
-                            </form>
+                            <a href="/event/createEventMB"><button class="headerButton">Create A Message Board</button></a>
+                            
                         </div>
 
                     </center>

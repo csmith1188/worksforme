@@ -8,6 +8,8 @@ router.get('/events', auth, eventController.events);
 
 router.get('/createEvent', auth, eventController.createEvent);
 
+router.get('/createEventMB', auth, eventController.createMB);
+
 router.get('/eventPage/:aEvent', auth, eventController.eventPage);
 
 router.post('/eventPage/:aEvent', auth, eventController.postEventPage);
@@ -15,6 +17,8 @@ router.post('/eventPage/:aEvent', auth, eventController.postEventPage);
 router.post('/event/:aEvent/addMessageBoard', auth, eventController.addMessageBoard);
 
 router.post('/createEvent', auth, eventController.postCreateEvent);
+
+router.post('/createEventMB', auth, eventController.postCreateMB);
 
 router.post('/invite', auth, eventController.invite);
 

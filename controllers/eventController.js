@@ -4,6 +4,7 @@ const memberHandle = require('../services/memberHandle.js');
 const messageService = require('../services/messageService.js');
 const messageBoardService = require('../services/messageBoardService.js');
 const { MEMBER, ADMIN, OWNER } = require('../middleware/consts.js');
+const { name } = require('ejs');
 
 async function events(req, res) {
     const userUID = req.session.user.uid;
@@ -25,6 +26,10 @@ async function events(req, res) {
 
 async function createEvent(req, res) {
     res.render('pages/events/createEvent');
+}
+
+async function createMB(req, res) {
+    res.render('pages/events/createEventMB');
 }
 
 async function eventPage(req, res) {
@@ -82,6 +87,20 @@ async function postCreateEvent(req, res) {
     res.redirect('/event/events');
 }
 
+async function postCreateMB(req, res) {
+    const { name } = req.body;
+    const eventUID = req.params.aEvent; // Get the event UID from the route parameter
+
+    try {
+        // Create the message board and associate it with the event
+        await messageBoardService.createMB(eventUID, name);
+        res.redirect(`/event/eventPage/${eventUID}`);
+    } catch (error) {
+        console.error('Error creating message board:', error);
+        res.status(500).send('Internal Server Error');
+    }
+}
+
 async function addMessageBoard(req, res) {
     const { name } = req.body;
     const eventUID = req.params.aEvent; // Get the event UID from the route parameter
@@ -95,13 +114,6 @@ async function addMessageBoard(req, res) {
         console.error('Error adding message board:', error);
         res.status(500).send('Internal Server Error');
     }
-}
-
-async function postCreateMB(req, res) {
-    const { name } = req.body;
-    const uid = crypto.randomUUID();
-    await messageBoardService.createMB(uid, name);
-    res.redirect('/event/events');
 }
 
 async function invite(req, res) {
@@ -169,6 +181,7 @@ async function calculateDate(req, res) {
 module.exports = {
     events,
     createEvent,
+    createMB,
     eventPage,
     postEventPage,
     postCreateEvent,

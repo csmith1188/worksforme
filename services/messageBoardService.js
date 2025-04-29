@@ -15,16 +15,15 @@ async function getEventMBbyeventUID(eventUID) {
     return await db.all(sql, [eventUID]);
 }
 
-async function createMB(uid, name, eventUID) {
-    const sql = 'INSERT INTO message_boards (uid, name, event_uid) VALUES (?, ?, ?)';
-    const params = [uid, name, eventUID];
+async function createMB(title) {
+    const sql = 'INSERT INTO message_boards (title) VALUES (?)';
+    const params = [title];
     return await db.run(sql, params);
 }
 
 async function getEventsMC() {
     const sql = 'SELECT * FROM message_boards';
     return await db.all(sql);
-    
 }
 
 async function getEventMCByUID(uid) {
