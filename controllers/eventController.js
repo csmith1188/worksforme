@@ -33,15 +33,17 @@ async function createMB(req, res) {
 }
 
 async function eventPage(req, res) {
-    //stuff to get events
-    const aEvent = req.params.aEvent;
-    const event = await eventService.getEventByUID(aEvent);
+    const aEvent = req.params.aEvent; // Get the event UID from the route parameter
+    const event = await eventService.getEventByUID(aEvent); // Fetch the event details
 
+    // Check the user's permission for the event
     const permission = await memberHandle.getMemberPermission(aEvent, req.session.user.uid);
     const isOwner = permission.permission === OWNER;
 
+    // Fetch message boards associated with the event
     const messageBoards = await messageBoardService.getEventMBbyeventUID(aEvent);
 
+    // Render the event page with the event details and message boards
     res.render('pages/events/eventPage', { event, isOwner, messageBoards });
 }
     
@@ -88,17 +90,7 @@ async function postCreateEvent(req, res) {
 }
 
 async function postCreateMB(req, res) {
-    const { name } = req.body;
-    const eventUID = req.params.aEvent; // Get the event UID from the route parameter
 
-    try {
-        // Create the message board and associate it with the event
-        await messageBoardService.createMB(eventUID, name);
-        res.redirect(`/event/eventPage/${eventUID}`);
-    } catch (error) {
-        console.error('Error creating message board:', error);
-        res.status(500).send('Internal Server Error');
-    }
 }
 
 async function addMessageBoard(req, res) {

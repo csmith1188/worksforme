@@ -61,7 +61,18 @@
                         <div class="message-board">
                             <h2>Message Board</h2>
                             <a href="/event/createEventMB"><button class="headerButton">Create A Message Board</button></a>
-                            
+                            <% if (messageBoards && messageBoards.length > 0) { %>
+                                <ul>
+                                    <% messageBoards.forEach(function(board) { %>
+                                        <li>
+                                            <h3><%= board.title %></h3>
+                                            <p>Board ID: <%= board.uid %></p>
+                                        </li>
+                                    <% }); %>
+                                </ul>
+                            <% } else { %>
+                                <p>No message boards available for this event.</p>
+                            <% } %>
                         </div>
 
                     </center>

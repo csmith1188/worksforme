@@ -110,3 +110,11 @@
     justify-content: space-between;
     align-items: center;
 }
+
+.message-board ul {
+    list-style-type: none; /*kills that stupid ah dot that would normally be there*/
+}
+
+.message-board li {
+    margin-bottom: 10px;
+}
