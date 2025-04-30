@@ -1,5 +1,7 @@
 const personalCalendarService = require('../services/personalCalendarService');
 
+let oauth2Client = require('../services/googleAuthClient.js');
+
 async function getCalendarData(req, res) {
     const userUID = req.session.user.uid;
     const calendarMap = await personalCalendarService.getUserCalendar(userUID);
@@ -24,8 +26,29 @@ async function importGoogleCalendar(req, res) {
         return res.status(403).send("User not logged in with Google.");
     }
 
-    
-    res.send(calendarObject);
+    try {
+        oauth2Client.setCredentials({
+            access_token: req.session.user.google_access_token,
+            refresh_token: req.session.user.google_refresh_token
+        });
+
+        const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+
+        const events = await calendar.events.list({
+            calendarId: 'primary',
+            timeMin: (new Date()).toISOString(),
+            maxResults: 10,
+            singleEvents: true,
+            orderBy: 'startTime',
+        });
+
+        res.json(events.data.items);
+    } catch (error) {
+        res.status(500).send('Error retrieving calendar events');
+    }
+
+    res.send(200);
+    //res.send(calendarObject);
 }
 
 module.exports = {
