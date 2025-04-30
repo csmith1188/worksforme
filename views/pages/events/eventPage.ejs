@@ -21,7 +21,7 @@
                     <button class="inviteIcon" id="invite-button"></button>
                     <button class="editIcon" id="edit-button"></button>
                 </div>
-            <% } %>
+                <% } %>
 
                     <center>
                         <h1>
@@ -40,7 +40,7 @@
                         <% if (isOwner) { %>
 
                             <br><br>
-                            
+
                             <div class="date-selection-container">
                                 <label for="min-date">Min Date: </label>
                                 <input type="date" id="min-date">
@@ -55,30 +55,32 @@
                                 <button id="calculate-date-btn">Calculate Optimal Date</button>
 
                             </div>
-                            
-                        <% } %>
 
-                        <div class="message-board">
-                            <h2>Message Board</h2>
-                            <a href="/event/createEventMB"><button class="headerButton">Create A Message Board</button></a>
-                            <% if (messageBoards && messageBoards.length > 0) { %>
-                                <ul>
-                                    <% messageBoards.forEach(function(board) { %>
-                                        <li>
-                                            <h3><%= board.title %></h3>
-                                            <p>Board ID: <%= board.uid %></p>
-                                        </li>
-                                    <% }); %>
-                                </ul>
-                            <% } else { %>
-                                <p>No message boards available for this event.</p>
                             <% } %>
-                        </div>
+
+                                <div class="message-board">
+                                    <h2>Message Board</h2>
+                                    <a href="/event/createEventMB"><button class="headerButton">Create A Message Board</button></a>
+                                    <% if (messageBoards && messageBoards.length> 0) { %>
+                                        <ul>
+                                            <% messageBoards.forEach(function(board) { %>
+                                                <li>
+                                                    <div class="board-name">
+                                                        <h3><%= board.title %></h3>
+                                                        <p>Board ID: <%= board.uid %></p>
+                                                    </div>
+                                                </li>
+                                                <% }); %>
+                                        </ul>
+                                        <% } else { %>
+                                            <p>No message boards available for this event.</p>
+                                            <% } %>
+                                </div>
 
                     </center>
         </div>
     </div>
-    
+
     <script>
         const eventdata = JSON.parse('<%- JSON.stringify(event) %>');
     </script>
