@@ -28,7 +28,6 @@ async function importGoogleCalendar(req, res) {
 
     try {
         oauth2Client.setCredentials({
-            access_token: req.session.user.google_access_token,
             refresh_token: req.session.user.google_refresh_token
         });
 
@@ -42,13 +41,13 @@ async function importGoogleCalendar(req, res) {
             orderBy: 'startTime',
         });
 
+        console.log(events.data.items);
+
         res.json(events.data.items);
     } catch (error) {
         res.status(500).send('Error retrieving calendar events');
     }
 
-    res.send(200);
-    //res.send(calendarObject);
 }
 
 module.exports = {
