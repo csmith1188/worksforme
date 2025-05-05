@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
     prevWeekButton = document.getElementById('prev-week-btn');
     nextWeekButton = document.getElementById('next-week-btn');
     saveButton = document.getElementById('save-btn');
+    importGoogleButton = document.getElementById('import-google-btn');
 
     // no go back in time
     dateSelect.min = dayjs().format(dateFormat);
@@ -95,6 +96,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     saveButton.addEventListener('click', function() {
         saveChangesToDB();
+    });
+
+    importGoogleButton.addEventListener('click', function() {
+        importGoogleCalendar();
     });
 
     grid.addEventListener('contextmenu', function(e) {

@@ -1,6 +1,6 @@
+const { google } = require('googleapis');
 const personalCalendarService = require('../services/personalCalendarService');
-
-let oauth2Client = require('../services/googleAuthClient.js');
+const googleHelper = require('../util/googleWrapper');
 
 async function getCalendarData(req, res) {
     const userUID = req.session.user.uid;
@@ -27,10 +27,11 @@ async function importGoogleCalendar(req, res) {
     }
 
     try {
-        oauth2Client.setCredentials({
+        /*oauth2Client.setCredentials({
             refresh_token: req.session.user.google_refresh_token
-        });
+        });*/
 
+        const oauth2Client = googleHelper.getOAuthClient(req.session.user.google_refresh_token);
         const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
         const events = await calendar.events.list({
@@ -52,5 +53,6 @@ async function importGoogleCalendar(req, res) {
 
 module.exports = {
     getCalendarData,
-    saveCalendarData
+    saveCalendarData,
+    importGoogleCalendar
 };

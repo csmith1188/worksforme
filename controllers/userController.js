@@ -4,13 +4,13 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const sanitizeInput = require('../util/sanitizeInput');
+const googleWrapper= require('../util/googleWrapper.js');
 const { MEMBER, OWNER, ADMIN } = require('../middleware/consts.js');
 
 const userService = require('../services/userService.js');
 const { getUserByUsernameOrEmail, registerUser } = require('../services/userService.js');
 const notifservice = require('../services/notifService.js');
 const memberHandle = require('../services/memberHandle.js');
-let oauth2Client = require('../services/googleAuthClient.js');
 
 //Load login rules
 const loginRulesPath = path.join(__dirname, '../rules/loginRules.json');
@@ -54,17 +54,7 @@ async function formbar(req, res, next) {
 }
 
 async function googleLogin(req, res) {
-
-    const url = oauth2Client.generateAuthUrl({
-        access_type: 'offline',
-        scope: [
-          'openid',
-          'profile',
-          'email',
-          'https://www.googleapis.com/auth/calendar'
-        ]
-    });
-
+    const url = googleWrapper.getAuthUrl();
     res.redirect(url);
 }
 
@@ -72,6 +62,7 @@ async function googleLoginCallback(req, res) {
     const { code } = req.query;
 
     try {
+        let oauth2Client = googleHelper.getOAuthClient();
         const { tokens } = await oauth2Client.getToken(code);
         oauth2Client.setCredentials(tokens);
 
