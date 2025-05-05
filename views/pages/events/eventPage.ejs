@@ -66,9 +66,13 @@
                                             <% messageBoards.forEach(function(board) { %>
                                                 <li>
                                                     <div class="board-name">
-                                                        <h3><%= board.title %></h3>
-                                                        <p>Board ID: <%= board.uid %></p>
+                                                        <h3 class="black-text"><%= board.title %></h3>
+                                                        <p class="black-text">Board ID: <%= board.uid %></p>
+                                                        <div class="messages">
+                                                            <!-- Messages will go here -->
+                                                        </div>
                                                     </div>
+                                                    
                                                 </li>
                                                 <% }); %>
                                         </ul>
