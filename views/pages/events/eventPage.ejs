@@ -60,19 +60,23 @@
 
                                 <div class="message-board">
                                     <h2>Message Board</h2>
-                                    <a href="/event/createEventMB"><button class="headerButton">Create A Message Board</button></a>
+                                    <a href="/event/createEventMB"><button class="headerButton">Create A Message
+                                            Board</button></a>
                                     <% if (messageBoards && messageBoards.length> 0) { %>
                                         <ul>
                                             <% messageBoards.forEach(function(board) { %>
                                                 <li>
                                                     <div class="board-name">
-                                                        <h3 class="black-text"><%= board.title %></h3>
-                                                        <p class="black-text">Board ID: <%= board.uid %></p>
+                                                        <h3 class="black-text">
+                                                            <%= board.title %>
+                                                        </h3>
+                                                        <p class="black-text">Board ID: <%= board.uid %>
+                                                        </p>
                                                         <div class="messages">
-                                                            <p onclick=""><!--dropdown into messages--></p>
+                                                            
                                                         </div>
                                                     </div>
-                                                    
+
                                                 </li>
                                                 <% }); %>
                                         </ul>
@@ -92,7 +96,7 @@
     <script>
         const eventdata = JSON.parse('<%- JSON.stringify(event) %>');
 
-        var messagesDiv = document.getElementById('messages');
+        var messagesDiv = document.getElementsByClassName('messages');
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     </script>
     <script src="/public/clientJS/dayjs.min.js"></script>
