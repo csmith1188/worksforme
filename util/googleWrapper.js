@@ -7,7 +7,7 @@ const SCOPES = [
     'https://www.googleapis.com/auth/calendar'
 ];
 
-function getOAuthClient(refreshToken = null) {
+function createOAuthClient(refreshToken = null) {
     const client = new google.auth.OAuth2(
         process.env.GOOGLE_CLIENT_ID,
         process.env.GOOGLE_CLIENT_SECRET,
@@ -24,7 +24,7 @@ function getOAuthClient(refreshToken = null) {
 }
 
 function getAuthUrl(oauth2Client = null) {
-    let client = (oauth2Client) ? oauth2Client : getOAuthClient();
+    let client = (oauth2Client) ? oauth2Client : createOAuthClient();
     return client.generateAuthUrl({
         access_type: 'offline',
         scope: SCOPES
@@ -32,5 +32,6 @@ function getAuthUrl(oauth2Client = null) {
 }
 
 module.exports = {
-    getOAuthClient
+    createOAuthClient,
+    getAuthUrl,
 }

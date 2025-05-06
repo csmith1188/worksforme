@@ -27,10 +27,10 @@ function decrypt(text) {
 
 // User functions
 // TODO make params not hardcoded
-async function registerUser(fbID, username, email, password, salt, googleID){
+async function registerUser(fbID, username, email, password, salt, googleID, googleRefreshToken) {
     let lastID = await db.run(
-        'INSERT INTO users (fb_id, google_id, username, email, password, salt) VALUES(?,?,?,?,?,?);', 
-        [fbID, googleID, username, email, password, salt]
+        'INSERT INTO users (fb_id, google_id, google_refresh_token, username, email, password, salt) VALUES(?,?,?,?,?,?,?);', 
+        [fbID, googleID, googleRefreshToken, username, email, password, salt]
     );
     return await db.get('SELECT * FROM users WHERE uid = ?;', [lastID.lastID]);
 }

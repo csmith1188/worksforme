@@ -62,7 +62,7 @@ async function googleLoginCallback(req, res) {
     const { code } = req.query;
 
     try {
-        let oauth2Client = googleHelper.getOAuthClient();
+        let oauth2Client = googleWrapper.createOAuthClient();
         const { tokens } = await oauth2Client.getToken(code);
         oauth2Client.setCredentials(tokens);
 
@@ -74,7 +74,7 @@ async function googleLoginCallback(req, res) {
         const payload = ticket.getPayload();
         const email = payload.email;
         const name = payload.name;
-        const id = payload.sub;
+        const googleID = payload.sub;
         const refreshToken = tokens.refresh_token;
 
         // Check if user exists in your database
@@ -82,7 +82,7 @@ async function googleLoginCallback(req, res) {
 
         if (!user) {
             // Register new user
-            user = await userService.registerUser(null, payload.name, email, null, null, id, refreshToken);
+            user = await userService.registerUser(null, payload.name, email, null, null, googleID, refreshToken);
         }
 
         req.session.user = user;

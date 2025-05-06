@@ -81,16 +81,19 @@ document.addEventListener('DOMContentLoaded', function() {
     loadCalendarFromDB();
 
     dateSelect.addEventListener('change', function() {
+        clearGrid();
         setWeek(dayjs(dateSelect.value));
     });
 
     prevWeekButton.addEventListener('click', function() {
         saveWeek(selectedDate);
+        clearGrid();
         setWeek(selectedDate.subtract(1, 'week'));
     });
 
     nextWeekButton.addEventListener('click', function() {
         saveWeek(selectedDate);
+        clearGrid();
         setWeek(selectedDate.add(1, 'week'));
     });
 
@@ -368,16 +371,45 @@ function importGoogleCalendar(){
         .then(response => response.json())
         .then(data => {
 
-            let googleCalendar = new Map(Object.entries(data));
+            userCalendar.forEach((blocks, date) => {
+                userCalendar.set(date, blocks.filter(block => block.imported !== true));
+                if (userCalendar.get(date).length === 0) {
+                    userCalendar.delete(date);
+                }
+            });
+
+            let googleCalendar = new Map();
+
+            data.forEach(event => {
+                
+                let date = dayjs(event.start.dateTime).format(dateFormat);
+                let start = dayjs(event.start.dateTime).hour() * 60 + dayjs(event.start.dateTime).minute();
+                let end = dayjs(event.end.dateTime).hour() * 60 + dayjs(event.end.dateTime).minute();
+                
+                if (!googleCalendar.has(date)) {
+                    googleCalendar.set(date, []);
+                }
+
+                let blockData = {
+                    start: start,
+                    end: end,
+                    uid: null,
+                    imported: true
+                }
+
+                googleCalendar.get(date).push(blockData);
+                editList.createdBlocks.add(blockData);
+
+            });
 
             // merge the existing calendar with the google calendar
-            userCalendar = [...userCalendar, ...googleCalendar];
-            
+            userCalendar = new Map([...userCalendar, ...googleCalendar]);
+
             clearGrid();
             initCalendar(userCalendar);
             
         })
-        .catch(error => alert('Failed to load calendar'));
+        .catch(error => "Failed to load Google calendar");
 }
 
 // saves changes to database
@@ -495,7 +527,7 @@ function setWeek(date){
         dayHeaders[i].querySelector('.date-text').innerText = startOfWeek.add(i, 'day').format('D');
     }
 
-    clearGrid();
+    //clearGrid();
     loadWeek(date, userCalendar);
 
 }
@@ -572,7 +604,23 @@ function addTimeBlockToDayColumn(dayIndex, timeBlock){
     // update the timeblock date
     const newDate = selectedDate.startOf('week').add(dayIndex, 'day').format(dateFormat);
     let timeBlockData = timeBlockMap.get(timeBlock);
+    let oldDate = timeBlockData.date;
     timeBlockData.date = newDate;
+
+    let oldBlockIndex = userCalendar.get(oldDate).indexOf(timeBlockData);
+
+    // update in user calendar if it exists
+    if (oldBlockIndex !== -1) {
+
+        userCalendar.get(oldDate).splice(oldBlockIndex, 1);
+
+        if (!userCalendar.has(newDate)) {
+            userCalendar.set(newDate, []);
+        }
+
+        userCalendar.get(newDate).push(timeBlockData);
+    
+    }
 
     updateTimeBlock(timeBlock, false);
 }
@@ -582,7 +630,7 @@ function updateTimeBlockText(timeBlock) {
     timeBlock.querySelector('.time-block-text').innerText = `${timeBlockTime.startTimeString} - ${timeBlockTime.endTimeString}`;
 }
 
-function createTimeBlock(uid = null, log = false){
+function createTimeBlock(uid = null, log = false, imported = false){
 
     let newBlock = document.createElement('div');
     newBlock.classList.add('time-block');
@@ -592,7 +640,8 @@ function createTimeBlock(uid = null, log = false){
         uid: uid,
         date: null,
         start: null,
-        end: null
+        end: null,
+        imported: imported
     };
 
     timeBlockMap.set(newBlock, newBlockData);

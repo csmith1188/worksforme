@@ -22,7 +22,7 @@ async function saveCalendarData(req, res) {
 
 async function importGoogleCalendar(req, res) {
 
-    if (!req.session.user.googleID) {
+    if (!req.session.user.google_id) {
         return res.status(403).send("User not logged in with Google.");
     }
 
@@ -31,21 +31,20 @@ async function importGoogleCalendar(req, res) {
             refresh_token: req.session.user.google_refresh_token
         });*/
 
-        const oauth2Client = googleHelper.getOAuthClient(req.session.user.google_refresh_token);
+        const oauth2Client = googleHelper.createOAuthClient(req.session.user.google_refresh_token);
+
         const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
         const events = await calendar.events.list({
             calendarId: 'primary',
             timeMin: (new Date()).toISOString(),
-            maxResults: 10,
             singleEvents: true,
-            orderBy: 'startTime',
+            maxResults: 10,
         });
-
-        console.log(events.data.items);
 
         res.json(events.data.items);
     } catch (error) {
+        console.log(error);
         res.status(500).send('Error retrieving calendar events');
     }
 
