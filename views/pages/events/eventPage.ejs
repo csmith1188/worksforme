@@ -69,7 +69,7 @@
                                                         <h3 class="black-text"><%= board.title %></h3>
                                                         <p class="black-text">Board ID: <%= board.uid %></p>
                                                         <div class="messages">
-                                                            <!-- Messages will go here -->
+                                                            <p onclick=""><!--dropdown into messages--></p>
                                                         </div>
                                                     </div>
                                                     
@@ -85,8 +85,15 @@
         </div>
     </div>
 
+    <form action="/event/eventPage/<%= event.uid %>" method="post">
+        <input type="text" name="message" placeholder="type a message">
+        <input type="submit" value="send">
+    </form>
     <script>
         const eventdata = JSON.parse('<%- JSON.stringify(event) %>');
+
+        var messagesDiv = document.getElementById('messages');
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
     </script>
     <script src="/public/clientJS/dayjs.min.js"></script>
     <script src="/public/clientJS/util.js"></script>
