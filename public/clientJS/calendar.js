@@ -381,20 +381,24 @@ function importGoogleCalendar(){
             let googleCalendar = new Map();
 
             data.forEach(event => {
-                
+
+                //todo fixy
+
                 let date = dayjs(event.start.dateTime).format(dateFormat);
                 let start = dayjs(event.start.dateTime).hour() * 60 + dayjs(event.start.dateTime).minute();
                 let end = dayjs(event.end.dateTime).hour() * 60 + dayjs(event.end.dateTime).minute();
-                
-                if (!googleCalendar.has(date)) {
-                    googleCalendar.set(date, []);
-                }
 
                 let blockData = {
                     start: start,
                     end: end,
                     uid: null,
                     imported: true
+                }
+
+                console.log(dayjs(event.start.dateTime).hour() + ':' + dayjs(event.start.dateTime).minute());
+
+                if (!googleCalendar.has(date)) {
+                    googleCalendar.set(date, []);
                 }
 
                 googleCalendar.get(date).push(blockData);
@@ -409,7 +413,7 @@ function importGoogleCalendar(){
             initCalendar(userCalendar);
             
         })
-        .catch(error => "Failed to load Google calendar");
+        .catch(error => alert("Failed to load Google calendar"));
 }
 
 // saves changes to database
@@ -604,23 +608,7 @@ function addTimeBlockToDayColumn(dayIndex, timeBlock){
     // update the timeblock date
     const newDate = selectedDate.startOf('week').add(dayIndex, 'day').format(dateFormat);
     let timeBlockData = timeBlockMap.get(timeBlock);
-    let oldDate = timeBlockData.date;
     timeBlockData.date = newDate;
-
-    let oldBlockIndex = userCalendar.get(oldDate).indexOf(timeBlockData);
-
-    // update in user calendar if it exists
-    if (oldBlockIndex !== -1) {
-
-        userCalendar.get(oldDate).splice(oldBlockIndex, 1);
-
-        if (!userCalendar.has(newDate)) {
-            userCalendar.set(newDate, []);
-        }
-
-        userCalendar.get(newDate).push(timeBlockData);
-    
-    }
 
     updateTimeBlock(timeBlock, false);
 }

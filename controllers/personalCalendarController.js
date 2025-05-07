@@ -1,6 +1,7 @@
 const { google } = require('googleapis');
 const personalCalendarService = require('../services/personalCalendarService');
-const googleHelper = require('../util/googleWrapper');
+const googleWrapper = require('../util/googleWrapper');
+const dayjs = require('dayjs');
 
 async function getCalendarData(req, res) {
     const userUID = req.session.user.uid;
@@ -27,20 +28,18 @@ async function importGoogleCalendar(req, res) {
     }
 
     try {
-        /*oauth2Client.setCredentials({
-            refresh_token: req.session.user.google_refresh_token
-        });*/
 
-        const oauth2Client = googleHelper.createOAuthClient(req.session.user.google_refresh_token);
+        const oauth2Client = googleWrapper.createOAuthClient(req.session.user.google_refresh_token);
 
         const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
         const events = await calendar.events.list({
             calendarId: 'primary',
-            timeMin: (new Date()).toISOString(),
+            timeMin: dayjs().startOf('week').toISOString(),
             singleEvents: true,
-            maxResults: 10,
         });
+
+        console.log(events.data.items.map(event => event.start));
 
         res.json(events.data.items);
     } catch (error) {

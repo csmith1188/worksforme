@@ -27,6 +27,8 @@ function getAuthUrl(oauth2Client = null) {
     let client = (oauth2Client) ? oauth2Client : createOAuthClient();
     return client.generateAuthUrl({
         access_type: 'offline',
+        prompt: 'consent',
+        q: '-birthday', // NO MORE BIRTHDAY
         scope: SCOPES
     });
 }
