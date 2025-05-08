@@ -17,6 +17,7 @@ async function saveCalendarData(req, res) {
         await personalCalendarService.saveUserCalendar(userUID, editList.createdBlocks, editList.editedBlocks, editList.deletedBlockUIDs);
         res.sendStatus(200);
     } catch (error) {
+        console.error("Error saving calendar data:", error);
         res.sendStatus(500);
     }
 }
@@ -36,6 +37,7 @@ async function importGoogleCalendar(req, res) {
         const events = await calendar.events.list({
             calendarId: 'primary',
             timeMin: dayjs().startOf('week').toISOString(),
+            q: "-birthday", // NO BIRTHDAY
             singleEvents: true,
         });
 

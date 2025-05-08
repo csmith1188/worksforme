@@ -28,7 +28,6 @@ function getAuthUrl(oauth2Client = null) {
     return client.generateAuthUrl({
         access_type: 'offline',
         prompt: 'consent',
-        q: '-birthday', // NO MORE BIRTHDAY
         scope: SCOPES
     });
 }

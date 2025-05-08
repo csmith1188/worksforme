@@ -43,8 +43,10 @@ let selectedDate = dayjs();
 let editList = {
     createdBlocks: new Set(),
     editedBlocks: new Set(),
-    deletedBlockUIDs: new Set()
+    deletedBlockUIDs: new Set(),
 };
+
+let importedBlocks = new Set(); // blocks imported from google calendar
 
 // associates timeblock elements with their data
 let timeBlockMap = new Map();
@@ -86,9 +88,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     prevWeekButton.addEventListener('click', function() {
+
+        let newWeek = dayjs(selectedDate).subtract(1, 'week');
+        // no go back in time
+        if (newWeek.startOf('week').isBefore(dayjs().startOf('week'))) return;
         saveWeek(selectedDate);
         clearGrid();
-        setWeek(selectedDate.subtract(1, 'week'));
+        setWeek(newWeek);
     });
 
     nextWeekButton.addEventListener('click', function() {
@@ -371,8 +377,9 @@ function importGoogleCalendar(){
         .then(response => response.json())
         .then(data => {
 
+            // remove all previously imported blocks
             userCalendar.forEach((blocks, date) => {
-                userCalendar.set(date, blocks.filter(block => block.imported !== true));
+                userCalendar.set(date, blocks.filter(block => !block.googleID));
                 if (userCalendar.get(date).length === 0) {
                     userCalendar.delete(date);
                 }
@@ -382,20 +389,33 @@ function importGoogleCalendar(){
 
             data.forEach(event => {
 
-                //todo fixy
+                let date;
+                let start;
+                let end;
 
-                let date = dayjs(event.start.dateTime).format(dateFormat);
-                let start = dayjs(event.start.dateTime).hour() * 60 + dayjs(event.start.dateTime).minute();
-                let end = dayjs(event.end.dateTime).hour() * 60 + dayjs(event.end.dateTime).minute();
+                // if event is all day event
+                if (event.start.date) {
+                    
+                    date = dayjs(event.start.date).format(dateFormat);
+                    start = 0;
+                    end = 24 * 60; // 24 hours in minutes
+
+                // normal ahh event
+                } else {
+
+                    date = dayjs(event.start.dateTime).format(dateFormat);
+                    start = dayjs(event.start.dateTime).hour() * 60 + dayjs(event.start.dateTime).minute();
+                    end = dayjs(event.end.dateTime).hour() * 60 + dayjs(event.end.dateTime).minute();
+            
+                }
 
                 let blockData = {
+                    date: date,
                     start: start,
                     end: end,
                     uid: null,
-                    imported: true
+                    googleID: event.id,
                 }
-
-                console.log(dayjs(event.start.dateTime).hour() + ':' + dayjs(event.start.dateTime).minute());
 
                 if (!googleCalendar.has(date)) {
                     googleCalendar.set(date, []);
@@ -403,6 +423,8 @@ function importGoogleCalendar(){
 
                 googleCalendar.get(date).push(blockData);
                 editList.createdBlocks.add(blockData);
+                importedBlocks.add(blockData);
+                unsavedChanges = true;
 
             });
 
@@ -429,7 +451,7 @@ function saveChangesToDB(){
         body: JSON.stringify({
             createdBlocks: Array.from(editList.createdBlocks),
             editedBlocks: Array.from(editList.editedBlocks),
-            deletedBlockUIDs: Array.from(editList.deletedBlockUIDs)
+            deletedBlockUIDs: Array.from(editList.deletedBlockUIDs),
         })
     })
     .then(response => {
@@ -516,9 +538,6 @@ function loadWeek(date, calendarMap){
 
 // sets the UI for the week and loads week data
 function setWeek(date){
-
-    // no go back in time
-    if (date.startOf('week').isBefore(dayjs().startOf('week'))) return;
 
     selectedDate = dayjs(date);
 
