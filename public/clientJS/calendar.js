@@ -46,8 +46,6 @@ let editList = {
     deletedBlockUIDs: new Set(),
 };
 
-let importedBlocks = new Set(); // blocks imported from google calendar
-
 // associates timeblock elements with their data
 let timeBlockMap = new Map();
 
@@ -156,7 +154,7 @@ function onPointerDown(e){
 
         targetColumn = e.target.parentElement.parentElement;
 
-        newBlock = createTimeBlock(null, true);
+        newBlock = createTimeBlock(true, null);
 
         // only able to resize while creating on desktop, since you need to be able to scroll on mobile
         if (!isTouch) resizingBlock = newBlock;
@@ -377,16 +375,6 @@ function importGoogleCalendar(){
         .then(response => response.json())
         .then(data => {
 
-            // remove all previously imported blocks
-            userCalendar.forEach((blocks, date) => {
-                userCalendar.set(date, blocks.filter(block => !block.googleID));
-                if (userCalendar.get(date).length === 0) {
-                    userCalendar.delete(date);
-                }
-            });
-
-            let googleCalendar = new Map();
-
             data.forEach(event => {
 
                 let date;
@@ -409,33 +397,13 @@ function importGoogleCalendar(){
             
                 }
 
-                let blockData = {
-                    date: date,
-                    start: start,
-                    end: end,
-                    uid: null,
-                    googleID: event.id,
-                }
-
-                if (!googleCalendar.has(date)) {
-                    googleCalendar.set(date, []);
-                }
-
-                googleCalendar.get(date).push(blockData);
-                editList.createdBlocks.add(blockData);
-                importedBlocks.add(blockData);
-                unsavedChanges = true;
+                // create the block
+                let newBlock = createTimeBlock(true, null, date, start, end, event.id);
 
             });
-
-            // merge the existing calendar with the google calendar
-            userCalendar = new Map([...userCalendar, ...googleCalendar]);
-
-            clearGrid();
-            initCalendar(userCalendar);
             
         })
-        .catch(error => alert("Failed to load Google calendar"));
+        .catch(error => alert(error));
 }
 
 // saves changes to database
@@ -521,7 +489,7 @@ function loadWeek(date, calendarMap){
 
         timeBlocks.forEach(timeBlockData => {
 
-            let newBlock = createTimeBlock(timeBlockData.uid, false);
+            let newBlock = createTimeBlock(false, timeBlockData.uid, timeBlockData.date, timeBlockData.start, timeBlockData.end, timeBlockData.googleID);
 
             const startPx = Math.floor(timeBlockData.start / 15) * pxPer15Mins;
             const endPx = Math.floor(timeBlockData.end / 15) * pxPer15Mins;
@@ -637,7 +605,7 @@ function updateTimeBlockText(timeBlock) {
     timeBlock.querySelector('.time-block-text').innerText = `${timeBlockTime.startTimeString} - ${timeBlockTime.endTimeString}`;
 }
 
-function createTimeBlock(uid = null, log = false, imported = false){
+function createTimeBlock(log = false, uid = null, date = null, start = null, end = null, googleID = null) {
 
     let newBlock = document.createElement('div');
     newBlock.classList.add('time-block');
@@ -645,10 +613,10 @@ function createTimeBlock(uid = null, log = false, imported = false){
 
     let newBlockData = {
         uid: uid,
-        date: null,
-        start: null,
-        end: null,
-        imported: imported
+        date: date,
+        start: start,
+        end: end,
+        googleID: googleID
     };
 
     timeBlockMap.set(newBlock, newBlockData);
@@ -657,6 +625,22 @@ function createTimeBlock(uid = null, log = false, imported = false){
         editList.createdBlocks.add(newBlockData);
         unsavedChanges = true;
     }
+
+    if (date) {
+        let dayIndex = dayjs(date).day();
+        addTimeBlockToDayColumn(dayIndex, newBlock);
+    }
+
+    if (start && end) {
+        const startPx = Math.floor(start / 15) * pxPer15Mins;
+        const endPx = Math.floor(end / 15) * pxPer15Mins;
+
+        newBlock.style.top = startPx + 'px';
+        newBlock.style.height = (endPx - startPx) + 'px';
+    }
+
+    // set the text
+    updateTimeBlockText(newBlock);
 
     return newBlock;
 }
@@ -694,6 +678,7 @@ function deleteTimeBlock(timeBlock, log = false){
     }
 
     // delete all instances
+    // if it's not there, don't worry about it
     editList.createdBlocks.delete(timeBlockData);
     editList.editedBlocks.delete(timeBlockData);
 
