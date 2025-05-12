@@ -41,8 +41,6 @@ async function importGoogleCalendar(req, res) {
             singleEvents: true,
         });
 
-        console.log(events.data.items.map(event => event.start));
-
         res.json(events.data.items);
     } catch (error) {
         console.log(error);

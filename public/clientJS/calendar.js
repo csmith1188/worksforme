@@ -49,6 +49,10 @@ let editList = {
 // associates timeblock elements with their data
 let timeBlockMap = new Map();
 
+// to keep track of which timeblocks have been imported from google calendar
+// maps time block data to google calendar event id
+let importedTimeBlocks = new Map();
+
 let unsavedChanges = false;
 
 let lastTap = 0;
@@ -397,9 +401,27 @@ function importGoogleCalendar(){
             
                 }
 
-                // create the block
-                let newBlock = createTimeBlock(true, null, date, start, end, event.id);
+                // event is already imported
+                console.log(`checking if ${event.id} is imported`);
+                if (importedTimeBlocks.has(event.id)) {
 
+                    let existingBlockData = importedTimeBlocks.get(event.id);
+
+                    // delete old one but don't log the deletion
+                    deleteTimeBlock(importedTimeBlocks.get(event.id), false);
+                    // create new block with updated data but don't log the creation
+                    let newBlock = createTimeBlock(false, existingBlockData.uid, date, start, end, event.id);
+                
+                // not imported yet
+                } else {
+
+                    // create new block and log it
+                    let newBlock = createTimeBlock(true, null, date, start, end, event.id);
+                    let newBlockData = timeBlockMap.get(newBlock);
+
+                    importedTimeBlocks.set(event.id, newBlockData);
+
+                }
             });
             
         })
@@ -668,9 +690,11 @@ function updateTimeBlock(timeBlock, log = false){
 
 function deleteTimeBlock(timeBlock, log = false){
 
-    const timeBlockData = timeBlockMap.get(timeBlock);
+    timeBlock.remove();
 
     if (!log) return
+
+    const timeBlockData = timeBlockMap.get(timeBlock);
 
     // only add the timeblock to deleted list if it has a uid, meaning it came from the database
     if (timeBlockData.uid !== null){
@@ -678,12 +702,12 @@ function deleteTimeBlock(timeBlock, log = false){
     }
 
     // delete all instances
-    // if it's not there, don't worry about it
+    // if it's not there, nothing happens
     editList.createdBlocks.delete(timeBlockData);
     editList.editedBlocks.delete(timeBlockData);
+    importedTimeBlocks.delete(timeBlockData.googleID);
 
     unsavedChanges = true;
 
     timeBlockMap.delete(timeBlock);
-    timeBlock.remove();
 }
