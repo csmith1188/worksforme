@@ -120,7 +120,8 @@ async function postCreateEvent(req, res) {
 }
 
 async function postCreateMB(req, res) {
-
+    const { title } = req.body;
+    
 }
 
 async function addMessageBoard(req, res) {
