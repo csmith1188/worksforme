@@ -58,6 +58,11 @@
     
 }
 
+#import-google-btn {
+    float: right;
+    margin-left: 10px;
+}
+
 #save-btn {
     float: right;
 }

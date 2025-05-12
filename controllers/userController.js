@@ -3,8 +3,8 @@ const urlHelper = require('../util/urlHelper.js');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
-const { google } = require('googleapis');
 const sanitizeInput = require('../util/sanitizeInput');
+const googleWrapper= require('../util/googleWrapper.js');
 const { MEMBER, OWNER, ADMIN } = require('../middleware/consts.js');
 
 const userService = require('../services/userService.js');
@@ -15,12 +15,6 @@ const memberHandle = require('../services/memberHandle.js');
 //Load login rules
 const loginRulesPath = path.join(__dirname, '../rules/loginRules.json');
 const loginRules = JSON.parse(fs.readFileSync(loginRulesPath, 'utf8'));
-
-const oauth2Client = new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
-    process.env.GOOGLE_REDIRECT_URI
-  );
 
 //Formbar login system
 async function formbar(req, res, next) {
@@ -50,8 +44,7 @@ async function formbar(req, res, next) {
             return next();
         }
 
-        const uid = await userService.registerUser(tokenData.id, tokenData.username);
-        const newUser = await userService.getUserByUID(uid);
+        const newUser = await userService.registerUser(tokenData.id, tokenData.username);
         req.session.user = newUser;
         return next();
     } catch (error) {
@@ -61,16 +54,7 @@ async function formbar(req, res, next) {
 }
 
 async function googleLogin(req, res) {
-    const url = oauth2Client.generateAuthUrl({
-        access_type: 'offline',
-        scope: [
-          'openid',
-          'profile',
-          'email',
-          'https://www.googleapis.com/auth/calendar'
-        ]
-    });
-
+    const url = googleWrapper.getAuthUrl();
     res.redirect(url);
 }
 
@@ -78,6 +62,7 @@ async function googleLoginCallback(req, res) {
     const { code } = req.query;
 
     try {
+        let oauth2Client = googleWrapper.createOAuthClient();
         const { tokens } = await oauth2Client.getToken(code);
         oauth2Client.setCredentials(tokens);
 
@@ -89,14 +74,15 @@ async function googleLoginCallback(req, res) {
         const payload = ticket.getPayload();
         const email = payload.email;
         const name = payload.name;
-        const id = payload.sub;
+        const googleID = payload.sub;
+        const refreshToken = tokens.refresh_token;
 
         // Check if user exists in your database
         let user = await userService.getUserByEmail(email);
 
         if (!user) {
             // Register new user
-            user = await userService.registerUser(null, payload.name, email, null, null, id);
+            user = await userService.registerUser(null, payload.name, email, null, null, googleID, refreshToken);
         }
 
         req.session.user = user;

@@ -3,10 +3,35 @@ const sql = require('sqlite3').verbose();
 const db = require('../util/dbAsyncWrapper');
 const dateRanker = require('./rankDates');
 
+const crypto = require('crypto');
+const ENCRYPTION_KEY = process.env.TOKEN_SECRET; // 32 bytes
+const IV_LENGTH = 16;
+
+function encrypt(text) {
+  const iv = crypto.randomBytes(IV_LENGTH);
+  const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
+  let encrypted = cipher.update(text);
+  encrypted = Buffer.concat([encrypted, cipher.final()]);
+  return iv.toString('hex') + ':' + encrypted.toString('hex');
+}
+
+function decrypt(text) {
+  const parts = text.split(':');
+  const iv = Buffer.from(parts.shift(), 'hex');
+  const encryptedText = Buffer.from(parts.join(':'), 'hex');
+  const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
+  let decrypted = decipher.update(encryptedText);
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+  return decrypted.toString();
+}
+
 // User functions
 // TODO make params not hardcoded
-async function registerUser(fbID, username, email, password, salt, googleID){
-    let lastID = await db.run('INSERT INTO users (fb_id, google_id, username, email, password, salt) VALUES(?,?,?,?,?,?);', [fbID, googleID, username, email, password, salt]);
+async function registerUser(fbID, username, email, password, salt, googleID, googleRefreshToken) {
+    let lastID = await db.run(
+        'INSERT INTO users (fb_id, google_id, google_refresh_token, username, email, password, salt) VALUES(?,?,?,?,?,?,?);', 
+        [fbID, googleID, googleRefreshToken, username, email, password, salt]
+    );
     return await db.get('SELECT * FROM users WHERE uid = ?;', [lastID.lastID]);
 }
 
@@ -34,7 +59,6 @@ async function getUserByUsernameOrEmail(identifier){
     let user = await db.get('SELECT * FROM users WHERE username = ? OR email = ?;', [identifier, identifier]);
     return user ?? null;
 }
-
 // Notification functions
 // Going to use this for almost all notifications
 async function getNotificationsByUser(receivingUserUID){
