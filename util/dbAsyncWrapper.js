@@ -1,38 +1,48 @@
-const sql = require('sqlite3').verbose();
-const dbInstance = new sql.Database(process.env.DB_PATH);
-dbInstance.serialize(() => {
-    dbInstance.run("PRAGMA foreign_keys = ON;");
+const sqlite3 = require('sqlite3').verbose();
+
+const dbPath = process.env.DB_PATH || './database.db';
+const db = new sqlite3.Database(dbPath);
+
+function wrapDb(db) {
+    return {
+        run(sql, params = []) {
+            return new Promise((resolve, reject) => {
+                db.run(sql, params, function (err) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve({ lastID: this.lastID, changes: this.changes }); // Ensure lastID is returned
+                    }
+                });
+            });
+        },
+        get(sql, params = []) {
+            return new Promise((resolve, reject) => {
+                db.get(sql, params, (err, row) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(row);
+                    }
+                });
+            });
+        },
+        all(sql, params = []) {
+            return new Promise((resolve, reject) => {
+                db.all(sql, params, (err, rows) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(rows);
+                    }
+                });
+            });
+        }
+    };
+}
+
+db.serialize(() => {
+    db.run("PRAGMA foreign_keys = ON;");
 });
 
-function run(sql, params) {
-    return new Promise(async (resolve, reject) => {
-        dbInstance.run(sql, params, function(err) {
-            if (err) reject(err);
-            resolve(this.lastID);
-        });
-    });
-}
-
-function get(sql, params) {
-    return new Promise(async (resolve, reject) => {
-        dbInstance.get(sql, params, (err, row) => {
-            if (err) reject(err);
-            resolve(row);
-        });
-    });
-}
-
-function all(sql, params) {
-    return new Promise(async (resolve, reject) => {
-        dbInstance.all(sql, params, (err, rows) => {
-            if (err) reject(err);
-            resolve(rows);
-        });
-    });
-}
-
-module.exports = {
-    run,
-    get,
-    all,
-}
+module.exports = wrapDb(db);

@@ -97,3 +97,32 @@
     justify-content: space-between;
     align-items: center;
 }
+
+#polls-container {
+    margin-top: 20px;
+}
+
+.poll {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.poll h3 {
+    margin-bottom: 10px;
+}
+
+.poll-option-btn {
+    display: block;
+    margin: 5px 0;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.poll-option-btn:hover {
+    background-color: #e0e0e0;
+}

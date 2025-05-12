@@ -34,3 +34,5 @@ app.use('/event', eventRoutes);
 app.use('/calendar', personalCalendarRoutes);
 
 app.listen(process.env.PORT);
+
+module.exports = app;

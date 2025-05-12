@@ -3,6 +3,7 @@ const urlHelper = require('../util/urlHelper.js');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const { google } = require('googleapis');
 const sanitizeInput = require('../util/sanitizeInput');
 const { MEMBER, OWNER, ADMIN } = require('../middleware/consts.js');
 
@@ -14,6 +15,12 @@ const memberHandle = require('../services/memberHandle.js');
 //Load login rules
 const loginRulesPath = path.join(__dirname, '../rules/loginRules.json');
 const loginRules = JSON.parse(fs.readFileSync(loginRulesPath, 'utf8'));
+
+const oauth2Client = new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.GOOGLE_REDIRECT_URI
+  );
 
 //Formbar login system
 async function formbar(req, res, next) {
@@ -50,6 +57,53 @@ async function formbar(req, res, next) {
     } catch (error) {
         console.log(error);
         res.render('pages/error', { error: new Error('Error logging in') });
+    }
+}
+
+async function googleLogin(req, res) {
+    const url = oauth2Client.generateAuthUrl({
+        access_type: 'offline',
+        scope: [
+          'openid',
+          'profile',
+          'email',
+          'https://www.googleapis.com/auth/calendar'
+        ]
+    });
+
+    res.redirect(url);
+}
+
+async function googleLoginCallback(req, res) {
+    const { code } = req.query;
+
+    try {
+        const { tokens } = await oauth2Client.getToken(code);
+        oauth2Client.setCredentials(tokens);
+
+        const ticket = await oauth2Client.verifyIdToken({
+            idToken: tokens.id_token,
+            audience: process.env.GOOGLE_CLIENT_ID
+        });
+
+        const payload = ticket.getPayload();
+        const email = payload.email;
+        const name = payload.name;
+        const id = payload.sub;
+
+        // Check if user exists in your database
+        let user = await userService.getUserByEmail(email);
+
+        if (!user) {
+            // Register new user
+            user = await userService.registerUser(null, payload.name, email, null, null, id);
+        }
+
+        req.session.user = user;
+        res.redirect('/');
+    } catch (error){
+        console.error('Error during Google login:', error);
+        res.status(500).send('Error logging in with Google');
     }
 }
 
@@ -197,6 +251,8 @@ module.exports = {
     logout,
     wmLogin,
     postwmLogin,
+    googleLogin,
+    googleLoginCallback,
     registerNewUser,
     postRegisterNewUser,
     userExists,

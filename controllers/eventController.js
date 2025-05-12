@@ -2,12 +2,13 @@ const eventService = require('../services/eventService.js');
 const notifservice = require('../services/notifService.js');
 const memberHandle = require('../services/memberHandle.js');
 const messageService = require('../services/messageService.js');
+const pollService = require('../services/pollService.js');
 const { MEMBER, ADMIN, OWNER } = require('../middleware/consts.js');
 
 async function events(req, res) {
     const userUID = req.session.user.uid;
     const rows = await memberHandle.getEventsByMember(userUID);
-    
+
     let events = [];
     for (let i = 0; i < rows.length; i++) {
         let event = await eventService.getEventByUID(rows[i].event_uid);
@@ -38,7 +39,9 @@ async function eventPage(req, res) {
         return;
     }
 
-    res.render('pages/events/eventPage', { event, isOwner });
+    const polls = await pollService.getPollsByEvent(aEvent); // Ensure options and votes are included
+
+    res.render('pages/events/eventPage', { event, isOwner, polls });
 }
 
 async function postEventPage(req, res) {
@@ -73,10 +76,10 @@ async function postCreateEvent(req, res) {
     let eventUID = await eventService.createEvent(name, description);
 
     // Creating a board for the event
-    await messageService.addBoard(eventUID, name);
+    await messageService.addBoard(eventUID.lastID, name);
 
     // Insert the creator as a member in the members table
-    await memberHandle.insertMembers(eventUID, creator, OWNER);
+    await memberHandle.insertMembers(eventUID.lastID, creator, OWNER);
 
     res.redirect('/event/events');
 }
@@ -127,20 +130,72 @@ async function calculateDate(req, res) {
     const { eventID } = req.params;
     const { minDate, maxDate, startMins, endMins } = req.body;
 
-    const dates = await eventService.calculateOptimalDates(eventID, minDate, maxDate, startMins, endMins);
-    const datesArray = Array.from(dates);
+    const datesArray = await eventService.calculateOptimalDates(eventID, minDate, maxDate, startMins, endMins);
 
-    console.log(dates);
+    if (datesArray.length > 0) {
 
-    // just get the first one
-    const optimalDate = {
-        date: datesArray[0][0],
-        minutes: datesArray[0][1]
+        let optimalDate = {
+            date: datesArray[0][0],
+            minutes: datesArray[0][1]
+        }
+
+        eventService.setEventDateTime(eventID, optimalDate.date, optimalDate.minutes);
+
+        res.json(optimalDate);
+
+    } else {
+
+        res.json(null);
+
     }
+}
 
-    eventService.setEventDateTime(eventID, optimalDate.date, optimalDate.minutes);
+async function createPoll(req, res) {
+    const { eventID, question, options } = req.body;
 
-    res.json(optimalDate);
+    try {
+        if (!eventID || !question || !Array.isArray(options) || options.length === 0) {
+            return res.status(400).send('Invalid poll data.');
+        }
+
+        const pollID = await pollService.createPoll(eventID, question);
+
+        if (!pollID) {
+            throw new Error('Failed to create poll: pollID is undefined.');
+        }
+
+        for (const option of options) {
+            await pollService.addPollOption(pollID, option);
+        }
+
+        res.status(200).send('Poll created successfully');
+    } catch (error) {
+        console.error('Error creating poll:', error); // Log the error
+        res.status(500).send('Internal Server Error');
+    }
+}
+
+async function vote(req, res) {
+    const { pollID, optionID } = req.body;
+    const userID = req.session.user.uid; // Ensure the user ID is taken from the session
+
+    try {
+        const existingVote = await pollService.getUserVote(pollID, userID);
+
+        if (existingVote) {
+            // Update the user's vote if they have already voted
+            await pollService.updateVote(existingVote.vote_id, optionID);
+        } else {
+            // Add a new vote for the user if they haven't voted yet
+            await pollService.addVote(pollID, optionID, userID);
+        }
+
+        const updatedPoll = await pollService.getPollByID(pollID);
+        res.status(200).json(updatedPoll);
+    } catch (error) {
+        console.error('Error voting:', error);
+        res.status(500).send('Internal Server Error');
+    }
 }
 
 module.exports = {
@@ -150,5 +205,7 @@ module.exports = {
     postEventPage,
     postCreateEvent,
     invite,
-    calculateDate
+    calculateDate,
+    createPoll,
+    vote
 };

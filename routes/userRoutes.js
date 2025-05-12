@@ -11,6 +11,9 @@ router.get('/login', (req, res) => {
 router.get('/WFMlogin', userController.wmLogin);
 router.post('/WFMlogin', userController.postwmLogin);
 
+router.get('/GoogleLogin', userController.googleLogin, redirectWhenDone);
+router.get('/GoogleLoginCallback', userController.googleLoginCallback);
+
 router.get('/register', userController.registerNewUser);
 router.post('/register', userController.postRegisterNewUser);
 
