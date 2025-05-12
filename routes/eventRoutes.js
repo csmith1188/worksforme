@@ -12,7 +12,11 @@ router.get('/createEventMB', auth, eventController.createMB);
 
 router.get('/eventPage/:aEvent', auth, eventController.eventPage);
 
+router.get('event/messageBoard/:aMB', auth, eventController.eventMB);
+
 router.post('/eventPage/:aEvent', auth, eventController.postEventPage);
+
+router.post('/event/messageBoard/:aMB', auth, eventController.posteventMB);
 
 router.post('/event/:aEvent/addMessageBoard', auth, eventController.addMessageBoard);
 

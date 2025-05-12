@@ -74,6 +74,36 @@ async function postEventPage(req, res) {
     }
 }
 
+async function eventMB (req, res) {
+    const aMB = req.params.aMB;
+
+    console.log('chatroom opened:', aMB);
+
+    db.all('SELECT user, text, date FROM message_comments WHERE board_uid = ? ORDER BY date ASC;', [aMB], (err, rows) => {
+        if (err) {
+            console.error(err);
+            res.send("ERROR:\n" + err);
+        } else {
+            res.render('chatroom', { user: req.session.user, aMB: aMB, message_comments: rows });
+        }
+    });
+}
+
+async function posteventMB (req, res) {
+    const aMB = req.params.aMB; 
+    const user = req.session.user;
+    const message = req.body.message;
+    const date = new Date().toISOString();
+
+    db.run('INSERT INTO message_comments (user, board_uid, text, date) VALUES (?, ?, ?, ?);', [user, aMB, message, date], (err) => {
+        if (err) {
+            res.send('DB ERROR:\n' + err);
+        } else {
+            res.redirect(`/event/eventMB/${aMB}`);
+        }
+    });
+}
+
 async function postCreateEvent(req, res) {
     const { name, description } = req.body;
     const creator = req.session.user.uid;
@@ -176,6 +206,8 @@ module.exports = {
     createMB,
     eventPage,
     postEventPage,
+    eventMB,
+    posteventMB,
     postCreateEvent,
     addMessageBoard,
     postCreateMB,

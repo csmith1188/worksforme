@@ -4,7 +4,7 @@ const db = require('../util/dbAsyncWrapper');
 const calenderService = require('./personalCalendarService');
 const dateRanker = require('./rankDates');
 const DaySchedule = require('./DaySchedule');
-const dayjs = require('dayjs');
+//const dayjs = require('dayjs');
 
 // Getting events or creating
 async function getAllEvents() {
@@ -49,11 +49,11 @@ async function deleteEvent(uid) {
     return await db.run(sql, [uid]);
 }
 
-async function setEventDateTime(eventUID, date, minutes){
+/*async function setEventDateTime(eventUID, date, minutes){
     const dateTime = dayjs(date).add(minutes, 'minutes').toISOString();
     const sql = 'UPDATE events SET date_time = ? WHERE uid = ?';
     await db.run(sql, [dateTime, eventUID]);
-}
+}*/
 
 async function calculateOptimalDates(eventUID, minDate, maxDate, startMins, endMins) {
     const members = await getEventMembers(eventUID);
@@ -82,6 +82,6 @@ module.exports = {
     deleteEvent,
     createEvent,
     getEventUIDByName,
-    setEventDateTime,
+   // setEventDateTime,
     calculateOptimalDates
 };
