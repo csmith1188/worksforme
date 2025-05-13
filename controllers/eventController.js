@@ -3,6 +3,8 @@ const notifservice = require('../services/notifService.js');
 const memberHandle = require('../services/memberHandle.js');
 const messageService = require('../services/messageService.js');
 const messageBoardService = require('../services/messageBoardService.js');
+const db = require('../util/dbAsyncWrapper.js');
+
 const { MEMBER, ADMIN, OWNER } = require('../middleware/consts.js');
 const { name } = require('ejs');
 
@@ -77,16 +79,22 @@ async function postEventPage(req, res) {
 async function eventMB (req, res) {
     const aMB = req.params.aMB;
 
+    try {
+        const rows = await db.all('SELECT user, text, date FROM message_comments WHERE board_uid = ? ORDER BY date ASC;', [aMB]);
+        res.render('eventMB', { user: req.session.user, aMB: aMB, message_comments: rows });
+    } catch (err) {
+        console.error('Error fetching message comments:', err);
+        res.status(500).send('Internal Server Error');
+    }
+
     console.log('chatroom opened:', aMB);
 
-    db.all('SELECT user, text, date FROM message_comments WHERE board_uid = ? ORDER BY date ASC;', [aMB], (err, rows) => {
-        if (err) {
-            console.error(err);
-            res.send("ERROR:\n" + err);
-        } else {
-            res.render('chatroom', { user: req.session.user, aMB: aMB, message_comments: rows });
-        }
-    });
+    /*db.all('SELECT user, text, date FROM message_comments WHERE board_uid = ? ORDER BY date ASC;', [aMB], (err, rows) => {
+        console.log('urmom');
+        
+        res.render('eventMB', { user: req.session.user, aMB: aMB, message_comments: rows });
+        
+    });*/
 }
 
 async function posteventMB (req, res) {
@@ -94,7 +102,8 @@ async function posteventMB (req, res) {
     const user = req.session.user;
     const message = req.body.message;
     const date = new Date().toISOString();
-
+    console.log('chatroom opened:', aMB);
+    
     db.run('INSERT INTO message_comments (user, board_uid, text, date) VALUES (?, ?, ?, ?);', [user, aMB, message, date], (err) => {
         if (err) {
             res.send('DB ERROR:\n' + err);
