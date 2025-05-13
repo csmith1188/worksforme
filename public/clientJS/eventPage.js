@@ -235,4 +235,34 @@ document.addEventListener('DOMContentLoaded', () => {
             hidePopup();
         });
     });
+
+    // Tab switching stuff
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            // Hide all tab contents
+            tabContents.forEach(content => content.style.display = 'none');
+
+            // Add active class to clicked tab
+            tab.classList.add('active');
+            // Show corresponding tab content
+            const targetTab = tab.getAttribute('data-tab');
+            const targetContent = document.getElementById(`${targetTab}-tab`);
+            if (targetContent) {
+                targetContent.style.display = 'block';
+            }
+        });
+    });
+
+    const activeTab = document.querySelector('.tab.active');
+    if (activeTab) {
+        const targetTab = activeTab.getAttribute('data-tab');
+        const targetContent = document.getElementById(`${targetTab}-tab`);
+        if (targetContent) {
+            targetContent.style.display = 'block';
+        }
+    }
 });
