@@ -27,15 +27,28 @@ async function getUserCalendar(userUID){
 async function saveUserCalendar(userUID, createdBlocks, editedBlocks, deletedBlockUIDs){
     
     for (const block of createdBlocks) {
-        await db.run('INSERT INTO calendar_dates (user_uid, date, start_time, end_time) VALUES (?, ?, ?, ?);', [userUID, block.date, block.start, block.end]);
+        
+        // if googleID is null, the block is not imported
+        let googleID = block.googleID ? block.googleID : null;
+
+        await db.run(
+            'INSERT INTO calendar_dates (user_uid, date, start_time, end_time, google_id) VALUES (?, ?, ?, ?, ?);', 
+            [userUID, block.date, block.start, block.end, googleID]
+        );
     }
 
     for (const block of editedBlocks) {
-        await db.run('UPDATE calendar_dates SET date = ?, start_time = ?, end_time = ? WHERE uid = ?;', [block.date, block.start, block.end, block.uid]);
+        await db.run(
+            'UPDATE calendar_dates SET date = ?, start_time = ?, end_time = ? WHERE uid = ?;', 
+            [block.date, block.start, block.end, block.uid]
+        );
     }
 
     for (const uid of deletedBlockUIDs) {
-        await db.run('DELETE FROM calendar_dates WHERE uid = ?;', [uid]);
+        await db.run(
+            'DELETE FROM calendar_dates WHERE uid = ?;', 
+            [uid]
+        );
     }
 
 
