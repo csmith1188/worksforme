@@ -8,6 +8,7 @@
             <center>
                 
                 <p>
+                    <!--this is where all the messages will appear-->
                     <div id="messages">
                         <% message_comments.forEach(message=> { %>
                             <div>
@@ -17,12 +18,12 @@
                             </div>
                             <% }) %>
                     </div>
-
+                    <!--this is where the user wil send messages-->
                     <form action='/event/:aEvent/:aMB' method="post">
                         <input type="text" name="message" placeholder="Message">
                         <input type="submit" value="Send">
                     </form>
-
+                    <!--idk-->
                     <script>
                         var messagesDiv = document.getElementById('messages');
                         messagesDiv.scrollTop = messagesDiv.scrollHeight;

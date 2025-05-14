@@ -57,7 +57,7 @@ async function formbar(req, res, next) {
 async function wmLogin(req, res) {
     res.render('pages/loginSystem/WFMlogin', { title: 'WFM Login', loginRules });
 }
-
+//the post for login system
 async function postwmLogin(req, res) {
     let { username, password } = req.body;
     username = sanitizeInput(username);

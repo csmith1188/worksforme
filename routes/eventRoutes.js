@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require('../util/dbAsyncWrapper');
 const auth = require('../middleware/auth');
 const eventController = require('../controllers/eventController');
-
+//this is where all the pages are rendered and the post requests are handled
 router.get('/events', auth, eventController.events);
 
 router.get('/createEvent', auth, eventController.createEvent);

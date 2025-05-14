@@ -78,6 +78,8 @@ async function postEventPage(req, res) {
 
 async function eventMB (req, res) {
     const aMB = req.params.aMB;
+    //to see if the function ran or not
+    console.log('chatroom opened:', aMB);
 
     try {
         const rows = await db.all('SELECT user, text, date FROM message_comments WHERE board_uid = ? ORDER BY date ASC;', [aMB]);
@@ -87,7 +89,7 @@ async function eventMB (req, res) {
         res.status(500).send('Internal Server Error');
     }
 
-    console.log('chatroom opened:', aMB);
+    //code that I use originally to test if the db.all ran
 
     /*db.all('SELECT user, text, date FROM message_comments WHERE board_uid = ? ORDER BY date ASC;', [aMB], (err, rows) => {
         console.log('urmom');

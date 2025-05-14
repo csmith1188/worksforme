@@ -15,7 +15,7 @@
                     </center>
                 </div>
             </div>
-
+            <!--if you created the event you can see the edit and invite button-->
             <% if (isOwner) { %>
                 <div class="eventOptions">
                     <button class="inviteIcon" id="invite-button"></button>
@@ -23,7 +23,7 @@
                 </div>
                 <% } %>
 
-                    <center>
+                    <center><!--displays the event name and description-->
                         <h1>
                             <%= event.name %>
                         </h1>
@@ -40,7 +40,7 @@
                         <% if (isOwner) { %>
 
                             <br><br>
-
+                            
                             <div class="date-selection-container">
                                 <label for="min-date">Min Date: </label>
                                 <input type="date" id="min-date">
