@@ -368,10 +368,22 @@ function loadCalendarFromDB(){
         .then(data => {
             // Process the data and update the calendar
             userCalendar = new Map(Object.entries(data));
+            importedTimeBlocks.clear();
+            
+            userCalendar.forEach((timeBlocks, date) => {
+                timeBlocks.forEach(block => {
+                    console.log(timeBlocks);
+                    if (block.googleID) {
+                        importedTimeBlocks.set(block.googleID, block);
+                    }
+                });
+            });
+
+
             clearGrid();
             initCalendar(userCalendar);
         })
-        .catch(error => alert('Failed to load calendar'));
+        .catch(error => console.log(error));
 }
 
 function importGoogleCalendar(){
@@ -398,28 +410,35 @@ function importGoogleCalendar(){
                     date = dayjs(event.start.dateTime).format(dateFormat);
                     start = dayjs(event.start.dateTime).hour() * 60 + dayjs(event.start.dateTime).minute();
                     end = dayjs(event.end.dateTime).hour() * 60 + dayjs(event.end.dateTime).minute();
+
+                    console.log(`date: ${date} start: ${start}, end: ${end}`);
             
                 }
 
                 // event is already imported
                 console.log(`checking if ${event.id} is imported`);
                 if (importedTimeBlocks.has(event.id)) {
-
+                    console.log(`event ${event.id} is already imported`);
                     let existingBlockData = importedTimeBlocks.get(event.id);
 
-                    // delete old one but don't log the deletion
-                    deleteTimeBlock(importedTimeBlocks.get(event.id), false);
+                    let existingBlockElement = [...timeBlockMap.entries()].find(([key, value]) => value.googleID === event.id)?.[0];
+                    console.log((existingBlockElement) ? 'found' : 'not found');
+                    if (existingBlockElement) {
+                        // delete old one but don't log the deletion
+                        deleteTimeBlock(existingBlockElement, false);
+                    }
+
                     // create new block with updated data but don't log the creation
                     let newBlock = createTimeBlock(false, existingBlockData.uid, date, start, end, event.id);
                 
                 // not imported yet
                 } else {
-
+                    console.log(`event ${event.id} is not imported`);
                     // create new block and log it
                     let newBlock = createTimeBlock(true, null, date, start, end, event.id);
-                    let newBlockData = timeBlockMap.get(newBlock);
 
-                    importedTimeBlocks.set(event.id, newBlockData);
+                    // add the block to the imported blocks list
+                    importedTimeBlocks.set(event.id, newBlock);
 
                 }
             });
@@ -648,11 +667,7 @@ function createTimeBlock(log = false, uid = null, date = null, start = null, end
         unsavedChanges = true;
     }
 
-    if (date) {
-        let dayIndex = dayjs(date).day();
-        addTimeBlockToDayColumn(dayIndex, newBlock);
-    }
-
+    // set positions
     if (start && end) {
         const startPx = Math.floor(start / 15) * pxPer15Mins;
         const endPx = Math.floor(end / 15) * pxPer15Mins;
@@ -661,8 +676,12 @@ function createTimeBlock(log = false, uid = null, date = null, start = null, end
         newBlock.style.height = (endPx - startPx) + 'px';
     }
 
-    // set the text
-    updateTimeBlockText(newBlock);
+    // this must be done after the position is set
+    if (date) {
+        let dayIndex = dayjs(date).day();
+        addTimeBlockToDayColumn(dayIndex, newBlock);
+    }
+
 
     return newBlock;
 }
@@ -690,11 +709,12 @@ function updateTimeBlock(timeBlock, log = false){
 
 function deleteTimeBlock(timeBlock, log = false){
 
+    const timeBlockData = timeBlockMap.get(timeBlock);
+    timeBlockMap.delete(timeBlock);
     timeBlock.remove();
+    console.log("deleting");
 
     if (!log) return
-
-    const timeBlockData = timeBlockMap.get(timeBlock);
 
     // only add the timeblock to deleted list if it has a uid, meaning it came from the database
     if (timeBlockData.uid !== null){
@@ -708,6 +728,4 @@ function deleteTimeBlock(timeBlock, log = false){
     importedTimeBlocks.delete(timeBlockData.googleID);
 
     unsavedChanges = true;
-
-    timeBlockMap.delete(timeBlock);
 }

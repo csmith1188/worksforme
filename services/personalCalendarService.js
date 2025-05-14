@@ -10,7 +10,8 @@ async function getUserCalendar(userUID){
         const newBusyTime = {
             uid: date.uid,
             start: date.start_time,
-            end: date.end_time
+            end: date.end_time,
+            googleID: date.google_id
         };
 
         if (datesMap.has(date.date)) {
